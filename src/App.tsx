@@ -9,9 +9,16 @@ import Header from './components/Header';
 import Dashboard from './components/pages/Dashboard';
 import Tutors from './components/pages/Tutors';
 import Animals from './components/pages/Animals';
+import Veterinarians from './components/pages/Veterinarians';
 import Vaccines from './components/pages/Vaccines';
 import Appointments from './components/pages/Appointments';
 import Grooming from './components/pages/Grooming';
+import Services from './components/pages/Services';
+import Inventory from './components/pages/Inventory';
+import Purchases from './components/pages/Purchases';
+import AccountsPayable from './components/pages/AccountsPayable';
+import AccountsReceivable from './components/pages/AccountsReceivable';
+import CashFlow from './components/pages/CashFlow';
 import Settings from './components/pages/Settings';
 import { getCurrentLanguage } from './lib/i18n';
 
@@ -39,22 +46,26 @@ const App = () => {
         return <Tutors />;
       case 'animals':
         return <Animals />;
+      case 'veterinarians':
+        return <Veterinarians />;
       case 'vaccines':
         return <Vaccines />;
       case 'appointments':
         return <Appointments />;
       case 'grooming':
         return <Grooming />;
+      case 'services':
+        return <Services />;
       case 'inventory':
-        return <div className="p-6">Página de Estoque em desenvolvimento...</div>;
+        return <Inventory />;
       case 'purchases':
-        return <div className="p-6">Página de Compras em desenvolvimento...</div>;
+        return <Purchases />;
       case 'accounts-payable':
-        return <div className="p-6">Página de Contas a Pagar em desenvolvimento...</div>;
+        return <AccountsPayable />;
       case 'accounts-receivable':
-        return <div className="p-6">Página de Contas a Receber em desenvolvimento...</div>;
+        return <AccountsReceivable />;
       case 'cash-flow':
-        return <div className="p-6">Página de Fluxo de Caixa em desenvolvimento...</div>;
+        return <CashFlow />;
       case 'banks':
         return <div className="p-6">Página de Bancos em desenvolvimento...</div>;
       case 'settings':

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar as CalendarIcon, Scissors, Plus, Edit, Trash2, Search, DollarSign, Clock } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { GroomingService, Animal } from '@/types';
+import type { GroomingService, Animal, ServiceType } from '@/types';
 
 const Grooming: React.FC = () => {
   // Mock animals data
@@ -42,13 +41,51 @@ const Grooming: React.FC = () => {
     },
   ];
 
+  // Mock service types data
+  const serviceTypes: ServiceType[] = [
+    {
+      id: '1',
+      name: 'Banho Simples',
+      description: 'Banho com shampoo neutro',
+      price: 35.00,
+      duration: 60,
+      category: 'grooming',
+      active: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '2',
+      name: 'Banho e Tosa Completa',
+      description: 'Banho, tosa higiênica e estética',
+      price: 80.00,
+      duration: 120,
+      category: 'grooming',
+      active: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '3',
+      name: 'Tosa Higiênica',
+      description: 'Tosa apenas das partes íntimas',
+      price: 25.00,
+      duration: 45,
+      category: 'grooming',
+      active: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
   const [groomingServices, setGroomingServices] = useState<GroomingService[]>([
     {
       id: '1',
       animalId: '1',
       animal: animals[0],
       date: new Date('2024-12-10'),
-      serviceType: 'Banho e Tosa Completa',
+      serviceTypeId: '2',
+      serviceType: serviceTypes[1],
       status: 'scheduled',
       notes: 'Animal de grande porte, cuidado especial com escovação',
       price: 80.00,
@@ -59,20 +96,10 @@ const Grooming: React.FC = () => {
       animalId: '2',
       animal: animals[1],
       date: new Date('2024-12-11'),
-      serviceType: 'Banho Simples',
+      serviceTypeId: '1',
+      serviceType: serviceTypes[0],
       status: 'in-progress',
       notes: 'Gato persa, cuidado com pelos longos',
-      price: 45.00,
-      createdAt: new Date(),
-    },
-    {
-      id: '3',
-      animalId: '1',
-      animal: animals[0],
-      date: new Date('2024-12-08'),
-      serviceType: 'Tosa Higiênica',
-      status: 'completed',
-      notes: 'Serviço realizado com sucesso',
       price: 35.00,
       createdAt: new Date(),
     },
@@ -85,7 +112,7 @@ const Grooming: React.FC = () => {
   const [formData, setFormData] = useState({
     animalId: '',
     date: '',
-    serviceType: '',
+    serviceTypeId: '',
     price: '',
     notes: '',
   });
@@ -113,8 +140,18 @@ const Grooming: React.FC = () => {
     }
   };
 
+  const handleServiceTypeChange = (serviceTypeId: string) => {
+    const selectedService = serviceTypes.find(s => s.id === serviceTypeId);
+    setFormData({
+      ...formData,
+      serviceTypeId,
+      price: selectedService?.price.toString() || '',
+    });
+  };
+
   const handleSave = () => {
     const selectedAnimal = animals.find(a => a.id === formData.animalId);
+    const selectedServiceType = serviceTypes.find(s => s.id === formData.serviceTypeId);
     
     if (editingService) {
       setGroomingServices(groomingServices.map(s => 
@@ -123,6 +160,7 @@ const Grooming: React.FC = () => {
               ...editingService, 
               ...formData,
               animal: selectedAnimal,
+              serviceType: selectedServiceType,
               date: new Date(formData.date),
               price: parseFloat(formData.price),
             }
@@ -133,6 +171,7 @@ const Grooming: React.FC = () => {
         id: Date.now().toString(),
         ...formData,
         animal: selectedAnimal,
+        serviceType: selectedServiceType,
         date: new Date(formData.date),
         price: parseFloat(formData.price),
         status: 'scheduled',
@@ -149,7 +188,7 @@ const Grooming: React.FC = () => {
     setFormData({
       animalId: '',
       date: '',
-      serviceType: '',
+      serviceTypeId: '',
       price: '',
       notes: '',
     });
@@ -160,7 +199,7 @@ const Grooming: React.FC = () => {
     setFormData({
       animalId: service.animalId,
       date: service.date.toISOString().split('T')[0],
-      serviceType: service.serviceType,
+      serviceTypeId: service.serviceTypeId,
       price: service.price.toString(),
       notes: service.notes || '',
     });
@@ -176,18 +215,6 @@ const Grooming: React.FC = () => {
       s.id === serviceId ? { ...s, status: newStatus } : s
     ));
   };
-
-  const serviceTypes = [
-    'Banho Simples',
-    'Banho com Condicionador',
-    'Tosa Higiênica',
-    'Tosa na Máquina',
-    'Tosa na Tesoura',
-    'Banho e Tosa Completa',
-    'Corte de Unhas',
-    'Limpeza de Ouvidos',
-    'Escovação de Dentes'
-  ];
 
   const totalRevenue = groomingServices
     .filter(s => s.status === 'completed')
@@ -308,18 +335,18 @@ const Grooming: React.FC = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="serviceType">Tipo de Serviço</Label>
+                    <Label htmlFor="serviceTypeId">Tipo de Serviço</Label>
                     <Select
-                      value={formData.serviceType}
-                      onValueChange={(value) => setFormData({...formData, serviceType: value})}
+                      value={formData.serviceTypeId}
+                      onValueChange={handleServiceTypeChange}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o serviço" />
                       </SelectTrigger>
                       <SelectContent>
-                        {serviceTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
+                        {serviceTypes.filter(s => s.category === 'grooming' && s.active).map((service) => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name} - R$ {service.price.toFixed(2)}
                           </SelectItem>
                         ))}
                       </SelectContent>
