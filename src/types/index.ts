@@ -36,6 +36,7 @@ export interface Vaccine {
   animalId: string;
   animal?: Animal;
   type: string;
+  batch: string; // Campo lote adicionado
   applicationDate: Date;
   nextDueDate: Date;
   veterinarian: string;
