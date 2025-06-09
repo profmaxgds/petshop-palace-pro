@@ -1,136 +1,66 @@
 
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { Link, useLocation } from 'react-router-dom';
 import { 
-  Home, 
   Users, 
   Heart, 
+  Calendar, 
+  Scissors, 
   Syringe, 
-  Calendar,
-  Scissors,
-  Package,
+  Stethoscope, 
+  Package, 
   ShoppingCart,
   CreditCard,
   Banknote,
-  Wallet,
-  Building2,
   Settings,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-  UserCheck,
-  Briefcase
+  BarChart3
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { t } from '@/lib/i18n';
 
-interface SidebarProps {
-  currentPage: string;
-  onPageChange: (page: string) => void;
-  collapsed: boolean;
-  onToggleCollapse: () => void;
-}
+const Sidebar: React.FC = () => {
+  const location = useLocation();
 
-const menuItems = [
-  { key: 'dashboard', icon: Home, label: 'dashboard' },
-  { key: 'tutors', icon: Users, label: 'tutors' },
-  { key: 'animals', icon: Heart, label: 'animals' },
-  { key: 'veterinarians', icon: UserCheck, label: 'veterinarians' },
-  { key: 'vaccines', icon: Syringe, label: 'vaccines' },
-  { key: 'appointments', icon: Calendar, label: 'appointments' },
-  { key: 'grooming', icon: Scissors, label: 'grooming' },
-  { key: 'services', icon: Briefcase, label: 'services' },
-  { key: 'inventory', icon: Package, label: 'inventory' },
-  { key: 'purchases', icon: ShoppingCart, label: 'purchases' },
-  { key: 'accounts-payable', icon: CreditCard, label: 'accountsPayable' },
-  { key: 'accounts-receivable', icon: Banknote, label: 'accountsReceivable' },
-  { key: 'cash-flow', icon: Wallet, label: 'cashFlow' },
-  { key: 'banks', icon: Building2, label: 'banks' },
-] as const;
+  const menuItems = [
+    { icon: BarChart3, label: 'Dashboard', path: '/' },
+    { icon: Users, label: 'Tutores', path: '/tutors' },
+    { icon: Heart, label: 'Animais', path: '/animals' },
+    { icon: Calendar, label: 'Consultas', path: '/appointments' },
+    { icon: Scissors, label: 'Banho e Tosa', path: '/grooming' },
+    { icon: Syringe, label: 'Vacinas', path: '/vaccines' },
+    { icon: Stethoscope, label: 'Veterinários', path: '/veterinarians' },
+    { icon: Package, label: 'Estoque', path: '/inventory' },
+    { icon: ShoppingCart, label: 'Compras', path: '/purchases' },
+    { icon: CreditCard, label: 'Contas a Pagar', path: '/accounts-payable' },
+    { icon: Banknote, label: 'Contas a Receber', path: '/accounts-receivable' },
+    { icon: Banknote, label: 'Caixa', path: '/cash-flow' },
+    { icon: Settings, label: 'Tipos de Serviços', path: '/services' },
+  ];
 
-const Sidebar: React.FC<SidebarProps> = ({
-  currentPage,
-  onPageChange,
-  collapsed,
-  onToggleCollapse,
-}) => {
   return (
-    <div className={cn(
-      "bg-gradient-to-b from-blue-600 to-blue-700 text-white transition-all duration-300 flex flex-col",
-      collapsed ? "w-16" : "w-64"
-    )}>
-      {/* Header */}
-      <div className="p-4 border-b border-blue-500">
-        <div className="flex items-center justify-between">
-          {!collapsed && (
-            <div className="flex items-center gap-2">
-              <Heart className="w-8 h-8 text-orange-400" />
-              <span className="text-xl font-bold">PetShop</span>
-            </div>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleCollapse}
-            className="text-white hover:bg-blue-500"
-          >
-            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </Button>
-        </div>
+    <div className="h-screen w-64 bg-blue-500 text-white flex flex-col">
+      <div className="p-6 border-b border-blue-400">
+        <h1 className="text-xl font-bold">PetShop Manager</h1>
+        <p className="text-blue-100 text-sm">Sistema de Gestão</p>
       </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 p-2">
-        <ul className="space-y-1">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentPage === item.key;
-            
-            return (
-              <li key={item.key}>
-                <button
-                  onClick={() => onPageChange(item.key)}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                    isActive 
-                      ? "bg-white text-blue-700 shadow-sm" 
-                      : "text-blue-100 hover:bg-blue-500 hover:text-white"
-                  )}
-                >
-                  <Icon className="w-5 h-5 flex-shrink-0" />
-                  {!collapsed && (
-                    <span className="truncate">{t(item.label as any)}</span>
-                  )}
-                </button>
-              </li>
-            );
-          })}
+      
+      <nav className="flex-1 px-4 py-6">
+        <ul className="space-y-2">
+          {menuItems.map((item) => (
+            <li key={item.path}>
+              <Link
+                to={item.path}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                  location.pathname === item.path
+                    ? 'bg-blue-600 text-white'
+                    : 'text-blue-100 hover:bg-blue-400 hover:text-white'
+                }`}
+              >
+                <item.icon className="w-5 h-5" />
+                <span>{item.label}</span>
+              </Link>
+            </li>
+          ))}
         </ul>
       </nav>
-
-      {/* Footer */}
-      <div className="p-2 border-t border-blue-500">
-        <button
-          onClick={() => onPageChange('settings')}
-          className={cn(
-            "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors mb-2",
-            currentPage === 'settings'
-              ? "bg-white text-blue-700 shadow-sm"
-              : "text-blue-100 hover:bg-blue-500 hover:text-white"
-          )}
-        >
-          <Settings className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span>{t('settings')}</span>}
-        </button>
-        
-        <button
-          onClick={() => {/* Handle logout */}}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-blue-100 hover:bg-red-500 hover:text-white transition-colors"
-        >
-          <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span>{t('logout')}</span>}
-        </button>
-      </div>
     </div>
   );
 };

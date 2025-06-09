@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,12 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Trash2, Heart, Scale, Calendar } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Heart, Scale, Calendar, Syringe } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Animal, Tutor } from '@/types';
+import type { Animal, Tutor, Vaccine, Product, Veterinarian } from '@/types';
 
 const Animals: React.FC = () => {
-  // Mock tutors data
+  // Mock data
   const tutors: Tutor[] = [
     {
       id: '1',
@@ -51,6 +50,53 @@ const Animals: React.FC = () => {
     }
   ];
 
+  const mockVaccines: Product[] = [
+    {
+      id: '1',
+      name: 'Vacina V8',
+      category: 'vaccine',
+      description: 'Vacina múltipla para cães',
+      quantity: 10,
+      minQuantity: 5,
+      costPrice: 25.00,
+      salePrice: 45.00,
+      supplier: 'VetPharma',
+      batch: 'VAC001',
+      expirationDate: new Date('2025-12-31'),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '2',
+      name: 'Vacina Antirrábica',
+      category: 'vaccine',
+      description: 'Vacina contra raiva',
+      quantity: 15,
+      minQuantity: 3,
+      costPrice: 30.00,
+      salePrice: 50.00,
+      supplier: 'VetPharma',
+      batch: 'RAB001',
+      expirationDate: new Date('2025-11-30'),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+  ];
+
+  const mockVeterinarians: Veterinarian[] = [
+    {
+      id: '1',
+      name: 'Dr. Carlos Silva',
+      crmv: 'CRMV-SP 12345',
+      phone: '(11) 99999-0001',
+      email: 'carlos@vetclinic.com',
+      specialties: ['Clínica Geral', 'Cirurgia'],
+      active: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+  ];
+
   const [animals, setAnimals] = useState<Animal[]>([
     {
       id: '1',
@@ -80,9 +126,12 @@ const Animals: React.FC = () => {
     },
   ]);
 
+  const [vaccines, setVaccines] = useState<Vaccine[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isVaccineDialogOpen, setIsVaccineDialogOpen] = useState(false);
   const [editingAnimal, setEditingAnimal] = useState<Animal | null>(null);
+  const [selectedAnimalForVaccine, setSelectedAnimalForVaccine] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     species: '',
@@ -91,6 +140,15 @@ const Animals: React.FC = () => {
     sex: 'male' as 'male' | 'female',
     weight: 0,
     tutorId: '',
+  });
+
+  const [vaccineFormData, setVaccineFormData] = useState({
+    productId: '',
+    batch: '',
+    applicationDate: new Date().toISOString().split('T')[0],
+    nextDueDate: '',
+    veterinarianId: '',
+    notes: '',
   });
 
   const filteredAnimals = animals.filter(animal =>
@@ -153,6 +211,46 @@ const Animals: React.FC = () => {
     setAnimals(animals.filter(a => a.id !== animalId));
   };
 
+  const handleVaccinate = (animalId: string) => {
+    setSelectedAnimalForVaccine(animalId);
+    setIsVaccineDialogOpen(true);
+  };
+
+  const handleSaveVaccine = () => {
+    const selectedProduct = mockVaccines.find(v => v.id === vaccineFormData.productId);
+    const selectedVet = mockVeterinarians.find(v => v.id === vaccineFormData.veterinarianId);
+    
+    const newVaccine: Vaccine = {
+      id: Date.now().toString(),
+      animalId: selectedAnimalForVaccine,
+      productId: vaccineFormData.productId,
+      product: selectedProduct,
+      batch: vaccineFormData.batch,
+      applicationDate: new Date(vaccineFormData.applicationDate),
+      nextDueDate: new Date(vaccineFormData.nextDueDate),
+      veterinarianId: vaccineFormData.veterinarianId,
+      veterinarian: selectedVet,
+      notes: vaccineFormData.notes,
+      createdAt: new Date(),
+    };
+    
+    setVaccines([...vaccines, newVaccine]);
+    handleCloseVaccineDialog();
+  };
+
+  const handleCloseVaccineDialog = () => {
+    setIsVaccineDialogOpen(false);
+    setSelectedAnimalForVaccine('');
+    setVaccineFormData({
+      productId: '',
+      batch: '',
+      applicationDate: new Date().toISOString().split('T')[0],
+      nextDueDate: '',
+      veterinarianId: '',
+      notes: '',
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -173,7 +271,7 @@ const Animals: React.FC = () => {
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-teal-600 hover:bg-teal-700">
+                <Button className="bg-blue-500 hover:bg-blue-600">
                   <Plus className="w-4 h-4 mr-2" />
                   {t('addAnimal')}
                 </Button>
@@ -292,7 +390,7 @@ const Animals: React.FC = () => {
                   <Button variant="outline" onClick={handleCloseDialog}>
                     {t('cancel')}
                   </Button>
-                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700">
+                  <Button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600">
                     {t('save')}
                   </Button>
                 </DialogFooter>
@@ -328,8 +426,8 @@ const Animals: React.FC = () => {
                   <TableRow key={animal.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
-                          <Heart className="w-4 h-4 text-teal-600" />
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Heart className="w-4 h-4 text-blue-600" />
                         </div>
                         <div>
                           <div className="font-medium">{animal.name}</div>
@@ -368,6 +466,14 @@ const Animals: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => handleVaccinate(animal.id)}
+                          className="text-green-600 hover:text-green-800"
+                        >
+                          <Syringe className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleEdit(animal)}
                         >
                           <Edit className="w-4 h-4" />
@@ -389,6 +495,107 @@ const Animals: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog para aplicar vacina */}
+      <Dialog open={isVaccineDialogOpen} onOpenChange={setIsVaccineDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Aplicar Vacina</DialogTitle>
+            <DialogDescription>
+              Registre a aplicação da vacina no animal selecionado
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+            <div className="md:col-span-2">
+              <Label htmlFor="productId">Vacina</Label>
+              <Select
+                value={vaccineFormData.productId}
+                onValueChange={(value) => setVaccineFormData({...vaccineFormData, productId: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a vacina" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockVaccines.map((vaccine) => (
+                    <SelectItem key={vaccine.id} value={vaccine.id}>
+                      {vaccine.name} - {vaccine.description}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="batch">Lote</Label>
+              <Input
+                id="batch"
+                value={vaccineFormData.batch}
+                onChange={(e) => setVaccineFormData({...vaccineFormData, batch: e.target.value})}
+                placeholder="Número do lote"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="applicationDate">Data de Aplicação</Label>
+              <Input
+                id="applicationDate"
+                type="date"
+                value={vaccineFormData.applicationDate}
+                onChange={(e) => setVaccineFormData({...vaccineFormData, applicationDate: e.target.value})}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="nextDueDate">Próxima Dose</Label>
+              <Input
+                id="nextDueDate"
+                type="date"
+                value={vaccineFormData.nextDueDate}
+                onChange={(e) => setVaccineFormData({...vaccineFormData, nextDueDate: e.target.value})}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="veterinarianId">Veterinário</Label>
+              <Select
+                value={vaccineFormData.veterinarianId}
+                onValueChange={(value) => setVaccineFormData({...vaccineFormData, veterinarianId: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o veterinário" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockVeterinarians.map((vet) => (
+                    <SelectItem key={vet.id} value={vet.id}>
+                      {vet.name} - {vet.crmv}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="md:col-span-2">
+              <Label htmlFor="notes">Observações</Label>
+              <Input
+                id="notes"
+                value={vaccineFormData.notes}
+                onChange={(e) => setVaccineFormData({...vaccineFormData, notes: e.target.value})}
+                placeholder="Observações sobre a vacinação"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCloseVaccineDialog}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveVaccine} className="bg-blue-500 hover:bg-blue-600">
+              Aplicar Vacina
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
