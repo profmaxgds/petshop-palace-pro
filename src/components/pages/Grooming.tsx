@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -120,7 +121,7 @@ const Grooming: React.FC = () => {
   const filteredServices = groomingServices.filter(service => {
     const matchesSearch = 
       service.animal?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.serviceType.toLowerCase().includes(searchTerm.toLowerCase());
+      service.serviceType?.name.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || service.status === statusFilter;
     
@@ -455,7 +456,7 @@ const Grooming: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{service.serviceType}</div>
+                        <div className="font-medium">{service.serviceType?.name}</div>
                         {service.notes && (
                           <div className="text-sm text-gray-500 mt-1">{service.notes}</div>
                         )}

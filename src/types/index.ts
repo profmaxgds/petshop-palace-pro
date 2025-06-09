@@ -1,4 +1,3 @@
-
 export interface Tutor {
   id: string;
   name: string;
@@ -53,8 +52,7 @@ export interface Appointment {
   date: Date;
   time: string;
   type: 'consultation' | 'exam' | 'surgery' | 'grooming';
-  veterinarianId: string;
-  veterinarian?: Veterinarian;
+  veterinarian: string; // Keep as string for simplicity
   status: 'scheduled' | 'completed' | 'cancelled';
   notes?: string;
   createdAt: Date;
