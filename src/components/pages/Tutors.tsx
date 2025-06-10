@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Trash2, Phone, Mail, MapPin } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Phone, Mail, MapPin, Heart } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import type { Tutor } from '@/types';
 
@@ -380,3 +379,6 @@ const Tutors: React.FC = () => {
       </Card>
     </div>
   );
+};
+
+export default Tutors;
