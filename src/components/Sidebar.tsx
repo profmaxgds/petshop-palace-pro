@@ -1,19 +1,26 @@
 
 import React from 'react';
+import { cn } from '@/lib/utils';
 import { 
+  Home, 
   Users, 
   Heart, 
-  Calendar, 
-  Scissors, 
   Syringe, 
-  Stethoscope, 
-  Package, 
+  Calendar,
+  Scissors,
+  Package,
   ShoppingCart,
   CreditCard,
   Banknote,
+  Wallet,
+  Building2,
   Settings,
-  BarChart3
+  LogOut,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { t } from '@/lib/i18n';
 
 interface SidebarProps {
   currentPage: string;
@@ -22,59 +29,104 @@ interface SidebarProps {
   onToggleCollapse: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) => {
-  const menuItems = [
-    { icon: BarChart3, label: 'Dashboard', path: '/', key: 'dashboard' },
-    { icon: Users, label: 'Tutores', path: '/tutors', key: 'tutors' },
-    { icon: Heart, label: 'Animais', path: '/animals', key: 'animals' },
-    { icon: Calendar, label: 'Consultas', path: '/appointments', key: 'appointments' },
-    { icon: Scissors, label: 'Banho e Tosa', path: '/grooming', key: 'grooming' },
-    { icon: Syringe, label: 'Vacinas', path: '/vaccines', key: 'vaccines' },
-    { icon: Stethoscope, label: 'Veterinários', path: '/veterinarians', key: 'veterinarians' },
-    { icon: Package, label: 'Estoque', path: '/inventory', key: 'inventory' },
-    { icon: ShoppingCart, label: 'Compras', path: '/purchases', key: 'purchases' },
-    { icon: CreditCard, label: 'Contas a Pagar', path: '/accounts-payable', key: 'accounts-payable' },
-    { icon: Banknote, label: 'Contas a Receber', path: '/accounts-receivable', key: 'accounts-receivable' },
-    { icon: Banknote, label: 'Caixa', path: '/cash-flow', key: 'cash-flow' },
-    { icon: Settings, label: 'Tipos de Serviços', path: '/services', key: 'services' },
-  ];
+const menuItems = [
+  { key: 'dashboard', icon: Home, label: 'dashboard' },
+  { key: 'tutors', icon: Users, label: 'tutors' },
+  { key: 'animals', icon: Heart, label: 'animals' },
+  { key: 'vaccines', icon: Syringe, label: 'vaccines' },
+  { key: 'appointments', icon: Calendar, label: 'appointments' },
+  { key: 'grooming', icon: Scissors, label: 'grooming' },
+  { key: 'inventory', icon: Package, label: 'inventory' },
+  { key: 'purchases', icon: ShoppingCart, label: 'purchases' },
+  { key: 'accounts-payable', icon: CreditCard, label: 'accountsPayable' },
+  { key: 'accounts-receivable', icon: Banknote, label: 'accountsReceivable' },
+  { key: 'cash-flow', icon: Wallet, label: 'cashFlow' },
+  { key: 'banks', icon: Building2, label: 'banks' },
+] as const;
 
-  const handleMenuClick = (key: string) => {
-    onPageChange(key);
-  };
-
+const Sidebar: React.FC<SidebarProps> = ({
+  currentPage,
+  onPageChange,
+  collapsed,
+  onToggleCollapse,
+}) => {
   return (
-    <div className={`h-screen bg-primary text-primary-foreground flex flex-col transition-all duration-300 ${
-      collapsed ? 'w-16' : 'w-64'
-    }`}>
-      <div className="p-6 border-b border-primary/20">
-        {!collapsed && (
-          <>
-            <h1 className="text-xl font-bold">PetShop Manager</h1>
-            <p className="text-primary-foreground/80 text-sm">Sistema de Gestão</p>
-          </>
-        )}
+    <div className={cn(
+      "bg-gradient-to-b from-teal-600 to-teal-700 text-white transition-all duration-300 flex flex-col",
+      collapsed ? "w-16" : "w-64"
+    )}>
+      {/* Header */}
+      <div className="p-4 border-b border-teal-500">
+        <div className="flex items-center justify-between">
+          {!collapsed && (
+            <div className="flex items-center gap-2">
+              <Heart className="w-8 h-8 text-orange-400" />
+              <span className="text-xl font-bold">PetShop</span>
+            </div>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleCollapse}
+            className="text-white hover:bg-teal-500"
+          >
+            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </Button>
+        </div>
       </div>
-      
-      <nav className="flex-1 px-4 py-6">
-        <ul className="space-y-2">
-          {menuItems.map((item) => (
-            <li key={item.key}>
-              <button
-                onClick={() => handleMenuClick(item.key)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-left ${
-                  currentPage === item.key
-                    ? 'bg-primary-foreground/20 text-primary-foreground'
-                    : 'text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground'
-                }`}
-              >
-                <item.icon className="w-5 h-5 flex-shrink-0" />
-                {!collapsed && <span>{item.label}</span>}
-              </button>
-            </li>
-          ))}
+
+      {/* Navigation */}
+      <nav className="flex-1 p-2">
+        <ul className="space-y-1">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentPage === item.key;
+            
+            return (
+              <li key={item.key}>
+                <button
+                  onClick={() => onPageChange(item.key)}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+                    isActive 
+                      ? "bg-white text-teal-700 shadow-sm" 
+                      : "text-teal-100 hover:bg-teal-500 hover:text-white"
+                  )}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  {!collapsed && (
+                    <span className="truncate">{t(item.label as any)}</span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </nav>
+
+      {/* Footer */}
+      <div className="p-2 border-t border-teal-500">
+        <button
+          onClick={() => onPageChange('settings')}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors mb-2",
+            currentPage === 'settings'
+              ? "bg-white text-teal-700 shadow-sm"
+              : "text-teal-100 hover:bg-teal-500 hover:text-white"
+          )}
+        >
+          <Settings className="w-5 h-5 flex-shrink-0" />
+          {!collapsed && <span>{t('settings')}</span>}
+        </button>
+        
+        <button
+          onClick={() => {/* Handle logout */}}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-teal-100 hover:bg-red-500 hover:text-white transition-colors"
+        >
+          <LogOut className="w-5 h-5 flex-shrink-0" />
+          {!collapsed && <span>{t('logout')}</span>}
+        </button>
+      </div>
     </div>
   );
 };

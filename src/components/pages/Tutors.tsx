@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,10 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Plus, Edit, Trash2, Phone, Mail, MapPin, Heart } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Phone, Mail, MapPin } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Tutor, Animal } from '@/types';
+import type { Tutor } from '@/types';
 
 const Tutors: React.FC = () => {
   const [tutors, setTutors] = useState<Tutor[]>([
@@ -49,12 +49,9 @@ const Tutors: React.FC = () => {
     },
   ]);
 
-  const [animals, setAnimals] = useState<Animal[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isAnimalDialogOpen, setIsAnimalDialogOpen] = useState(false);
   const [editingTutor, setEditingTutor] = useState<Tutor | null>(null);
-  const [selectedTutorForAnimal, setSelectedTutorForAnimal] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     cpf: '',
@@ -68,15 +65,6 @@ const Tutors: React.FC = () => {
       state: '',
       zipCode: ''
     }
-  });
-
-  const [animalFormData, setAnimalFormData] = useState({
-    name: '',
-    species: '',
-    breed: '',
-    age: 0,
-    sex: 'male' as 'male' | 'female',
-    weight: 0,
   });
 
   const filteredTutors = tutors.filter(tutor =>
@@ -133,38 +121,6 @@ const Tutors: React.FC = () => {
     setTutors(tutors.filter(t => t.id !== tutorId));
   };
 
-  const handleAddAnimal = (tutorId: string) => {
-    setSelectedTutorForAnimal(tutorId);
-    setIsAnimalDialogOpen(true);
-  };
-
-  const handleSaveAnimal = () => {
-    const selectedTutor = tutors.find(t => t.id === selectedTutorForAnimal);
-    const newAnimal: Animal = {
-      id: Date.now().toString(),
-      ...animalFormData,
-      tutorId: selectedTutorForAnimal,
-      tutor: selectedTutor,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    setAnimals([...animals, newAnimal]);
-    handleCloseAnimalDialog();
-  };
-
-  const handleCloseAnimalDialog = () => {
-    setIsAnimalDialogOpen(false);
-    setSelectedTutorForAnimal('');
-    setAnimalFormData({
-      name: '',
-      species: '',
-      breed: '',
-      age: 0,
-      sex: 'male',
-      weight: 0,
-    });
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -185,7 +141,7 @@ const Tutors: React.FC = () => {
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-blue-500 hover:bg-blue-600">
+                <Button className="bg-teal-600 hover:bg-teal-700">
                   <Plus className="w-4 h-4 mr-2" />
                   {t('addTutor')}
                 </Button>
@@ -325,7 +281,7 @@ const Tutors: React.FC = () => {
                   <Button variant="outline" onClick={handleCloseDialog}>
                     {t('cancel')}
                   </Button>
-                  <Button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600">
+                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700">
                     {t('save')}
                   </Button>
                 </DialogFooter>
@@ -392,14 +348,6 @@ const Tutors: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleAddAnimal(tutor.id)}
-                          className="text-green-600 hover:text-green-800"
-                        >
-                          <Heart className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
                           onClick={() => handleEdit(tutor)}
                         >
                           <Edit className="w-4 h-4" />
@@ -421,108 +369,6 @@ const Tutors: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Dialog para cadastrar animal */}
-      <Dialog open={isAnimalDialogOpen} onOpenChange={setIsAnimalDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Cadastrar Animal</DialogTitle>
-            <DialogDescription>
-              Preencha os dados do animal para o tutor selecionado
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-            <div className="md:col-span-2">
-              <Label htmlFor="animalName">Nome do Animal</Label>
-              <Input
-                id="animalName"
-                value={animalFormData.name}
-                onChange={(e) => setAnimalFormData({...animalFormData, name: e.target.value})}
-                placeholder="Nome do animal"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="species">Espécie</Label>
-              <Select
-                value={animalFormData.species}
-                onValueChange={(value) => setAnimalFormData({...animalFormData, species: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a espécie" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Cão">Cão</SelectItem>
-                  <SelectItem value="Gato">Gato</SelectItem>
-                  <SelectItem value="Pássaro">Pássaro</SelectItem>
-                  <SelectItem value="Coelho">Coelho</SelectItem>
-                  <SelectItem value="Hamster">Hamster</SelectItem>
-                  <SelectItem value="Outro">Outro</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="breed">Raça</Label>
-              <Input
-                id="breed"
-                value={animalFormData.breed}
-                onChange={(e) => setAnimalFormData({...animalFormData, breed: e.target.value})}
-                placeholder="Raça do animal"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="age">Idade</Label>
-              <Input
-                id="age"
-                type="number"
-                value={animalFormData.age}
-                onChange={(e) => setAnimalFormData({...animalFormData, age: parseInt(e.target.value) || 0})}
-                placeholder="Idade em anos"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="sex">Sexo</Label>
-              <Select
-                value={animalFormData.sex}
-                onValueChange={(value: 'male' | 'female') => setAnimalFormData({...animalFormData, sex: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o sexo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Macho</SelectItem>
-                  <SelectItem value="female">Fêmea</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="weight">Peso (kg)</Label>
-              <Input
-                id="weight"
-                type="number"
-                step="0.1"
-                value={animalFormData.weight}
-                onChange={(e) => setAnimalFormData({...animalFormData, weight: parseFloat(e.target.value) || 0})}
-                placeholder="Peso em kg"
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={handleCloseAnimalDialog}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSaveAnimal} className="bg-blue-500 hover:bg-blue-600">
-              Salvar Animal
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

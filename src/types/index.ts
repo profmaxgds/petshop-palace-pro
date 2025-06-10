@@ -1,3 +1,4 @@
+
 export interface Tutor {
   id: string;
   name: string;
@@ -34,13 +35,11 @@ export interface Vaccine {
   id: string;
   animalId: string;
   animal?: Animal;
-  productId: string; // Relacionado ao estoque
-  product?: Product;
-  batch: string;
+  type: string;
+  batch: string; // Campo lote adicionado
   applicationDate: Date;
   nextDueDate: Date;
-  veterinarianId: string;
-  veterinarian?: Veterinarian;
+  veterinarian: string;
   notes?: string;
   createdAt: Date;
 }
@@ -52,7 +51,7 @@ export interface Appointment {
   date: Date;
   time: string;
   type: 'consultation' | 'exam' | 'surgery' | 'grooming';
-  veterinarian: string; // Keep as string for simplicity
+  veterinarian: string;
   status: 'scheduled' | 'completed' | 'cancelled';
   notes?: string;
   createdAt: Date;
@@ -63,50 +62,22 @@ export interface GroomingService {
   animalId: string;
   animal?: Animal;
   date: Date;
-  serviceTypeId: string;
-  serviceType?: ServiceType;
+  serviceType: string;
   status: 'scheduled' | 'in-progress' | 'completed';
   notes?: string;
   price: number;
   createdAt: Date;
 }
 
-export interface ServiceType {
-  id: string;
-  name: string;
-  description?: string;
-  price: number;
-  duration: number; // em minutos
-  category: 'grooming' | 'veterinary';
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Veterinarian {
-  id: string;
-  name: string;
-  crmv: string;
-  phone: string;
-  email: string;
-  specialties: string[];
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface Product {
   id: string;
   name: string;
-  category: 'vaccine' | 'medication' | 'food' | 'accessory' | 'hygiene' | 'other';
-  description?: string;
+  category: string;
   quantity: number;
   minQuantity: number;
   costPrice: number;
   salePrice: number;
   supplier: string;
-  batch?: string;
-  expirationDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -114,17 +85,14 @@ export interface Product {
 export interface Purchase {
   id: string;
   supplierId: string;
-  supplier?: Supplier;
   date: Date;
   items: PurchaseItem[];
   total: number;
-  status: 'pending' | 'completed' | 'cancelled';
-  notes?: string;
+  status: 'pending' | 'completed';
   createdAt: Date;
 }
 
 export interface PurchaseItem {
-  id: string;
   productId: string;
   product?: Product;
   quantity: number;
@@ -132,31 +100,15 @@ export interface PurchaseItem {
   total: number;
 }
 
-export interface Supplier {
-  id: string;
-  name: string;
-  cnpj: string;
-  phone: string;
-  email: string;
-  address: string;
-  contact: string;
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface AccountPayable {
   id: string;
   description: string;
   amount: number;
   dueDate: Date;
-  supplierId?: string;
-  supplier?: Supplier;
-  category: 'rent' | 'utilities' | 'supplies' | 'services' | 'taxes' | 'other';
+  supplier: string;
+  category: string;
   status: 'pending' | 'paid' | 'overdue';
   paymentDate?: Date;
-  paymentMethod?: string;
-  notes?: string;
   createdAt: Date;
 }
 
@@ -167,11 +119,9 @@ export interface AccountReceivable {
   description: string;
   amount: number;
   dueDate: Date;
-  serviceDate: Date;
-  paymentMethod?: string;
+  paymentMethod: string;
   status: 'pending' | 'paid' | 'overdue';
   paymentDate?: Date;
-  notes?: string;
   createdAt: Date;
 }
 
@@ -181,24 +131,8 @@ export interface CashTransaction {
   type: 'income' | 'expense';
   amount: number;
   description: string;
-  paymentMethod: 'cash' | 'card' | 'pix' | 'transfer';
+  paymentMethod: string;
   category: string;
-  accountReceivableId?: string;
-  accountPayableId?: string;
-  createdAt: Date;
-}
-
-export interface CashFlow {
-  id: string;
-  date: Date;
-  openingBalance: number;
-  closingBalance: number;
-  totalIncome: number;
-  totalExpense: number;
-  transactions: CashTransaction[];
-  closed: boolean;
-  closedBy?: string;
-  closedAt?: Date;
   createdAt: Date;
 }
 
