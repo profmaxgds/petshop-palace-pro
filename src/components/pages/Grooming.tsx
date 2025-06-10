@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,6 +41,19 @@ const Grooming: React.FC = () => {
     },
   ];
 
+  // Mock service types from ServiceTypes page
+  const serviceTypes = [
+    { id: '1', name: 'Banho Simples', category: 'grooming' as const, price: 35.00 },
+    { id: '2', name: 'Banho com Condicionador', category: 'grooming' as const, price: 45.00 },
+    { id: '3', name: 'Tosa Higiênica', category: 'grooming' as const, price: 25.00 },
+    { id: '4', name: 'Tosa na Máquina', category: 'grooming' as const, price: 40.00 },
+    { id: '5', name: 'Tosa na Tesoura', category: 'grooming' as const, price: 55.00 },
+    { id: '6', name: 'Banho e Tosa Completa', category: 'grooming' as const, price: 80.00 },
+    { id: '7', name: 'Corte de Unhas', category: 'grooming' as const, price: 15.00 },
+    { id: '8', name: 'Limpeza de Ouvidos', category: 'grooming' as const, price: 20.00 },
+    { id: '9', name: 'Escovação de Dentes', category: 'grooming' as const, price: 25.00 },
+  ];
+
   const [groomingServices, setGroomingServices] = useState<GroomingService[]>([
     {
       id: '1',
@@ -62,7 +74,7 @@ const Grooming: React.FC = () => {
       serviceType: 'Banho Simples',
       status: 'in-progress',
       notes: 'Gato persa, cuidado com pelos longos',
-      price: 45.00,
+      price: 35.00,
       createdAt: new Date(),
     },
     {
@@ -73,7 +85,7 @@ const Grooming: React.FC = () => {
       serviceType: 'Tosa Higiênica',
       status: 'completed',
       notes: 'Serviço realizado com sucesso',
-      price: 35.00,
+      price: 25.00,
       createdAt: new Date(),
     },
   ]);
@@ -85,8 +97,7 @@ const Grooming: React.FC = () => {
   const [formData, setFormData] = useState({
     animalId: '',
     date: '',
-    serviceType: '',
-    price: '',
+    serviceTypeId: '',
     notes: '',
   });
 
@@ -115,27 +126,32 @@ const Grooming: React.FC = () => {
 
   const handleSave = () => {
     const selectedAnimal = animals.find(a => a.id === formData.animalId);
+    const selectedService = serviceTypes.find(s => s.id === formData.serviceTypeId);
     
     if (editingService) {
       setGroomingServices(groomingServices.map(s => 
         s.id === editingService.id 
           ? { 
               ...editingService, 
-              ...formData,
+              animalId: formData.animalId,
               animal: selectedAnimal,
               date: new Date(formData.date),
-              price: parseFloat(formData.price),
+              serviceType: selectedService?.name || '',
+              price: selectedService?.price || 0,
+              notes: formData.notes,
             }
           : s
       ));
     } else {
       const newService: GroomingService = {
         id: Date.now().toString(),
-        ...formData,
+        animalId: formData.animalId,
         animal: selectedAnimal,
         date: new Date(formData.date),
-        price: parseFloat(formData.price),
+        serviceType: selectedService?.name || '',
+        price: selectedService?.price || 0,
         status: 'scheduled',
+        notes: formData.notes,
         createdAt: new Date(),
       };
       setGroomingServices([...groomingServices, newService]);
@@ -149,19 +165,18 @@ const Grooming: React.FC = () => {
     setFormData({
       animalId: '',
       date: '',
-      serviceType: '',
-      price: '',
+      serviceTypeId: '',
       notes: '',
     });
   };
 
   const handleEdit = (service: GroomingService) => {
+    const selectedService = serviceTypes.find(s => s.name === service.serviceType);
     setEditingService(service);
     setFormData({
       animalId: service.animalId,
       date: service.date.toISOString().split('T')[0],
-      serviceType: service.serviceType,
-      price: service.price.toString(),
+      serviceTypeId: selectedService?.id || '',
       notes: service.notes || '',
     });
     setIsDialogOpen(true);
@@ -176,18 +191,6 @@ const Grooming: React.FC = () => {
       s.id === serviceId ? { ...s, status: newStatus } : s
     ));
   };
-
-  const serviceTypes = [
-    'Banho Simples',
-    'Banho com Condicionador',
-    'Tosa Higiênica',
-    'Tosa na Máquina',
-    'Tosa na Tesoura',
-    'Banho e Tosa Completa',
-    'Corte de Unhas',
-    'Limpeza de Ouvidos',
-    'Escovação de Dentes'
-  ];
 
   const totalRevenue = groomingServices
     .filter(s => s.status === 'completed')
@@ -307,35 +310,23 @@ const Grooming: React.FC = () => {
                     </Select>
                   </div>
                   
-                  <div>
-                    <Label htmlFor="serviceType">Tipo de Serviço</Label>
+                  <div className="md:col-span-2">
+                    <Label htmlFor="serviceTypeId">Tipo de Serviço</Label>
                     <Select
-                      value={formData.serviceType}
-                      onValueChange={(value) => setFormData({...formData, serviceType: value})}
+                      value={formData.serviceTypeId}
+                      onValueChange={(value) => setFormData({...formData, serviceTypeId: value})}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o serviço" />
                       </SelectTrigger>
                       <SelectContent>
-                        {serviceTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
+                        {serviceTypes.map((service) => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name} - R$ {service.price.toFixed(2)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="price">Preço (R$)</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      step="0.01"
-                      value={formData.price}
-                      onChange={(e) => setFormData({...formData, price: e.target.value})}
-                      placeholder="0.00"
-                    />
                   </div>
                   
                   <div className="md:col-span-2">

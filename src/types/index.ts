@@ -50,6 +50,9 @@ export interface Appointment {
   date: Date;
   time: string;
   type: 'consultation' | 'exam' | 'surgery' | 'grooming';
+  serviceTypeId?: string;
+  serviceType?: ServiceType;
+  veterinarianId?: string;
   veterinarian: string;
   status: 'scheduled' | 'completed' | 'cancelled';
   notes?: string;

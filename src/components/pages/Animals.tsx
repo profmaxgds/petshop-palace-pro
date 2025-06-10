@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Trash2, Heart, Scale, Calendar } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, Plus, Edit, Trash2, Heart, Scale, Calendar, Syringe, Download, Stethoscope, Scissors } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Animal, Tutor } from '@/types';
+import type { Animal, Tutor, Vaccine, Appointment, GroomingService } from '@/types';
 
 const Animals: React.FC = () => {
   // Mock tutors data
@@ -51,6 +52,48 @@ const Animals: React.FC = () => {
     }
   ];
 
+  // Mock historical data
+  const mockVaccines: Vaccine[] = [
+    {
+      id: '1',
+      animalId: '1',
+      type: 'V8',
+      batch: '12345',
+      applicationDate: new Date('2024-11-15'),
+      nextDueDate: new Date('2025-11-15'),
+      veterinarian: 'Dr. Carlos Silva',
+      notes: 'Primeira dose da V8',
+      createdAt: new Date(),
+    },
+  ];
+
+  const mockAppointments: Appointment[] = [
+    {
+      id: '1',
+      animalId: '1',
+      date: new Date('2024-12-10'),
+      time: '09:00',
+      type: 'consultation',
+      veterinarian: 'Dr. Carlos Silva',
+      status: 'scheduled',
+      notes: 'Consulta de rotina',
+      createdAt: new Date(),
+    },
+  ];
+
+  const mockGrooming: GroomingService[] = [
+    {
+      id: '1',
+      animalId: '1',
+      date: new Date('2024-12-08'),
+      serviceType: 'Banho e Tosa Completa',
+      status: 'completed',
+      notes: 'Serviço realizado com sucesso',
+      price: 80.00,
+      createdAt: new Date(),
+    },
+  ];
+
   const [animals, setAnimals] = useState<Animal[]>([
     {
       id: '1',
@@ -82,6 +125,8 @@ const Animals: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+  const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
   const [editingAnimal, setEditingAnimal] = useState<Animal | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -151,6 +196,65 @@ const Animals: React.FC = () => {
 
   const handleDelete = (animalId: string) => {
     setAnimals(animals.filter(a => a.id !== animalId));
+  };
+
+  const handleViewHistory = (animal: Animal) => {
+    setSelectedAnimal(animal);
+    setIsHistoryDialogOpen(true);
+  };
+
+  const downloadVaccineCard = (animalId: string) => {
+    const animalVaccines = mockVaccines.filter(v => v.animalId === animalId);
+    const animal = animals.find(a => a.id === animalId);
+    
+    if (!animal) return;
+
+    const cardContent = `
+      <html>
+        <head>
+          <title>Carteirinha de Vacinação - ${animal.name}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .animal-info { background: #f5f5f5; padding: 15px; margin-bottom: 20px; }
+            .vaccine-record { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Carteirinha de Vacinação</h1>
+          </div>
+          <div class="animal-info">
+            <h2>Dados do Animal</h2>
+            <p><strong>Nome:</strong> ${animal.name}</p>
+            <p><strong>Espécie:</strong> ${animal.species}</p>
+            <p><strong>Raça:</strong> ${animal.breed}</p>
+            <p><strong>Tutor:</strong> ${animal.tutor?.name}</p>
+          </div>
+          ${animalVaccines.map(vaccine => `
+            <div class="vaccine-record">
+              <h3>Registro de Vacinação</h3>
+              <p><strong>Vacina:</strong> ${vaccine.type}</p>
+              <p><strong>Lote:</strong> ${vaccine.batch}</p>
+              <p><strong>Data de Aplicação:</strong> ${vaccine.applicationDate.toLocaleDateString('pt-BR')}</p>
+              <p><strong>Próxima Dose:</strong> ${vaccine.nextDueDate.toLocaleDateString('pt-BR')}</p>
+              <p><strong>Veterinário:</strong> ${vaccine.veterinarian}</p>
+              ${vaccine.notes ? `<p><strong>Observações:</strong> ${vaccine.notes}</p>` : ''}
+            </div>
+          `).join('')}
+        </body>
+      </html>
+    `;
+
+    const blob = new Blob([cardContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `carteirinha-${animal.name}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -368,6 +472,32 @@ const Animals: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => handleViewHistory(animal)}
+                          title="Ver Histórico"
+                        >
+                          <Calendar className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => downloadVaccineCard(animal.id)}
+                          className="text-blue-600 hover:text-blue-800"
+                          title="Baixar Carteirinha"
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {/* Navigate to vaccines with animal pre-selected */}}
+                          className="text-green-600 hover:text-green-800"
+                          title="Vacinar"
+                        >
+                          <Syringe className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleEdit(animal)}
                         >
                           <Edit className="w-4 h-4" />
@@ -389,6 +519,175 @@ const Animals: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog de Histórico */}
+      <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Histórico - {selectedAnimal?.name}</DialogTitle>
+            <DialogDescription>
+              Histórico completo de vacinas, consultas e serviços
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Tabs defaultValue="vaccines" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="vaccines">{t('vaccines')}</TabsTrigger>
+              <TabsTrigger value="appointments">Consultas</TabsTrigger>
+              <TabsTrigger value="exams">Exames</TabsTrigger>
+              <TabsTrigger value="grooming">Banho & Tosa</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="vaccines" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">{t('vaccineHistory')}</h3>
+                <Button
+                  size="sm"
+                  onClick={() => selectedAnimal && downloadVaccineCard(selectedAnimal.id)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  {t('downloadCard')}
+                </Button>
+              </div>
+              
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Vacina</TableHead>
+                      <TableHead>Lote</TableHead>
+                      <TableHead>Aplicação</TableHead>
+                      <TableHead>Próxima Dose</TableHead>
+                      <TableHead>Veterinário</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {mockVaccines.filter(v => v.animalId === selectedAnimal?.id).map((vaccine) => (
+                      <TableRow key={vaccine.id}>
+                        <TableCell>{vaccine.type}</TableCell>
+                        <TableCell>{vaccine.batch}</TableCell>
+                        <TableCell>{vaccine.applicationDate.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>{vaccine.nextDueDate.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>{vaccine.veterinarian}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="appointments" className="space-y-4">
+              <h3 className="text-lg font-semibold">{t('appointmentHistory')}</h3>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Horário</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Veterinário</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {mockAppointments.filter(a => a.animalId === selectedAnimal?.id && a.type === 'consultation').map((appointment) => (
+                      <TableRow key={appointment.id}>
+                        <TableCell>{appointment.date.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>{appointment.time}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Stethoscope className="w-4 h-4 text-blue-600" />
+                            Consulta
+                          </div>
+                        </TableCell>
+                        <TableCell>{appointment.veterinarian}</TableCell>
+                        <TableCell>
+                          <Badge variant={appointment.status === 'completed' ? 'default' : 'secondary'}>
+                            {appointment.status === 'completed' ? 'Realizada' : 'Agendada'}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="exams" className="space-y-4">
+              <h3 className="text-lg font-semibold">Histórico de Exames</h3>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Horário</TableHead>
+                      <TableHead>Tipo de Exame</TableHead>
+                      <TableHead>Veterinário</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {mockAppointments.filter(a => a.animalId === selectedAnimal?.id && a.type === 'exam').map((appointment) => (
+                      <TableRow key={appointment.id}>
+                        <TableCell>{appointment.date.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>{appointment.time}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Stethoscope className="w-4 h-4 text-purple-600" />
+                            Exame
+                          </div>
+                        </TableCell>
+                        <TableCell>{appointment.veterinarian}</TableCell>
+                        <TableCell>
+                          <Badge variant={appointment.status === 'completed' ? 'default' : 'secondary'}>
+                            {appointment.status === 'completed' ? 'Realizado' : 'Agendado'}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="grooming" className="space-y-4">
+              <h3 className="text-lg font-semibold">Histórico de Banho & Tosa</h3>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Serviço</TableHead>
+                      <TableHead>Preço</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {mockGrooming.filter(g => g.animalId === selectedAnimal?.id).map((service) => (
+                      <TableRow key={service.id}>
+                        <TableCell>{service.date.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Scissors className="w-4 h-4 text-green-600" />
+                            {service.serviceType}
+                          </div>
+                        </TableCell>
+                        <TableCell>R$ {service.price.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <Badge variant={service.status === 'completed' ? 'default' : 'secondary'}>
+                            {service.status === 'completed' ? 'Concluído' : 'Agendado'}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

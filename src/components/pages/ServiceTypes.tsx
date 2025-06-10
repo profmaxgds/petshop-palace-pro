@@ -159,7 +159,14 @@ const ServiceTypes: React.FC = () => {
 
   const handleEdit = (service: ServiceType) => {
     setEditingService(service);
-    setFormData(service);
+    setFormData({
+      name: service.name,
+      category: service.category,
+      duration: service.duration,
+      price: service.price,
+      description: service.description || '',
+      isActive: service.isActive,
+    });
     setIsDialogOpen(true);
   };
 
@@ -171,7 +178,7 @@ const ServiceTypes: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Tipos de Serviços</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('serviceTypes')}</h1>
           <p className="text-gray-600">Gerencie os tipos de serviços oferecidos</p>
         </div>
       </div>
@@ -189,13 +196,13 @@ const ServiceTypes: React.FC = () => {
               <DialogTrigger asChild>
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="w-4 h-4 mr-2" />
-                  Novo Tipo de Serviço
+                  {t('addServiceType')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingService ? 'Editar Tipo de Serviço' : 'Novo Tipo de Serviço'}
+                    {editingService ? 'Editar Tipo de Serviço' : t('addServiceType')}
                   </DialogTitle>
                   <DialogDescription>
                     Preencha os dados do tipo de serviço
@@ -204,7 +211,7 @@ const ServiceTypes: React.FC = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="md:col-span-2">
-                    <Label htmlFor="name">Nome do Serviço</Label>
+                    <Label htmlFor="name">{t('serviceName')}</Label>
                     <Input
                       id="name"
                       value={formData.name}
@@ -214,7 +221,7 @@ const ServiceTypes: React.FC = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="category">Categoria</Label>
+                    <Label htmlFor="category">{t('category')}</Label>
                     <Select
                       value={formData.category}
                       onValueChange={(value) => setFormData({...formData, category: value as ServiceType['category']})}
@@ -232,7 +239,7 @@ const ServiceTypes: React.FC = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="duration">Duração (minutos)</Label>
+                    <Label htmlFor="duration">{t('duration')} (minutos)</Label>
                     <Input
                       id="duration"
                       type="number"
@@ -243,7 +250,7 @@ const ServiceTypes: React.FC = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="price">Preço (R$)</Label>
+                    <Label htmlFor="price">{t('price')} (R$)</Label>
                     <Input
                       id="price"
                       type="number"
@@ -264,14 +271,14 @@ const ServiceTypes: React.FC = () => {
                         <SelectValue placeholder="Selecione o status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">Ativo</SelectItem>
-                        <SelectItem value="false">Inativo</SelectItem>
+                        <SelectItem value="true">{t('active')}</SelectItem>
+                        <SelectItem value="false">{t('inactive')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
                   <div className="md:col-span-2">
-                    <Label htmlFor="description">Descrição</Label>
+                    <Label htmlFor="description">{t('description')}</Label>
                     <Textarea
                       id="description"
                       value={formData.description}
@@ -284,10 +291,10 @@ const ServiceTypes: React.FC = () => {
                 
                 <DialogFooter>
                   <Button variant="outline" onClick={handleCloseDialog}>
-                    Cancelar
+                    {t('cancel')}
                   </Button>
                   <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
-                    Salvar
+                    {t('save')}
                   </Button>
                 </DialogFooter>
               </DialogContent>

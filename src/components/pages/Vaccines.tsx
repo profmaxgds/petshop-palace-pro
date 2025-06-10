@@ -174,7 +174,51 @@ const Vaccines: React.FC = () => {
   };
 
   const downloadCard = (vaccine: Vaccine) => {
-    alert(`Download do cartão de vacinação de ${vaccine.animal?.name} (Em desenvolvimento)`);
+    // Criar conteúdo HTML da carteirinha
+    const cardContent = `
+      <html>
+        <head>
+          <title>Carteirinha de Vacinação - ${vaccine.animal?.name}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .animal-info { background: #f5f5f5; padding: 15px; margin-bottom: 20px; }
+            .vaccine-record { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Carteirinha de Vacinação</h1>
+          </div>
+          <div class="animal-info">
+            <h2>Dados do Animal</h2>
+            <p><strong>Nome:</strong> ${vaccine.animal?.name}</p>
+            <p><strong>Espécie:</strong> ${vaccine.animal?.species}</p>
+            <p><strong>Raça:</strong> ${vaccine.animal?.breed}</p>
+          </div>
+          <div class="vaccine-record">
+            <h3>Registro de Vacinação</h3>
+            <p><strong>Vacina:</strong> ${vaccine.type}</p>
+            <p><strong>Lote:</strong> ${vaccine.batch}</p>
+            <p><strong>Data de Aplicação:</strong> ${vaccine.applicationDate.toLocaleDateString('pt-BR')}</p>
+            <p><strong>Próxima Dose:</strong> ${vaccine.nextDueDate.toLocaleDateString('pt-BR')}</p>
+            <p><strong>Veterinário:</strong> ${vaccine.veterinarian}</p>
+            ${vaccine.notes ? `<p><strong>Observações:</strong> ${vaccine.notes}</p>` : ''}
+          </div>
+        </body>
+      </html>
+    `;
+
+    // Criar blob e fazer download
+    const blob = new Blob([cardContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `carteirinha-${vaccine.animal?.name}-${vaccine.type}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -402,7 +446,7 @@ const Vaccines: React.FC = () => {
                         onClick={() => downloadCard(vaccine)}
                       >
                         <Download className="w-4 h-4 mr-2" />
-                        {t('download')}
+                        Baixar
                       </Button>
                     </TableCell>
                   </TableRow>

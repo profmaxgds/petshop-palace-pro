@@ -8,6 +8,8 @@ export const translations = {
     vaccines: 'Vacinas',
     appointments: 'Agenda',
     grooming: 'Banho e Tosa',
+    veterinarians: 'Veterinários',
+    serviceTypes: 'Tipos de Serviços',
     inventory: 'Estoque',
     purchases: 'Compras',
     accountsPayable: 'Contas a Pagar',
@@ -48,6 +50,27 @@ export const translations = {
     weight: 'Peso',
     tutor: 'Tutor',
     
+    // Veterinarians
+    addVeterinarian: 'Adicionar Veterinário',
+    veterinarianName: 'Nome',
+    crmv: 'CRMV',
+    specialties: 'Especialidades',
+    
+    // Service Types
+    addServiceType: 'Adicionar Tipo de Serviço',
+    serviceName: 'Nome do Serviço',
+    category: 'Categoria',
+    duration: 'Duração',
+    price: 'Preço',
+    description: 'Descrição',
+    
+    // Vaccines
+    vaccineHistory: 'Histórico de Vacinas',
+    downloadCard: 'Baixar Carteirinha',
+    
+    // Appointments
+    appointmentHistory: 'Histórico de Consultas',
+    
     // Common
     save: 'Salvar',
     cancel: 'Cancelar',
@@ -60,6 +83,8 @@ export const translations = {
     date: 'Data',
     status: 'Status',
     actions: 'Ações',
+    history: 'Histórico',
+    download: 'Baixar',
     
     // Status
     paid: 'Pago',
@@ -68,6 +93,8 @@ export const translations = {
     completed: 'Concluído',
     scheduled: 'Agendado',
     cancelled: 'Cancelado',
+    active: 'Ativo',
+    inactive: 'Inativo',
   },
   'en': {
     // Navigation
@@ -77,6 +104,8 @@ export const translations = {
     vaccines: 'Vaccines',
     appointments: 'Appointments',
     grooming: 'Grooming',
+    veterinarians: 'Veterinarians',
+    serviceTypes: 'Service Types',
     inventory: 'Inventory',
     purchases: 'Purchases',
     accountsPayable: 'Accounts Payable',
@@ -117,6 +146,27 @@ export const translations = {
     weight: 'Weight',
     tutor: 'Pet Owner',
     
+    // Veterinarians
+    addVeterinarian: 'Add Veterinarian',
+    veterinarianName: 'Name',
+    crmv: 'License',
+    specialties: 'Specialties',
+    
+    // Service Types
+    addServiceType: 'Add Service Type',
+    serviceName: 'Service Name',
+    category: 'Category',
+    duration: 'Duration',
+    price: 'Price',
+    description: 'Description',
+    
+    // Vaccines
+    vaccineHistory: 'Vaccine History',
+    downloadCard: 'Download Card',
+    
+    // Appointments
+    appointmentHistory: 'Appointment History',
+    
     // Common
     save: 'Save',
     cancel: 'Cancel',
@@ -129,6 +179,8 @@ export const translations = {
     date: 'Date',
     status: 'Status',
     actions: 'Actions',
+    history: 'History',
+    download: 'Download',
     
     // Status
     paid: 'Paid',
@@ -137,6 +189,8 @@ export const translations = {
     completed: 'Completed',
     scheduled: 'Scheduled',
     cancelled: 'Cancelled',
+    active: 'Active',
+    inactive: 'Inactive',
   },
   'es': {
     // Navigation
@@ -146,6 +200,8 @@ export const translations = {
     vaccines: 'Vacunas',
     appointments: 'Citas',
     grooming: 'Peluquería',
+    veterinarians: 'Veterinarios',
+    serviceTypes: 'Tipos de Servicios',
     inventory: 'Inventario',
     purchases: 'Compras',
     accountsPayable: 'Cuentas por Pagar',
@@ -186,6 +242,27 @@ export const translations = {
     weight: 'Peso',
     tutor: 'Tutor',
     
+    // Veterinarians
+    addVeterinarian: 'Agregar Veterinario',
+    veterinarianName: 'Nombre',
+    crmv: 'Licencia',
+    specialties: 'Especialidades',
+    
+    // Service Types
+    addServiceType: 'Agregar Tipo de Servicio',
+    serviceName: 'Nombre del Servicio',
+    category: 'Categoría',
+    duration: 'Duración',
+    price: 'Precio',
+    description: 'Descripción',
+    
+    // Vaccines
+    vaccineHistory: 'Historial de Vacunas',
+    downloadCard: 'Descargar Tarjeta',
+    
+    // Appointments
+    appointmentHistory: 'Historial de Citas',
+    
     // Common
     save: 'Guardar',
     cancel: 'Cancelar',
@@ -198,6 +275,8 @@ export const translations = {
     date: 'Fecha',
     status: 'Estado',
     actions: 'Acciones',
+    history: 'Historial',
+    download: 'Descargar',
     
     // Status
     paid: 'Pagado',
@@ -206,6 +285,8 @@ export const translations = {
     completed: 'Completado',
     scheduled: 'Programado',
     cancelled: 'Cancelado',
+    active: 'Activo',
+    inactive: 'Inactivo',
   },
 } as const;
 
