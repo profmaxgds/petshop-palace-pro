@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,12 +8,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Search, Plus, Edit, Trash2, Syringe, AlertTriangle, Calendar, CreditCard, Download } from 'lucide-react';
+import { Syringe, Plus, Edit, Trash2, Search, Calendar, FileText, AlertTriangle, X } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Vaccine, Animal } from '@/types';
+import type { Vaccine, Animal, Product, Veterinarian } from '@/types';
 
 const Vaccines: React.FC = () => {
-  // Mock animals data
+  // Mock data
   const animals: Animal[] = [
     {
       id: '1',
@@ -28,15 +27,50 @@ const Vaccines: React.FC = () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
+  ];
+
+  const vaccineProducts: Product[] = [
+    {
+      id: '1',
+      name: 'Vacina V8',
+      category: 'vaccine',
+      description: 'Vacina óctupla para cães',
+      quantity: 15,
+      minQuantity: 5,
+      costPrice: 45.00,
+      salePrice: 80.00,
+      supplier: 'Laboratório VetMax',
+      batch: 'VX2024001',
+      expirationDate: new Date('2025-06-15'),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
     {
       id: '2',
-      name: 'Luna',
-      species: 'Gato',
-      breed: 'Persa',
-      age: 2,
-      sex: 'female',
-      weight: 4.2,
-      tutorId: '2',
+      name: 'Vacina Antirrábica',
+      category: 'vaccine',
+      description: 'Vacina contra raiva',
+      quantity: 8,
+      minQuantity: 10,
+      costPrice: 25.00,
+      salePrice: 45.00,
+      supplier: 'Laboratório VetMax',
+      batch: 'VR2024002',
+      expirationDate: new Date('2025-12-31'),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  const veterinarians: Veterinarian[] = [
+    {
+      id: '1',
+      name: 'Dr. João Silva',
+      crmv: 'CRMV-SP 12345',
+      phone: '(11) 99999-9999',
+      email: 'joao.silva@email.com',
+      specialties: ['Clínica Geral', 'Cirurgia'],
+      active: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -47,111 +81,57 @@ const Vaccines: React.FC = () => {
       id: '1',
       animalId: '1',
       animal: animals[0],
-      type: 'V10',
-      batch: 'L001-2024',
-      applicationDate: new Date('2024-01-15'),
-      nextDueDate: new Date('2025-01-15'),
-      veterinarian: 'Dr. Carlos Silva',
-      notes: 'Primeira dose da vacina V10',
-      createdAt: new Date(),
-    },
-    {
-      id: '2',
-      animalId: '2',
-      animal: animals[1],
-      type: 'Antirrábica',
-      batch: 'L002-2024',
-      applicationDate: new Date('2024-02-10'),
-      nextDueDate: new Date('2025-02-10'),
-      veterinarian: 'Dra. Ana Costa',
-      notes: 'Vacina antirrábica anual',
-      createdAt: new Date(),
-    },
-    {
-      id: '3',
-      animalId: '1',
-      animal: animals[0],
-      type: 'Leishmaniose',
-      batch: 'L003-2023',
-      applicationDate: new Date('2023-12-01'),
-      nextDueDate: new Date('2024-06-01'),
-      veterinarian: 'Dr. Carlos Silva',
-      notes: 'Reforço necessário em breve',
+      productId: '1',
+      product: vaccineProducts[0],
+      batch: 'VX2024001',
+      applicationDate: new Date('2024-11-15'),
+      nextDueDate: new Date('2025-11-15'),
+      veterinarianId: '1',
+      veterinarian: veterinarians[0],
+      notes: 'Primeira dose aplicada com sucesso',
       createdAt: new Date(),
     },
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
   const [selectedAnimalForCard, setSelectedAnimalForCard] = useState<Animal | null>(null);
   const [editingVaccine, setEditingVaccine] = useState<Vaccine | null>(null);
   const [formData, setFormData] = useState({
     animalId: '',
-    type: '',
+    productId: '',
     batch: '',
     applicationDate: '',
     nextDueDate: '',
-    veterinarian: '',
+    veterinarianId: '',
     notes: '',
   });
 
-  const filteredVaccines = vaccines.filter(vaccine =>
-    vaccine.animal?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vaccine.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vaccine.veterinarian.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vaccine.batch.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredVaccines = vaccines.filter(vaccine => {
+    const matchesSearch =
+      vaccine.animal?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vaccine.product?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vaccine.batch.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
+  });
 
-  const getVaccineStatus = (nextDueDate: Date) => {
-    const today = new Date();
-    const diffTime = nextDueDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) return { status: 'overdue', label: 'Vencida', color: 'destructive' };
-    if (diffDays <= 30) return { status: 'due-soon', label: 'Vence em breve', color: 'secondary' };
-    return { status: 'current', label: 'Em dia', color: 'default' };
-  };
-
-  const handleSave = () => {
-    const selectedAnimal = animals.find(a => a.id === formData.animalId);
-    
-    if (editingVaccine) {
-      setVaccines(vaccines.map(v => 
-        v.id === editingVaccine.id 
-          ? { 
-              ...editingVaccine, 
-              ...formData,
-              animal: selectedAnimal,
-              applicationDate: new Date(formData.applicationDate),
-              nextDueDate: new Date(formData.nextDueDate),
-            }
-          : v
-      ));
-    } else {
-      const newVaccine: Vaccine = {
-        id: Date.now().toString(),
-        ...formData,
-        animal: selectedAnimal,
-        applicationDate: new Date(formData.applicationDate),
-        nextDueDate: new Date(formData.nextDueDate),
-        createdAt: new Date(),
-      };
-      setVaccines([...vaccines, newVaccine]);
-    }
-    handleCloseDialog();
-  };
+  const upcomingVaccines = vaccines.filter(vaccine => {
+    const timeDiff = vaccine.nextDueDate.getTime() - new Date().getTime();
+    const daysUntil = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return daysUntil <= 30 && daysUntil >= 0;
+  });
 
   const handleCloseDialog = () => {
-    setIsAddDialogOpen(false);
+    setIsDialogOpen(false);
     setEditingVaccine(null);
     setFormData({
       animalId: '',
-      type: '',
+      productId: '',
       batch: '',
       applicationDate: '',
       nextDueDate: '',
-      veterinarian: '',
+      veterinarianId: '',
       notes: '',
     });
   };
@@ -160,259 +140,263 @@ const Vaccines: React.FC = () => {
     setEditingVaccine(vaccine);
     setFormData({
       animalId: vaccine.animalId,
-      type: vaccine.type,
+      productId: vaccine.productId,
       batch: vaccine.batch,
       applicationDate: vaccine.applicationDate.toISOString().split('T')[0],
       nextDueDate: vaccine.nextDueDate.toISOString().split('T')[0],
-      veterinarian: vaccine.veterinarian,
+      veterinarianId: vaccine.veterinarianId,
       notes: vaccine.notes || '',
     });
-    setIsAddDialogOpen(true);
+    setIsDialogOpen(true);
   };
 
   const handleDelete = (vaccineId: string) => {
-    setVaccines(vaccines.filter(v => v.id !== vaccineId));
+    setVaccines(vaccines.filter(vaccine => vaccine.id !== vaccineId));
   };
 
-  const openVaccineCard = (animal: Animal) => {
-    setSelectedAnimalForCard(animal);
-    setIsCardDialogOpen(true);
+  const handleSave = () => {
+    const selectedAnimal = animals.find(a => a.id === formData.animalId);
+    const selectedProduct = vaccineProducts.find(p => p.id === formData.productId);
+    const selectedVeterinarian = veterinarians.find(v => v.id === formData.veterinarianId);
+
+    if (editingVaccine) {
+      setVaccines(vaccines.map(vaccine =>
+        vaccine.id === editingVaccine.id
+          ? {
+              ...editingVaccine,
+              ...formData,
+              animal: selectedAnimal,
+              product: selectedProduct,
+              veterinarian: selectedVeterinarian,
+              applicationDate: new Date(formData.applicationDate),
+              nextDueDate: new Date(formData.nextDueDate),
+            }
+          : vaccine
+      ));
+    } else {
+      const newVaccine: Vaccine = {
+        id: Date.now().toString(),
+        ...formData,
+        animal: selectedAnimal,
+        product: selectedProduct,
+        veterinarian: selectedVeterinarian,
+        applicationDate: new Date(formData.applicationDate),
+        nextDueDate: new Date(formData.nextDueDate),
+        createdAt: new Date(),
+      } as Vaccine;
+      setVaccines([...vaccines, newVaccine]);
+    }
+    handleCloseDialog();
+  };
+
+  const handleProductChange = (productId: string) => {
+    const selectedProduct = vaccineProducts.find(p => p.id === productId);
+    setFormData({
+      ...formData,
+      productId,
+      batch: selectedProduct?.batch || '',
+    });
   };
 
   const getAnimalVaccines = (animalId: string) => {
-    return vaccines.filter(v => v.animalId === animalId).sort((a, b) => 
-      new Date(b.applicationDate).getTime() - new Date(a.applicationDate).getTime()
-    );
+    return vaccines.filter(v => v.animalId === animalId);
   };
-
-  const vaccineTypes = [
-    'V8', 'V10', 'V12', 'Antirrábica', 'Leishmaniose', 'Gripe Canina', 
-    'Giárdia', 'Tríplice Felina', 'FeLV', 'FIV'
-  ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('vaccines')}</h1>
-          <p className="text-gray-600">Controle de vacinas e imunizações</p>
+          <h1 className="text-3xl font-bold text-gray-900">Controle de Vacinas</h1>
+          <p className="text-gray-600">Gestão de vacinação dos animais</p>
         </div>
       </div>
 
-      {/* Alertas de vacinas próximas do vencimento */}
-      <Card className="border-orange-200 bg-orange-50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-orange-800">
-            <AlertTriangle className="w-5 h-5" />
-            Alertas de Vacinas
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {vaccines
-              .filter(v => {
-                const status = getVaccineStatus(v.nextDueDate);
-                return status.status === 'overdue' || status.status === 'due-soon';
-              })
-              .map(vaccine => (
-                <div key={vaccine.id} className="flex items-center justify-between p-3 bg-white rounded-lg border">
+      {upcomingVaccines.length > 0 && (
+        <Card className="border-yellow-200 bg-yellow-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-yellow-800">
+              <AlertTriangle className="w-5 h-5" />
+              Próximas Vacinas (30 dias)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {upcomingVaccines.map(vaccine => (
+                <div key={vaccine.id} className="flex items-center justify-between p-2 bg-white rounded border">
                   <div>
-                    <span className="font-medium">{vaccine.animal?.name}</span>
-                    <span className="mx-2">-</span>
-                    <span>{vaccine.type}</span>
+                    <div className="font-medium">{vaccine.animal?.name}</div>
+                    <div className="text-sm text-gray-500">{vaccine.product?.name}</div>
                   </div>
-                  <Badge variant={getVaccineStatus(vaccine.nextDueDate).color as any}>
-                    {getVaccineStatus(vaccine.nextDueDate).label}
-                  </Badge>
+                  <div className="text-sm text-gray-600">
+                    Próxima dose: {vaccine.nextDueDate.toLocaleDateString('pt-BR')}
+                  </div>
                 </div>
               ))}
-            {vaccines.filter(v => {
-              const status = getVaccineStatus(v.nextDueDate);
-              return status.status === 'overdue' || status.status === 'due-soon';
-            }).length === 0 && (
-              <p className="text-orange-700">Nenhuma vacina próxima do vencimento.</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Seção de Carteirinhas de Vacina */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5" />
-            Carteirinhas de Vacina Digital
-          </CardTitle>
-          <CardDescription>
-            Acesse e baixe as carteirinhas de vacina dos animais
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {animals.map((animal) => (
-              <Card key={animal.id} className="border-teal-200 hover:border-teal-400 transition-colors cursor-pointer"
-                    onClick={() => openVaccineCard(animal)}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Syringe className="w-4 h-4 text-teal-600" />
-                    {animal.name}
-                  </CardTitle>
-                  <CardDescription>{animal.species} - {animal.breed}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-sm text-gray-600">
-                    {getAnimalVaccines(animal.id).length} vacinas registradas
-                  </div>
-                  <Button variant="outline" size="sm" className="w-full mt-2">
-                    <Download className="w-4 h-4 mr-2" />
-                    Ver Carteirinha
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Histórico de Vacinas</CardTitle>
+              <CardTitle>Vacinas Aplicadas</CardTitle>
               <CardDescription>
-                {filteredVaccines.length} vacinas registradas
+                {filteredVaccines.length} vacinas encontradas
               </CardDescription>
             </div>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-teal-600 hover:bg-teal-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Registrar Vacina
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingVaccine ? 'Editar Vacina' : 'Registrar Vacina'}
-                  </DialogTitle>
-                  <DialogDescription>
-                    Preencha os dados da vacina aplicada
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                  <div className="md:col-span-2">
-                    <Label htmlFor="animalId">Animal</Label>
-                    <Select
-                      value={formData.animalId}
-                      onValueChange={(value) => setFormData({...formData, animalId: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o animal" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {animals.map((animal) => (
-                          <SelectItem key={animal.id} value={animal.id}>
-                            {animal.name} - {animal.species}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="type">Tipo de Vacina</Label>
-                    <Select
-                      value={formData.type}
-                      onValueChange={(value) => setFormData({...formData, type: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {vaccineTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="batch">Lote</Label>
-                    <Input
-                      id="batch"
-                      value={formData.batch}
-                      onChange={(e) => setFormData({...formData, batch: e.target.value})}
-                      placeholder="Ex: L001-2024"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="veterinarian">Veterinário</Label>
-                    <Input
-                      id="veterinarian"
-                      value={formData.veterinarian}
-                      onChange={(e) => setFormData({...formData, veterinarian: e.target.value})}
-                      placeholder="Nome do veterinário"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="applicationDate">Data de Aplicação</Label>
-                    <Input
-                      id="applicationDate"
-                      type="date"
-                      value={formData.applicationDate}
-                      onChange={(e) => setFormData({...formData, applicationDate: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="nextDueDate">Próxima Dose</Label>
-                    <Input
-                      id="nextDueDate"
-                      type="date"
-                      value={formData.nextDueDate}
-                      onChange={(e) => setFormData({...formData, nextDueDate: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="md:col-span-2">
-                    <Label htmlFor="notes">Observações</Label>
-                    <Textarea
-                      id="notes"
-                      value={formData.notes}
-                      onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                      placeholder="Observações sobre a vacina..."
-                      rows={3}
-                    />
-                  </div>
-                </div>
-                
-                <DialogFooter>
-                  <Button variant="outline" onClick={handleCloseDialog}>
-                    {t('cancel')}
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => setIsCardDialogOpen(true)}
+                className="border-blue-600 text-blue-600 hover:bg-blue-50"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Carteirinha Digital
+              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nova Vacina
                   </Button>
-                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700">
-                    {t('save')}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingVaccine ? 'Editar Vacina' : 'Nova Vacina'}
+                    </DialogTitle>
+                    <DialogDescription>
+                      Preencha os dados da aplicação da vacina
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                    <div className="md:col-span-2">
+                      <Label htmlFor="animalId">Animal</Label>
+                      <Select
+                        value={formData.animalId}
+                        onValueChange={(value) => setFormData({...formData, animalId: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o animal" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {animals.map((animal) => (
+                            <SelectItem key={animal.id} value={animal.id}>
+                              {animal.name} - {animal.species} ({animal.breed})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <Label htmlFor="productId">Vacina (Estoque)</Label>
+                      <Select
+                        value={formData.productId}
+                        onValueChange={handleProductChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a vacina" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {vaccineProducts.map((product) => (
+                            <SelectItem key={product.id} value={product.id}>
+                              {product.name} - Estoque: {product.quantity} (Lote: {product.batch})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="batch">Lote</Label>
+                      <Input
+                        id="batch"
+                        value={formData.batch}
+                        onChange={(e) => setFormData({...formData, batch: e.target.value})}
+                        placeholder="Número do lote"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="veterinarianId">Veterinário</Label>
+                      <Select
+                        value={formData.veterinarianId}
+                        onValueChange={(value) => setFormData({...formData, veterinarianId: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o veterinário" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {veterinarians.filter(v => v.active).map((vet) => (
+                            <SelectItem key={vet.id} value={vet.id}>
+                              {vet.name} - {vet.crmv}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="applicationDate">Data de Aplicação</Label>
+                      <Input
+                        id="applicationDate"
+                        type="date"
+                        value={formData.applicationDate}
+                        onChange={(e) => setFormData({...formData, applicationDate: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="nextDueDate">Próxima Dose</Label>
+                      <Input
+                        id="nextDueDate"
+                        type="date"
+                        value={formData.nextDueDate}
+                        onChange={(e) => setFormData({...formData, nextDueDate: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <Label htmlFor="notes">Observações</Label>
+                      <Textarea
+                        id="notes"
+                        value={formData.notes}
+                        onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                        placeholder="Observações sobre a aplicação, reações, etc..."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                  
+                  <DialogFooter>
+                    <Button variant="outline" onClick={handleCloseDialog}>
+                      {t('cancel')}
+                    </Button>
+                    <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+                      {t('save')}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </CardHeader>
         
         <CardContent>
-          <div className="flex items-center space-x-2 mb-6">
-            <Search className="w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Buscar por animal, vacina, lote ou veterinário..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="flex items-center space-x-2">
+              <Search className="w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Buscar por animal, vacina ou lote..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
           </div>
           
           <div className="rounded-md border">
@@ -425,159 +409,107 @@ const Vaccines: React.FC = () => {
                   <TableHead>Aplicação</TableHead>
                   <TableHead>Próxima Dose</TableHead>
                   <TableHead>Veterinário</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">{t('actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredVaccines.map((vaccine) => {
-                  const status = getVaccineStatus(vaccine.nextDueDate);
-                  return (
-                    <TableRow key={vaccine.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Syringe className="w-4 h-4 text-teal-600" />
-                          <div>
-                            <div className="font-medium">{vaccine.animal?.name}</div>
-                            <div className="text-sm text-gray-500">{vaccine.animal?.species}</div>
+                {filteredVaccines.map((vaccine) => (
+                  <TableRow key={vaccine.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Syringe className="w-4 h-4 text-blue-600" />
+                        <div>
+                          <div className="font-medium">{vaccine.animal?.name}</div>
+                          <div className="text-sm text-gray-500">
+                            {vaccine.animal?.species} - {vaccine.animal?.breed}
                           </div>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">{vaccine.type}</div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm font-mono">{vaccine.batch}</div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center text-sm">
-                          <Calendar className="w-3 h-3 mr-1" />
-                          {vaccine.applicationDate.toLocaleDateString('pt-BR')}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center text-sm">
-                          <Calendar className="w-3 h-3 mr-1" />
-                          {vaccine.nextDueDate.toLocaleDateString('pt-BR')}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">{vaccine.veterinarian}</div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={status.color as any}>
-                          {status.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(vaccine)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(vaccine.id)}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{vaccine.product?.name}</div>
+                      <div className="text-sm text-gray-500">{vaccine.product?.description}</div>
+                    </TableCell>
+                    <TableCell>{vaccine.batch}</TableCell>
+                    <TableCell>
+                      {vaccine.applicationDate.toLocaleDateString('pt-BR')}
+                    </TableCell>
+                    <TableCell>
+                      {vaccine.nextDueDate.toLocaleDateString('pt-BR')}
+                    </TableCell>
+                    <TableCell>{vaccine.veterinarian?.name}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(vaccine)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(vaccine.id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
 
-      {/* Dialog da Carteirinha de Vacina */}
+      {/* Carteirinha Digital Dialog */}
       <Dialog open={isCardDialogOpen} onOpenChange={setIsCardDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5" />
-              Carteirinha de Vacina - {selectedAnimalForCard?.name}
+            <DialogTitle className="flex items-center justify-between">
+              Carteirinha de Vacinação Digital
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsCardDialogOpen(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </DialogTitle>
-            <DialogDescription>
-              Histórico completo de vacinação
-            </DialogDescription>
           </DialogHeader>
           
-          {selectedAnimalForCard && (
-            <div className="space-y-4">
-              {/* Cabeçalho da carteirinha */}
-              <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-6 rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className="bg-white p-3 rounded-full">
-                    <Syringe className="w-8 h-8 text-teal-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">{selectedAnimalForCard.name}</h3>
-                    <p className="text-teal-100">{selectedAnimalForCard.species} - {selectedAnimalForCard.breed}</p>
-                    <p className="text-teal-100 text-sm">Idade: {selectedAnimalForCard.age} anos | Peso: {selectedAnimalForCard.weight}kg</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Lista de vacinas */}
-              <div className="space-y-3">
-                <h4 className="font-semibold text-gray-900">Histórico de Vacinas</h4>
-                {getAnimalVaccines(selectedAnimalForCard.id).map((vaccine, index) => (
-                  <div key={vaccine.id} className="border rounded-lg p-4 bg-gray-50">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h5 className="font-medium text-gray-900">{vaccine.type}</h5>
-                        <p className="text-sm text-gray-600">Lote: {vaccine.batch}</p>
-                      </div>
-                      <Badge variant={getVaccineStatus(vaccine.nextDueDate).color as any}>
-                        {getVaccineStatus(vaccine.nextDueDate).label}
-                      </Badge>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-500">Aplicação:</span>
-                        <p className="font-medium">{vaccine.applicationDate.toLocaleDateString('pt-BR')}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Próxima dose:</span>
-                        <p className="font-medium">{vaccine.nextDueDate.toLocaleDateString('pt-BR')}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <span className="text-gray-500">Veterinário:</span>
-                        <p className="font-medium">{vaccine.veterinarian}</p>
-                      </div>
-                      {vaccine.notes && (
-                        <div className="col-span-2">
-                          <span className="text-gray-500">Observações:</span>
-                          <p className="font-medium">{vaccine.notes}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {getAnimalVaccines(selectedAnimalForCard.id).length === 0 && (
-                  <p className="text-gray-500 text-center py-4">Nenhuma vacina registrada para este animal.</p>
-                )}
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCardDialogOpen(false)}>
-              Fechar
-            </Button>
-            <Button className="bg-teal-600 hover:bg-teal-700">
-              <Download className="w-4 h-4 mr-2" />
-              Baixar PDF
-            </Button>
-          </DialogFooter>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {animals.map(animal => (
+              <Card key={animal.id} className="shadow-md">
+                <CardHeader>
+                  <CardTitle className="text-xl">{animal.name}</CardTitle>
+                  <CardDescription>
+                    {animal.species} - {animal.breed}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <h4 className="text-lg font-semibold mb-2">Vacinas Aplicadas:</h4>
+                  {getAnimalVaccines(animal.id).length > 0 ? (
+                    <ul className="list-disc list-inside">
+                      {getAnimalVaccines(animal.id).map(vaccine => (
+                        <li key={vaccine.id} className="mb-1">
+                          <span className="font-medium">{vaccine.product?.name}</span>
+                          <div className="text-sm text-gray-500">
+                            Data: {vaccine.applicationDate.toLocaleDateString('pt-BR')} | Próxima: {vaccine.nextDueDate.toLocaleDateString('pt-BR')}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">Nenhuma vacina aplicada.</p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
