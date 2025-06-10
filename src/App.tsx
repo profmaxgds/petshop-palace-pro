@@ -12,9 +12,6 @@ import Animals from './components/pages/Animals';
 import Vaccines from './components/pages/Vaccines';
 import Appointments from './components/pages/Appointments';
 import Grooming from './components/pages/Grooming';
-import Inventory from './components/pages/Inventory';
-import Veterinarians from './components/pages/Veterinarians';
-import ServiceTypes from './components/pages/ServiceTypes';
 import Settings from './components/pages/Settings';
 import { getCurrentLanguage } from './lib/i18n';
 
@@ -49,11 +46,7 @@ const App = () => {
       case 'grooming':
         return <Grooming />;
       case 'inventory':
-        return <Inventory />;
-      case 'veterinarians':
-        return <Veterinarians />;
-      case 'service-types':
-        return <ServiceTypes />;
+        return <div className="p-6">Página de Estoque em desenvolvimento...</div>;
       case 'purchases':
         return <div className="p-6">Página de Compras em desenvolvimento...</div>;
       case 'accounts-payable':

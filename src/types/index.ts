@@ -78,8 +78,6 @@ export interface Product {
   costPrice: number;
   salePrice: number;
   supplier: string;
-  batch?: string;
-  expirationDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -145,29 +143,6 @@ export interface BankAccount {
   account: string;
   holder: string;
   balance: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Veterinarian {
-  id: string;
-  name: string;
-  crmv: string;
-  phone: string;
-  email: string;
-  specialties: string[];
-  status: 'active' | 'inactive';
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface ServiceType {
-  id: string;
-  name: string;
-  category: 'grooming' | 'veterinary';
-  price: number;
-  duration: number; // em minutos
-  description?: string;
   createdAt: Date;
   updatedAt: Date;
 }

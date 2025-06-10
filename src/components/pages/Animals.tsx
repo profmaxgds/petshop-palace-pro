@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Trash2, Heart, Scale, Calendar, Syringe } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Heart, Scale, Calendar } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import type { Animal, Tutor } from '@/types';
 
@@ -364,15 +365,6 @@ const Animals: React.FC = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {/* Navigate to vaccines page with animal pre-selected */}}
-                          className="text-green-600 hover:text-green-800"
-                          title="Vacinar Animal"
-                        >
-                          <Syringe className="w-4 h-4" />
-                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Trash2, Phone, Mail, MapPin, Heart } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Phone, Mail, MapPin } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import type { Tutor } from '@/types';
 
@@ -140,7 +141,7 @@ const Tutors: React.FC = () => {
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button className="bg-teal-600 hover:bg-teal-700">
                   <Plus className="w-4 h-4 mr-2" />
                   {t('addTutor')}
                 </Button>
@@ -280,7 +281,7 @@ const Tutors: React.FC = () => {
                   <Button variant="outline" onClick={handleCloseDialog}>
                     {t('cancel')}
                   </Button>
-                  <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700">
                     {t('save')}
                   </Button>
                 </DialogFooter>
@@ -344,15 +345,6 @@ const Tutors: React.FC = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {/* Navigate to animals page with tutor pre-selected */}}
-                          className="text-green-600 hover:text-green-800"
-                          title="Cadastrar Animal"
-                        >
-                          <Heart className="w-4 h-4" />
-                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"

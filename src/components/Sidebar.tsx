@@ -14,12 +14,10 @@ import {
   Banknote,
   Wallet,
   Building2,
-  UserMd,
   Settings,
   LogOut,
   ChevronLeft,
-  ChevronRight,
-  Wrench
+  ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
@@ -44,8 +42,6 @@ const menuItems = [
   { key: 'accounts-receivable', icon: Banknote, label: 'accountsReceivable' },
   { key: 'cash-flow', icon: Wallet, label: 'cashFlow' },
   { key: 'banks', icon: Building2, label: 'banks' },
-  { key: 'veterinarians', icon: UserMd, label: 'veterinarians' },
-  { key: 'service-types', icon: Wrench, label: 'serviceTypes' },
 ] as const;
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -56,11 +52,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <div className={cn(
-      "bg-gradient-to-b from-blue-600 to-blue-700 text-white transition-all duration-300 flex flex-col",
+      "bg-gradient-to-b from-teal-600 to-teal-700 text-white transition-all duration-300 flex flex-col",
       collapsed ? "w-16" : "w-64"
     )}>
       {/* Header */}
-      <div className="p-4 border-b border-blue-500">
+      <div className="p-4 border-b border-teal-500">
         <div className="flex items-center justify-between">
           {!collapsed && (
             <div className="flex items-center gap-2">
@@ -72,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             variant="ghost"
             size="sm"
             onClick={onToggleCollapse}
-            className="text-white hover:bg-blue-500"
+            className="text-white hover:bg-teal-500"
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </Button>
@@ -93,8 +89,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
                     isActive 
-                      ? "bg-white text-blue-700 shadow-sm" 
-                      : "text-blue-100 hover:bg-blue-500 hover:text-white"
+                      ? "bg-white text-teal-700 shadow-sm" 
+                      : "text-teal-100 hover:bg-teal-500 hover:text-white"
                   )}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
@@ -109,14 +105,14 @@ const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* Footer */}
-      <div className="p-2 border-t border-blue-500">
+      <div className="p-2 border-t border-teal-500">
         <button
           onClick={() => onPageChange('settings')}
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors mb-2",
             currentPage === 'settings'
-              ? "bg-white text-blue-700 shadow-sm"
-              : "text-blue-100 hover:bg-blue-500 hover:text-white"
+              ? "bg-white text-teal-700 shadow-sm"
+              : "text-teal-100 hover:bg-teal-500 hover:text-white"
           )}
         >
           <Settings className="w-5 h-5 flex-shrink-0" />
@@ -125,7 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         
         <button
           onClick={() => {/* Handle logout */}}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-blue-100 hover:bg-red-500 hover:text-white transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-teal-100 hover:bg-red-500 hover:text-white transition-colors"
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
           {!collapsed && <span>{t('logout')}</span>}
