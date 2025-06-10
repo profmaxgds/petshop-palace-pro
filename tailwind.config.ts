@@ -56,18 +56,54 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// PetShop theme colors
-				teal: {
-					50: '#f0fdfa',
-					100: '#ccfbf1',
-					200: '#99f6e4',
-					300: '#5eead4',
-					400: '#2dd4bf',
-					500: '#14b8a6',
-					600: '#0d9488',
-					700: '#0f766e',
-					800: '#115e59',
-					900: '#134e4a',
+				// PetShop theme colors - Nova paleta azul
+				blue: {
+					50: '#f0f9ff',
+					100: '#e0f2fe',
+					200: '#bae6fd',
+					300: '#7dd3fc',
+					400: '#38bdf8',
+					500: '#06a1ff', // Cor principal
+					600: '#0284c7',
+					700: '#0369a1',
+					800: '#075985',
+					900: '#0c4a6e',
+				},
+				gray: {
+					50: '#f8fafc',
+					100: '#f1f5f9',
+					200: '#e2e8f0',
+					300: '#cbd5e1',
+					400: '#a1acbd', // Cinza claro
+					500: '#64748b',
+					600: '#475569',
+					700: '#3d4756', // Cinza principal
+					800: '#1e293b',
+					900: '#0f172a',
+				},
+				pink: {
+					50: '#fdf2f8',
+					100: '#fce7f3',
+					200: '#fbcfe8',
+					300: '#f9a8d4',
+					400: '#f472b6',
+					500: '#f46e9f', // Rosa
+					600: '#ec4899',
+					700: '#be185d',
+					800: '#b8356b', // Rosa escuro
+					900: '#831843',
+				},
+				green: {
+					50: '#f0fdf4',
+					100: '#dcfce7',
+					200: '#bbf7d0',
+					300: '#86efac',
+					400: '#4ade80',
+					500: '#34c191', // Verde
+					600: '#16a34a',
+					700: '#15803d',
+					800: '#166534',
+					900: '#14532d',
 				},
 				orange: {
 					50: '#fff7ed',
@@ -75,11 +111,24 @@ export default {
 					200: '#fed7aa',
 					300: '#fdba74',
 					400: '#fb923c',
-					500: '#f97316',
+					500: '#f67546', // Laranja
 					600: '#ea580c',
 					700: '#c2410c',
 					800: '#9a3412',
 					900: '#7c2d12',
+				},
+				// Manter teal para compatibilidade
+				teal: {
+					50: '#f0fdfa',
+					100: '#ccfbf1',
+					200: '#99f6e4',
+					300: '#5eead4',
+					400: '#2dd4bf',
+					500: '#06a1ff', // Mapear para o azul principal
+					600: '#0284c7',
+					700: '#0369a1',
+					800: '#075985',
+					900: '#0c4a6e',
 				},
 			},
 			borderRadius: {

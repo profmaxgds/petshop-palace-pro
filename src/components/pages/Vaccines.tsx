@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,13 +41,21 @@ const Vaccines: React.FC = () => {
     },
   ];
 
+  // Mock products (vaccines) from inventory
+  const vaccineProducts = [
+    { id: '1', name: 'Vacina V10', batch: 'V10-2024-001' },
+    { id: '2', name: 'Vacina Antirrábica', batch: 'AR-2024-002' },
+    { id: '3', name: 'Vacina Leishmaniose', batch: 'LE-2024-003' },
+    { id: '4', name: 'Vacina Gripe Canina', batch: 'GC-2024-004' },
+  ];
+
   const [vaccines, setVaccines] = useState<Vaccine[]>([
     {
       id: '1',
       animalId: '1',
       animal: animals[0],
       type: 'V10',
-      batch: 'L001-2024',
+      batch: 'V10-2024-001',
       applicationDate: new Date('2024-01-15'),
       nextDueDate: new Date('2025-01-15'),
       veterinarian: 'Dr. Carlos Silva',
@@ -60,7 +67,7 @@ const Vaccines: React.FC = () => {
       animalId: '2',
       animal: animals[1],
       type: 'Antirrábica',
-      batch: 'L002-2024',
+      batch: 'AR-2024-002',
       applicationDate: new Date('2024-02-10'),
       nextDueDate: new Date('2025-02-10'),
       veterinarian: 'Dra. Ana Costa',
@@ -72,7 +79,7 @@ const Vaccines: React.FC = () => {
       animalId: '1',
       animal: animals[0],
       type: 'Leishmaniose',
-      batch: 'L003-2023',
+      batch: 'LE-2023-003',
       applicationDate: new Date('2023-12-01'),
       nextDueDate: new Date('2024-06-01'),
       veterinarian: 'Dr. Carlos Silva',
@@ -189,6 +196,99 @@ const Vaccines: React.FC = () => {
     'V8', 'V10', 'V12', 'Antirrábica', 'Leishmaniose', 'Gripe Canina', 
     'Giárdia', 'Tríplice Felina', 'FeLV', 'FIV'
   ];
+
+  const downloadVaccineCard = (animal: Animal) => {
+    const animalVaccines = getAnimalVaccines(animal.id);
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Carteirinha de Vacina - ${animal.name}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          .header { background: linear-gradient(135deg, #06a1ff, #3d4756); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+          .animal-info { display: flex; align-items: center; gap: 15px; }
+          .vaccine-card { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 8px; }
+          .vaccine-header { display: flex; justify-content: between; align-items: center; margin-bottom: 10px; }
+          .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+          .status-current { background: #d1fae5; color: #065f46; }
+          .status-due-soon { background: #fef3c7; color: #92400e; }
+          .status-overdue { background: #fee2e2; color: #991b1b; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+          .info-item { margin-bottom: 5px; }
+          .label { color: #666; font-size: 14px; }
+          .value { font-weight: bold; margin-top: 2px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="animal-info">
+            <div>
+              <h1>${animal.name}</h1>
+              <p>${animal.species} - ${animal.breed}</p>
+              <p>Idade: ${animal.age} anos | Peso: ${animal.weight}kg</p>
+            </div>
+          </div>
+        </div>
+        
+        <h2>Histórico de Vacinas</h2>
+        ${animalVaccines.map(vaccine => {
+          const status = getVaccineStatus(vaccine.nextDueDate);
+          return `
+            <div class="vaccine-card">
+              <div class="vaccine-header">
+                <h3>${vaccine.type}</h3>
+                <span class="status-badge status-${status.status}">${status.label}</span>
+              </div>
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="label">Lote:</div>
+                  <div class="value">${vaccine.batch}</div>
+                </div>
+                <div class="info-item">
+                  <div class="label">Aplicação:</div>
+                  <div class="value">${vaccine.applicationDate.toLocaleDateString('pt-BR')}</div>
+                </div>
+                <div class="info-item">
+                  <div class="label">Próxima dose:</div>
+                  <div class="value">${vaccine.nextDueDate.toLocaleDateString('pt-BR')}</div>
+                </div>
+                <div class="info-item">
+                  <div class="label">Veterinário:</div>
+                  <div class="value">${vaccine.veterinarian}</div>
+                </div>
+                ${vaccine.notes ? `
+                  <div class="info-item" style="grid-column: 1 / -1;">
+                    <div class="label">Observações:</div>
+                    <div class="value">${vaccine.notes}</div>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('')}
+        
+        ${animalVaccines.length === 0 ? '<p>Nenhuma vacina registrada para este animal.</p>' : ''}
+        
+        <div style="margin-top: 30px; text-align: center; color: #666; font-size: 12px;">
+          <p>Carteirinha gerada em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `carteirinha-vacina-${animal.name.toLowerCase().replace(/\s+/g, '-')}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-6">
@@ -321,18 +421,25 @@ const Vaccines: React.FC = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="type">Tipo de Vacina</Label>
+                    <Label htmlFor="type">Vacina (do Estoque)</Label>
                     <Select
                       value={formData.type}
-                      onValueChange={(value) => setFormData({...formData, type: value})}
+                      onValueChange={(value) => {
+                        const selectedProduct = vaccineProducts.find(p => p.name === value);
+                        setFormData({
+                          ...formData, 
+                          type: value,
+                          batch: selectedProduct?.batch || ''
+                        });
+                      }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo" />
+                        <SelectValue placeholder="Selecione da lista de estoque" />
                       </SelectTrigger>
                       <SelectContent>
-                        {vaccineTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
+                        {vaccineProducts.map((product) => (
+                          <SelectItem key={product.id} value={product.name}>
+                            {product.name} - Lote: {product.batch}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -345,18 +452,25 @@ const Vaccines: React.FC = () => {
                       id="batch"
                       value={formData.batch}
                       onChange={(e) => setFormData({...formData, batch: e.target.value})}
-                      placeholder="Ex: L001-2024"
+                      placeholder="Preenchido automaticamente"
+                      disabled
                     />
                   </div>
                   
                   <div>
                     <Label htmlFor="veterinarian">Veterinário</Label>
-                    <Input
-                      id="veterinarian"
+                    <Select
                       value={formData.veterinarian}
-                      onChange={(e) => setFormData({...formData, veterinarian: e.target.value})}
-                      placeholder="Nome do veterinário"
-                    />
+                      onValueChange={(value) => setFormData({...formData, veterinarian: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o veterinário" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Dr. Carlos Silva">Dr. Carlos Silva</SelectItem>
+                        <SelectItem value="Dra. Ana Costa">Dra. Ana Costa</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   
                   <div>
@@ -395,7 +509,7 @@ const Vaccines: React.FC = () => {
                   <Button variant="outline" onClick={handleCloseDialog}>
                     {t('cancel')}
                   </Button>
-                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700">
+                  <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
                     {t('save')}
                   </Button>
                 </DialogFooter>
@@ -436,7 +550,7 @@ const Vaccines: React.FC = () => {
                     <TableRow key={vaccine.id}>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Syringe className="w-4 h-4 text-teal-600" />
+                          <Syringe className="w-4 h-4 text-blue-600" />
                           <div>
                             <div className="font-medium">{vaccine.animal?.name}</div>
                             <div className="text-sm text-gray-500">{vaccine.animal?.species}</div>
@@ -513,15 +627,15 @@ const Vaccines: React.FC = () => {
           {selectedAnimalForCard && (
             <div className="space-y-4">
               {/* Cabeçalho da carteirinha */}
-              <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-6 rounded-lg">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg">
                 <div className="flex items-center gap-4">
                   <div className="bg-white p-3 rounded-full">
-                    <Syringe className="w-8 h-8 text-teal-600" />
+                    <Syringe className="w-8 h-8 text-blue-600" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold">{selectedAnimalForCard.name}</h3>
-                    <p className="text-teal-100">{selectedAnimalForCard.species} - {selectedAnimalForCard.breed}</p>
-                    <p className="text-teal-100 text-sm">Idade: {selectedAnimalForCard.age} anos | Peso: {selectedAnimalForCard.weight}kg</p>
+                    <p className="text-blue-100">{selectedAnimalForCard.species} - {selectedAnimalForCard.breed}</p>
+                    <p className="text-blue-100 text-sm">Idade: {selectedAnimalForCard.age} anos | Peso: {selectedAnimalForCard.weight}kg</p>
                   </div>
                 </div>
               </div>
@@ -573,9 +687,12 @@ const Vaccines: React.FC = () => {
             <Button variant="outline" onClick={() => setIsCardDialogOpen(false)}>
               Fechar
             </Button>
-            <Button className="bg-teal-600 hover:bg-teal-700">
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={() => selectedAnimalForCard && downloadVaccineCard(selectedAnimalForCard)}
+            >
               <Download className="w-4 h-4 mr-2" />
-              Baixar PDF
+              Baixar Carteirinha
             </Button>
           </DialogFooter>
         </DialogContent>
