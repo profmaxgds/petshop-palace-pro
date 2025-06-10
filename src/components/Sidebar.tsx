@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
 import { 
   Users, 
   Heart, 
@@ -24,8 +23,6 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) => {
-  const location = useLocation();
-
   const menuItems = [
     { icon: BarChart3, label: 'Dashboard', path: '/', key: 'dashboard' },
     { icon: Users, label: 'Tutores', path: '/tutors', key: 'tutors' },
