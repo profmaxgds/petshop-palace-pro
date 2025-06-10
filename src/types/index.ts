@@ -1,4 +1,3 @@
-
 export interface Tutor {
   id: string;
   name: string;
@@ -153,4 +152,28 @@ export interface User {
   email: string;
   role: 'admin' | 'veterinarian' | 'receptionist';
   createdAt: Date;
+}
+
+export interface Veterinarian {
+  id: string;
+  name: string;
+  crmv: string;
+  specialties: string[];
+  phone: string;
+  email: string;
+  status: 'active' | 'inactive';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ServiceType {
+  id: string;
+  name: string;
+  category: 'consultation' | 'exam' | 'surgery' | 'grooming';
+  duration: number; // em minutos
+  price: number;
+  description?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,12 +8,80 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar as CalendarIcon, Clock, Plus, Edit, Trash2, Search, Stethoscope, User } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Plus, Edit, Trash2, Search, Stethoscope, User, Scissors, Activity, Beaker } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Appointment, Animal } from '@/types';
+import type { Appointment, Animal, Veterinarian, ServiceType } from '@/types';
 
 const Appointments: React.FC = () => {
-  // Mock animals data
+  // Mock data
+  const veterinarians: Veterinarian[] = [
+    {
+      id: '1',
+      name: 'Dr. Carlos Silva',
+      crmv: 'CRMV-SP 12345',
+      specialties: ['Clínica Geral', 'Dermatologia'],
+      phone: '(11) 99999-9999',
+      email: 'carlos@clinica.com',
+      status: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '2',
+      name: 'Dra. Ana Costa',
+      crmv: 'CRMV-SP 67890',
+      specialties: ['Cirurgia', 'Cardiologia'],
+      phone: '(11) 88888-8888',
+      email: 'ana@clinica.com',
+      status: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  const serviceTypes: ServiceType[] = [
+    {
+      id: '1',
+      name: 'Consulta Clínica Geral',
+      category: 'consultation',
+      duration: 30,
+      price: 80.00,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '2',
+      name: 'Hemograma Completo',
+      category: 'exam',
+      duration: 15,
+      price: 45.00,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '3',
+      name: 'Banho e Tosa',
+      category: 'grooming',
+      duration: 120,
+      price: 35.00,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '4',
+      name: 'Castração',
+      category: 'surgery',
+      duration: 180,
+      price: 200.00,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
   const animals: Animal[] = [
     {
       id: '1',
@@ -89,8 +156,8 @@ const Appointments: React.FC = () => {
     animalId: '',
     date: '',
     time: '',
-    type: 'consultation' as Appointment['type'],
-    veterinarian: '',
+    serviceTypeId: '',
+    veterinarianId: '',
     notes: '',
   });
 
@@ -118,6 +185,21 @@ const Appointments: React.FC = () => {
     }
   };
 
+  const getTypeIcon = (type: Appointment['type']) => {
+    switch (type) {
+      case 'consultation':
+        return <Stethoscope className="w-4 h-4 text-blue-600" />;
+      case 'exam':
+        return <Beaker className="w-4 h-4 text-purple-600" />;
+      case 'surgery':
+        return <Activity className="w-4 h-4 text-red-600" />;
+      case 'grooming':
+        return <Scissors className="w-4 h-4 text-green-600" />;
+      default:
+        return <Stethoscope className="w-4 h-4 text-blue-600" />;
+    }
+  };
+
   const getTypeBadge = (type: Appointment['type']) => {
     switch (type) {
       case 'consultation':
@@ -135,25 +217,35 @@ const Appointments: React.FC = () => {
 
   const handleSave = () => {
     const selectedAnimal = animals.find(a => a.id === formData.animalId);
+    const selectedVet = veterinarians.find(v => v.id === formData.veterinarianId);
+    const selectedService = serviceTypes.find(s => s.id === formData.serviceTypeId);
     
     if (editingAppointment) {
       setAppointments(appointments.map(a => 
         a.id === editingAppointment.id 
           ? { 
               ...editingAppointment, 
-              ...formData,
+              animalId: formData.animalId,
               animal: selectedAnimal,
               date: new Date(formData.date),
+              time: formData.time,
+              type: selectedService?.category || 'consultation',
+              veterinarian: selectedVet?.name || '',
+              notes: formData.notes,
             }
           : a
       ));
     } else {
       const newAppointment: Appointment = {
         id: Date.now().toString(),
-        ...formData,
+        animalId: formData.animalId,
         animal: selectedAnimal,
         date: new Date(formData.date),
+        time: formData.time,
+        type: selectedService?.category || 'consultation',
+        veterinarian: selectedVet?.name || '',
         status: 'scheduled',
+        notes: formData.notes,
         createdAt: new Date(),
       };
       setAppointments([...appointments, newAppointment]);
@@ -168,8 +260,8 @@ const Appointments: React.FC = () => {
       animalId: '',
       date: '',
       time: '',
-      type: 'consultation',
-      veterinarian: '',
+      serviceTypeId: '',
+      veterinarianId: '',
       notes: '',
     });
   };
@@ -180,8 +272,8 @@ const Appointments: React.FC = () => {
       animalId: appointment.animalId,
       date: appointment.date.toISOString().split('T')[0],
       time: appointment.time,
-      type: appointment.type,
-      veterinarian: appointment.veterinarian,
+      serviceTypeId: appointment.serviceTypeId,
+      veterinarianId: appointment.veterinarianId,
       notes: appointment.notes || '',
     });
     setIsDialogOpen(true);
@@ -197,7 +289,6 @@ const Appointments: React.FC = () => {
     ));
   };
 
-  const veterinarians = ['Dr. Carlos Silva', 'Dra. Ana Costa', 'Dr. João Santos', 'Dra. Maria Oliveira'];
   const timeSlots = [
     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
     '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'
@@ -319,37 +410,38 @@ const Appointments: React.FC = () => {
                     </Select>
                   </div>
                   
-                  <div>
-                    <Label htmlFor="type">Tipo</Label>
+                  <div className="md:col-span-2">
+                    <Label htmlFor="serviceTypeId">Tipo de Serviço</Label>
                     <Select
-                      value={formData.type}
-                      onValueChange={(value) => setFormData({...formData, type: value as Appointment['type']})}
+                      value={formData.serviceTypeId}
+                      onValueChange={(value) => setFormData({...formData, serviceTypeId: value})}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo" />
+                        <SelectValue placeholder="Selecione o tipo de serviço" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="consultation">Consulta</SelectItem>
-                        <SelectItem value="exam">Exame</SelectItem>
-                        <SelectItem value="surgery">Cirurgia</SelectItem>
-                        <SelectItem value="grooming">Banho & Tosa</SelectItem>
+                        {serviceTypes.filter(s => s.isActive).map((service) => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name} - R$ {service.price.toFixed(2)}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                   
-                  <div>
-                    <Label htmlFor="veterinarian">Veterinário</Label>
+                  <div className="md:col-span-2">
+                    <Label htmlFor="veterinarianId">Veterinário</Label>
                     <Select
-                      value={formData.veterinarian}
-                      onValueChange={(value) => setFormData({...formData, veterinarian: value})}
+                      value={formData.veterinarianId}
+                      onValueChange={(value) => setFormData({...formData, veterinarianId: value})}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o veterinário" />
                       </SelectTrigger>
                       <SelectContent>
-                        {veterinarians.map((vet) => (
-                          <SelectItem key={vet} value={vet}>
-                            {vet}
+                        {veterinarians.filter(v => v.status === 'active').map((vet) => (
+                          <SelectItem key={vet.id} value={vet.id}>
+                            {vet.name} - {vet.crmv}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -456,7 +548,7 @@ const Appointments: React.FC = () => {
                     <TableRow key={appointment.id}>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Stethoscope className="w-4 h-4 text-blue-600" />
+                          {getTypeIcon(appointment.type)}
                           <div>
                             <div className="font-medium">{appointment.animal?.name}</div>
                             <div className="text-sm text-gray-500">{appointment.animal?.species}</div>

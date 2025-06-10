@@ -17,7 +17,9 @@ import {
   Settings,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Stethoscope,
+  ClipboardList
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
@@ -36,6 +38,8 @@ const menuItems = [
   { key: 'vaccines', icon: Syringe, label: 'vaccines' },
   { key: 'appointments', icon: Calendar, label: 'appointments' },
   { key: 'grooming', icon: Scissors, label: 'grooming' },
+  { key: 'veterinarians', icon: Stethoscope, label: 'veterinarians' },
+  { key: 'service-types', icon: ClipboardList, label: 'serviceTypes' },
   { key: 'inventory', icon: Package, label: 'inventory' },
   { key: 'purchases', icon: ShoppingCart, label: 'purchases' },
   { key: 'accounts-payable', icon: CreditCard, label: 'accountsPayable' },
