@@ -14,6 +14,10 @@ import Appointments from './components/pages/Appointments';
 import Grooming from './components/pages/Grooming';
 import Veterinarians from './components/pages/Veterinarians';
 import ServiceTypes from './components/pages/ServiceTypes';
+import Products from './components/pages/Products';
+import Inventory from './components/pages/Inventory';
+import Purchases from './components/pages/Purchases';
+import AccountsPayable from './components/pages/AccountsPayable';
 import Settings from './components/pages/Settings';
 import { getCurrentLanguage } from './lib/i18n';
 

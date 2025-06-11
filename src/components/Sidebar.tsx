@@ -40,6 +40,7 @@ const menuItems = [
   { key: 'grooming', icon: Scissors, label: 'grooming' },
   { key: 'veterinarians', icon: Stethoscope, label: 'veterinarians' },
   { key: 'service-types', icon: ClipboardList, label: 'serviceTypes' },
+  { key: 'products', icon: Package, label: 'products' },
   { key: 'inventory', icon: Package, label: 'inventory' },
   { key: 'purchases', icon: ShoppingCart, label: 'purchases' },
   { key: 'accounts-payable', icon: CreditCard, label: 'accountsPayable' },
