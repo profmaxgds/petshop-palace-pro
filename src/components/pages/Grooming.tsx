@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar as CalendarIcon, Scissors, Plus, Edit, Trash2, Search, DollarSign, Clock } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { GroomingService, Animal } from '@/types';
+import type { GroomingService, Animal, ServiceType } from '@/types';
 
 const Grooming: React.FC = () => {
   // Mock animals data
@@ -41,18 +41,23 @@ const Grooming: React.FC = () => {
     },
   ];
 
-  // Mock service types from ServiceTypes page
-  const serviceTypes = [
-    { id: '1', name: 'Banho Simples', category: 'grooming' as const, price: 35.00 },
-    { id: '2', name: 'Banho com Condicionador', category: 'grooming' as const, price: 45.00 },
-    { id: '3', name: 'Tosa Higiênica', category: 'grooming' as const, price: 25.00 },
-    { id: '4', name: 'Tosa na Máquina', category: 'grooming' as const, price: 40.00 },
-    { id: '5', name: 'Tosa na Tesoura', category: 'grooming' as const, price: 55.00 },
-    { id: '6', name: 'Banho e Tosa Completa', category: 'grooming' as const, price: 80.00 },
-    { id: '7', name: 'Corte de Unhas', category: 'grooming' as const, price: 15.00 },
-    { id: '8', name: 'Limpeza de Ouvidos', category: 'grooming' as const, price: 20.00 },
-    { id: '9', name: 'Escovação de Dentes', category: 'grooming' as const, price: 25.00 },
+  // Mock service types - apenas serviços de grooming
+  const serviceTypes: ServiceType[] = [
+    { id: '1', name: 'Banho Simples', category: 'grooming', duration: 30, price: 35.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: '2', name: 'Banho com Condicionador', category: 'grooming', duration: 45, price: 45.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: '3', name: 'Tosa Higiênica', category: 'grooming', duration: 25, price: 25.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: '4', name: 'Tosa na Máquina', category: 'grooming', duration: 60, price: 40.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: '5', name: 'Tosa na Tesoura', category: 'grooming', duration: 90, price: 55.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: '6', name: 'Banho e Tosa Completa', category: 'grooming', duration: 120, price: 80.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: '7', name: 'Corte de Unhas', category: 'grooming', duration: 15, price: 15.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: '8', name: 'Limpeza de Ouvidos', category: 'grooming', duration: 20, price: 20.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: '9', name: 'Escovação de Dentes', category: 'grooming', duration: 25, price: 25.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
   ];
+
+  // Filtrar apenas serviços de grooming ativos
+  const groomingServiceTypes = serviceTypes.filter(service => 
+    service.category === 'grooming' && service.isActive
+  );
 
   const [groomingServices, setGroomingServices] = useState<GroomingService[]>([
     {
@@ -126,7 +131,7 @@ const Grooming: React.FC = () => {
 
   const handleSave = () => {
     const selectedAnimal = animals.find(a => a.id === formData.animalId);
-    const selectedService = serviceTypes.find(s => s.id === formData.serviceTypeId);
+    const selectedService = groomingServiceTypes.find(s => s.id === formData.serviceTypeId);
     
     if (editingService) {
       setGroomingServices(groomingServices.map(s => 
@@ -171,7 +176,7 @@ const Grooming: React.FC = () => {
   };
 
   const handleEdit = (service: GroomingService) => {
-    const selectedService = serviceTypes.find(s => s.name === service.serviceType);
+    const selectedService = groomingServiceTypes.find(s => s.name === service.serviceType);
     setEditingService(service);
     setFormData({
       animalId: service.animalId,
@@ -320,7 +325,7 @@ const Grooming: React.FC = () => {
                         <SelectValue placeholder="Selecione o serviço" />
                       </SelectTrigger>
                       <SelectContent>
-                        {serviceTypes.map((service) => (
+                        {groomingServiceTypes.map((service) => (
                           <SelectItem key={service.id} value={service.id}>
                             {service.name} - R$ {service.price.toFixed(2)}
                           </SelectItem>
