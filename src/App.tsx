@@ -55,12 +55,14 @@ const App = () => {
         return <Veterinarians />;
       case 'service-types':
         return <ServiceTypes />;
+      case 'products':
+        return <Products />;
       case 'inventory':
-        return <div className="p-6">Página de Estoque em desenvolvimento...</div>;
+        return <Inventory />;
       case 'purchases':
-        return <div className="p-6">Página de Compras em desenvolvimento...</div>;
+        return <Purchases />;
       case 'accounts-payable':
-        return <div className="p-6">Página de Contas a Pagar em desenvolvimento...</div>;
+        return <AccountsPayable />;
       case 'accounts-receivable':
         return <div className="p-6">Página de Contas a Receber em desenvolvimento...</div>;
       case 'cash-flow':

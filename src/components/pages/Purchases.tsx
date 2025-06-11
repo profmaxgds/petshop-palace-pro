@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Plus, Edit, Trash2, Search, Calendar, Package } from 'lucide-react';
+import { ShoppingCart, Plus, Edit, Trash2, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Purchase, PurchaseItem, Product } from '@/types';
+import { Purchase, PurchaseItem, Product } from '@/types/products';
 
 const Purchases = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([
@@ -23,31 +23,9 @@ const Purchases = () => {
           unitPrice: 45.00,
           total: 900.00,
         },
-        {
-          productId: '2',
-          quantity: 10,
-          unitPrice: 25.00,
-          total: 250.00,
-        },
       ],
-      total: 1150.00,
+      total: 900.00,
       status: 'completed',
-      createdAt: new Date(),
-    },
-    {
-      id: '2',
-      supplierId: 'supplier-2',
-      date: new Date('2024-12-08'),
-      items: [
-        {
-          productId: '3',
-          quantity: 15,
-          unitPrice: 8.00,
-          total: 120.00,
-        },
-      ],
-      total: 120.00,
-      status: 'pending',
       createdAt: new Date(),
     },
   ]);
@@ -77,24 +55,11 @@ const Purchases = () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
-    {
-      id: '3',
-      name: 'Brinquedo Corda',
-      category: 'Brinquedos',
-      quantity: 3,
-      minQuantity: 5,
-      costPrice: 8.00,
-      salePrice: 15.00,
-      supplier: 'Pet Toys Distribuidora',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
   ]);
 
   const [suppliers] = useState([
     { id: 'supplier-1', name: 'Pet Food Ltda' },
-    { id: 'supplier-2', name: 'Pet Toys Distribuidora' },
-    { id: 'supplier-3', name: 'Farmácia Veterinária' },
+    { id: 'supplier-2', name: 'Farmácia Veterinária' },
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -197,23 +162,6 @@ const Purchases = () => {
     setPurchases(purchases.filter(purchase => purchase.id !== purchaseId));
   };
 
-  const handleCompletePurchase = (purchaseId: string) => {
-    setPurchases(purchases.map(purchase => 
-      purchase.id === purchaseId 
-        ? { ...purchase, status: 'completed' as const }
-        : purchase
-    ));
-    
-    // Aqui você adicionaria a lógica para atualizar o estoque
-    // e criar conta a pagar automaticamente
-    console.log('Compra finalizada - atualizar estoque e criar conta a pagar');
-  };
-
-  const filteredPurchases = purchases.filter(purchase => {
-    const supplier = suppliers.find(s => s.id === purchase.supplierId);
-    return supplier?.name.toLowerCase().includes(searchTerm.toLowerCase());
-  });
-
   const getSupplierName = (supplierId: string) => {
     return suppliers.find(s => s.id === supplierId)?.name || 'Fornecedor';
   };
@@ -222,8 +170,10 @@ const Purchases = () => {
     return products.find(p => p.id === productId)?.name || 'Produto';
   };
 
-  const totalPurchases = purchases.reduce((sum, purchase) => sum + purchase.total, 0);
-  const pendingPurchases = purchases.filter(p => p.status === 'pending').length;
+  const filteredPurchases = purchases.filter(purchase => {
+    const supplier = suppliers.find(s => s.id === purchase.supplierId);
+    return supplier?.name.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="space-y-6">
@@ -370,39 +320,6 @@ const Purchases = () => {
         </Dialog>
       </div>
 
-      {/* Cards de resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Compras</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ {totalPurchases.toFixed(2)}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Compras Pendentes</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pendingPurchases}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Pedidos</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{purchases.length}</div>
-          </CardContent>
-        </Card>
-      </div>
-
       <Card>
         <CardHeader>
           <CardTitle>Lista de Compras</CardTitle>
@@ -457,15 +374,6 @@ const Purchases = () => {
                     </td>
                     <td className="p-2">
                       <div className="flex space-x-2">
-                        {purchase.status === 'pending' && (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => handleCompletePurchase(purchase.id)}
-                          >
-                            Finalizar
-                          </Button>
-                        )}
                         <Button
                           variant="ghost"
                           size="sm"

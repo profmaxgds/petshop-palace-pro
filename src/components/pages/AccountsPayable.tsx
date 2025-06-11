@@ -6,16 +6,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { CreditCard, Plus, Edit, Trash2, Search, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
+import { CreditCard, Plus, Edit, Trash2, Search, CheckCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AccountPayable } from '@/types';
+import { AccountPayable } from '@/types/products';
 
 const AccountsPayable = () => {
   const [accounts, setAccounts] = useState<AccountPayable[]>([
     {
       id: '1',
       description: 'Compra Pet Food Ltda - Ração Premium',
-      amount: 1150.00,
+      amount: 900.00,
       dueDate: new Date('2024-12-15'),
       supplier: 'Pet Food Ltda',
       category: 'Estoque',
@@ -29,34 +29,12 @@ const AccountsPayable = () => {
       dueDate: new Date('2024-12-20'),
       supplier: 'Companhia de Energia',
       category: 'Utilidades',
-      status: 'pending',
-      createdAt: new Date(),
-    },
-    {
-      id: '3',
-      description: 'Compra Pet Toys - Brinquedos',
-      amount: 120.00,
-      dueDate: new Date('2024-12-05'),
-      supplier: 'Pet Toys Distribuidora',
-      category: 'Estoque',
       status: 'overdue',
-      createdAt: new Date(),
-    },
-    {
-      id: '4',
-      description: 'Aluguel - Dezembro',
-      amount: 2500.00,
-      dueDate: new Date('2024-12-10'),
-      supplier: 'Imobiliária Santos',
-      category: 'Fixas',
-      status: 'paid',
-      paymentDate: new Date('2024-12-08'),
       createdAt: new Date(),
     },
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<AccountPayable | null>(null);
   const [formData, setFormData] = useState({
@@ -68,7 +46,6 @@ const AccountsPayable = () => {
   });
 
   const categories = ['Estoque', 'Utilidades', 'Fixas', 'Equipamentos', 'Marketing', 'Outros'];
-  const statusOptions = ['all', 'pending', 'paid', 'overdue'];
 
   const handleSave = () => {
     if (editingAccount) {
@@ -141,34 +118,10 @@ const AccountsPayable = () => {
     ));
   };
 
-  const filteredAccounts = accounts.filter(account => {
-    const matchesSearch = account.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         account.supplier.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || account.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
-
-  // Atualizar status para vencidas
-  const updatedAccounts = filteredAccounts.map(account => {
-    if (account.status === 'pending' && new Date() > account.dueDate) {
-      return { ...account, status: 'overdue' as const };
-    }
-    return account;
-  });
-
-  const totalPending = accounts
-    .filter(a => a.status === 'pending' || a.status === 'overdue')
-    .reduce((sum, account) => sum + account.amount, 0);
-  
-  const totalOverdue = accounts
-    .filter(a => a.status === 'overdue')
-    .reduce((sum, account) => sum + account.amount, 0);
-  
-  const totalPaid = accounts
-    .filter(a => a.status === 'paid')
-    .reduce((sum, account) => sum + account.amount, 0);
-
-  const overdueCount = accounts.filter(a => a.status === 'overdue').length;
+  const filteredAccounts = accounts.filter(account =>
+    account.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    account.supplier.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -179,12 +132,6 @@ const AccountsPayable = () => {
       default:
         return <Badge variant="secondary">Pendente</Badge>;
     }
-  };
-
-  const getStatusColor = (status: string, dueDate: Date) => {
-    if (status === 'paid') return 'text-green-600';
-    if (status === 'overdue' || (status === 'pending' && new Date() > dueDate)) return 'text-red-600';
-    return 'text-yellow-600';
   };
 
   return (
@@ -285,92 +232,20 @@ const AccountsPayable = () => {
         </Dialog>
       </div>
 
-      {/* Cards de resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pendente</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">R$ {totalPending.toFixed(2)}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Contas Vencidas</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">R$ {totalOverdue.toFixed(2)}</div>
-            <p className="text-xs text-red-500">{overdueCount} conta(s)</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pago</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">R$ {totalPaid.toFixed(2)}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Contas</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{accounts.length}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Alerta de contas vencidas */}
-      {overdueCount > 0 && (
-        <Card className="border-red-200 bg-red-50">
-          <CardHeader>
-            <CardTitle className="text-red-800 flex items-center">
-              <AlertTriangle className="w-5 h-5 mr-2" />
-              Contas Vencidas
-            </CardTitle>
-            <CardDescription className="text-red-600">
-              Você tem {overdueCount} conta(s) em atraso
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      )}
-
       <Card>
         <CardHeader>
           <CardTitle>Lista de Contas a Pagar</CardTitle>
           <CardDescription>
             Gerencie todas as contas e pagamentos
           </CardDescription>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex items-center space-x-2">
-              <Search className="w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Buscar contas..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-sm"
-              />
-            </div>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="max-w-sm">
-                <SelectValue placeholder="Filtrar por status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os Status</SelectItem>
-                <SelectItem value="pending">Pendentes</SelectItem>
-                <SelectItem value="paid">Pagos</SelectItem>
-                <SelectItem value="overdue">Vencidos</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center space-x-2">
+            <Search className="w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Buscar contas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm"
+            />
           </div>
         </CardHeader>
         <CardContent>
@@ -388,7 +263,7 @@ const AccountsPayable = () => {
                 </tr>
               </thead>
               <tbody>
-                {updatedAccounts.map((account) => (
+                {filteredAccounts.map((account) => (
                   <tr key={account.id} className="border-b hover:bg-gray-50">
                     <td className="p-2">
                       <div className="flex items-center space-x-2">
@@ -401,9 +276,7 @@ const AccountsPayable = () => {
                       <Badge variant="outline">{account.category}</Badge>
                     </td>
                     <td className="p-2">
-                      <span className={`font-bold ${getStatusColor(account.status, account.dueDate)}`}>
-                        R$ {account.amount.toFixed(2)}
-                      </span>
+                      <span className="font-bold">R$ {account.amount.toFixed(2)}</span>
                     </td>
                     <td className="p-2">
                       {account.dueDate.toLocaleDateString('pt-BR')}

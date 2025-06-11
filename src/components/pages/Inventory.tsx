@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Package, Search, AlertTriangle, TrendingUp, TrendingDown, BarChart3 } from 'lucide-react';
+import { Package, Search, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Product } from '@/types';
+import { Product } from '@/types/products';
 
 const Inventory = () => {
   const [products, setProducts] = useState<Product[]>([
@@ -28,7 +28,7 @@ const Inventory = () => {
       id: '2',
       name: 'Antipulgas Gatos',
       category: 'Medicamentos',
-      quantity: 25,
+      quantity: 3,
       minQuantity: 5,
       costPrice: 25.00,
       salePrice: 35.00,
@@ -36,31 +36,16 @@ const Inventory = () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
-    {
-      id: '3',
-      name: 'Brinquedo Corda',
-      category: 'Brinquedos',
-      quantity: 3,
-      minQuantity: 5,
-      costPrice: 8.00,
-      salePrice: 15.00,
-      supplier: 'Pet Toys Distribuidora',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState('all');
   const [isAdjustmentDialogOpen, setIsAdjustmentDialogOpen] = useState(false);
   const [adjustingProduct, setAdjustingProduct] = useState<Product | null>(null);
   const [adjustmentData, setAdjustmentData] = useState({
-    type: 'add', // 'add' or 'remove'
+    type: 'add',
     quantity: '',
     reason: '',
   });
-
-  const categories = ['all', 'Ração', 'Medicamentos', 'Brinquedos', 'Acessórios', 'Higiene', 'Petiscos'];
 
   const handleAdjustment = () => {
     if (!adjustingProduct) return;
@@ -86,16 +71,11 @@ const Inventory = () => {
     setIsAdjustmentDialogOpen(true);
   };
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || product.category === filterCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const lowStockProducts = products.filter(product => product.quantity <= product.minQuantity);
-  const totalValue = products.reduce((sum, product) => sum + (product.quantity * product.costPrice), 0);
-  const totalItems = products.reduce((sum, product) => sum + product.quantity, 0);
 
   return (
     <div className="space-y-6">
@@ -106,50 +86,6 @@ const Inventory = () => {
         </div>
       </div>
 
-      {/* Cards de resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Itens</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalItems}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ {totalValue.toFixed(2)}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Produtos Únicos</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{products.length}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Estoque Baixo</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{lowStockProducts.length}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Alerta de estoque baixo */}
       {lowStockProducts.length > 0 && (
         <Card className="border-orange-200 bg-orange-50">
           <CardHeader>
@@ -162,13 +98,10 @@ const Inventory = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-2">
               {lowStockProducts.map((product) => (
-                <div key={product.id} className="flex justify-between items-center p-3 bg-white rounded-lg border">
-                  <div>
-                    <p className="font-medium">{product.name}</p>
-                    <p className="text-sm text-gray-600">{product.category}</p>
-                  </div>
+                <div key={product.id} className="flex justify-between items-center p-2 bg-white rounded">
+                  <span className="font-medium">{product.name}</span>
                   <Badge variant="destructive">
                     {product.quantity} / {product.minQuantity}
                   </Badge>
@@ -179,36 +112,20 @@ const Inventory = () => {
         </Card>
       )}
 
-      {/* Filtros */}
       <Card>
         <CardHeader>
           <CardTitle>Controle de Estoque</CardTitle>
           <CardDescription>
             Visualize e ajuste o estoque dos produtos
           </CardDescription>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex items-center space-x-2">
-              <Search className="w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Buscar produtos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-sm"
-              />
-            </div>
-            <Select value={filterCategory} onValueChange={setFilterCategory}>
-              <SelectTrigger className="max-w-sm">
-                <SelectValue placeholder="Filtrar por categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as Categorias</SelectItem>
-                {categories.filter(cat => cat !== 'all').map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex items-center space-x-2">
+            <Search className="w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Buscar produtos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm"
+            />
           </div>
         </CardHeader>
         <CardContent>
@@ -220,7 +137,6 @@ const Inventory = () => {
                   <th className="text-left p-2">Categoria</th>
                   <th className="text-left p-2">Estoque Atual</th>
                   <th className="text-left p-2">Estoque Mínimo</th>
-                  <th className="text-left p-2">Valor Unitário</th>
                   <th className="text-left p-2">Valor Total</th>
                   <th className="text-left p-2">Status</th>
                   <th className="text-left p-2">Ações</th>
@@ -242,15 +158,12 @@ const Inventory = () => {
                       <span className="font-bold text-lg">{product.quantity}</span>
                     </td>
                     <td className="p-2">{product.minQuantity}</td>
-                    <td className="p-2">R$ {product.costPrice.toFixed(2)}</td>
                     <td className="p-2">R$ {(product.quantity * product.costPrice).toFixed(2)}</td>
                     <td className="p-2">
                       {product.quantity <= product.minQuantity ? (
                         <Badge variant="destructive">Baixo</Badge>
-                      ) : product.quantity <= product.minQuantity * 2 ? (
-                        <Badge variant="secondary">Médio</Badge>
                       ) : (
-                        <Badge className="bg-green-100 text-green-800">Alto</Badge>
+                        <Badge className="bg-green-100 text-green-800">Normal</Badge>
                       )}
                     </td>
                     <td className="p-2">
@@ -270,7 +183,6 @@ const Inventory = () => {
         </CardContent>
       </Card>
 
-      {/* Dialog de Ajuste de Estoque */}
       <Dialog open={isAdjustmentDialogOpen} onOpenChange={setIsAdjustmentDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>

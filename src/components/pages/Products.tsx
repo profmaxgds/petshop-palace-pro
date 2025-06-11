@@ -8,8 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Package, Plus, Edit, Trash2, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Product } from '@/types';
-import { t } from '@/lib/i18n';
+import { Product } from '@/types/products';
 
 const Products = () => {
   const [products, setProducts] = useState<Product[]>([
@@ -34,18 +33,6 @@ const Products = () => {
       costPrice: 25.00,
       salePrice: 35.00,
       supplier: 'Farmácia Veterinária',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '3',
-      name: 'Brinquedo Corda',
-      category: 'Brinquedos',
-      quantity: 3,
-      minQuantity: 5,
-      costPrice: 8.00,
-      salePrice: 15.00,
-      supplier: 'Pet Toys Distribuidora',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -136,11 +123,8 @@ const Products = () => {
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.supplier.toLowerCase().includes(searchTerm.toLowerCase())
+    product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const lowStockProducts = products.filter(product => product.quantity <= product.minQuantity);
 
   return (
     <div className="space-y-6">
@@ -264,29 +248,6 @@ const Products = () => {
           </DialogContent>
         </Dialog>
       </div>
-
-      {lowStockProducts.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
-          <CardHeader>
-            <CardTitle className="text-orange-800">Produtos com Estoque Baixo</CardTitle>
-            <CardDescription className="text-orange-600">
-              {lowStockProducts.length} produto(s) com estoque abaixo do mínimo
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {lowStockProducts.map((product) => (
-                <div key={product.id} className="flex justify-between items-center p-2 bg-white rounded">
-                  <span className="font-medium">{product.name}</span>
-                  <Badge variant="destructive">
-                    {product.quantity} / {product.minQuantity}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       <Card>
         <CardHeader>
