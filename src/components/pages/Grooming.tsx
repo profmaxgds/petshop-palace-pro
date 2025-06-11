@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,21 +42,27 @@ const Grooming: React.FC = () => {
     },
   ];
 
-  // Mock service types - apenas serviços de grooming
-  const serviceTypes: ServiceType[] = [
-    { id: '1', name: 'Banho Simples', category: 'grooming', duration: 30, price: 35.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    { id: '2', name: 'Banho com Condicionador', category: 'grooming', duration: 45, price: 45.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    { id: '3', name: 'Tosa Higiênica', category: 'grooming', duration: 25, price: 25.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    { id: '4', name: 'Tosa na Máquina', category: 'grooming', duration: 60, price: 40.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    { id: '5', name: 'Tosa na Tesoura', category: 'grooming', duration: 90, price: 55.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    { id: '6', name: 'Banho e Tosa Completa', category: 'grooming', duration: 120, price: 80.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    { id: '7', name: 'Corte de Unhas', category: 'grooming', duration: 15, price: 15.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    { id: '8', name: 'Limpeza de Ouvidos', category: 'grooming', duration: 20, price: 20.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
-    { id: '9', name: 'Escovação de Dentes', category: 'grooming', duration: 25, price: 25.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  // Mock service types - todos os tipos de serviços disponíveis
+  const allServiceTypes: ServiceType[] = [
+    // Serviços de grooming
+    { id: 'grooming-1', name: 'Banho Simples', category: 'grooming', duration: 30, price: 35.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: 'grooming-2', name: 'Banho com Condicionador', category: 'grooming', duration: 45, price: 45.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: 'grooming-3', name: 'Tosa Higiênica', category: 'grooming', duration: 25, price: 25.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: 'grooming-4', name: 'Tosa na Máquina', category: 'grooming', duration: 60, price: 40.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: 'grooming-5', name: 'Tosa na Tesoura', category: 'grooming', duration: 90, price: 55.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: 'grooming-6', name: 'Banho e Tosa Completa', category: 'grooming', duration: 120, price: 80.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: 'grooming-7', name: 'Corte de Unhas', category: 'grooming', duration: 15, price: 15.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: 'grooming-8', name: 'Limpeza de Ouvidos', category: 'grooming', duration: 20, price: 20.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: 'grooming-9', name: 'Escovação de Dentes', category: 'grooming', duration: 25, price: 25.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    
+    // Outros tipos de serviços (consultas, exames, etc.) - não devem aparecer no grooming
+    { id: 'consultation-1', name: 'Consulta Geral', category: 'consultation', duration: 30, price: 80.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: 'exam-1', name: 'Hemograma', category: 'exam', duration: 15, price: 45.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: 'surgery-1', name: 'Castração', category: 'surgery', duration: 120, price: 300.00, isActive: true, createdAt: new Date(), updatedAt: new Date() },
   ];
 
   // Filtrar apenas serviços de grooming ativos
-  const groomingServiceTypes = serviceTypes.filter(service => 
+  const groomingServiceTypes = allServiceTypes.filter(service => 
     service.category === 'grooming' && service.isActive
   );
 
