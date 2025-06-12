@@ -1,3 +1,4 @@
+
 // Definição de tipos para as traduções
 export type Language = 'pt' | 'en' | 'es';
 type TranslationKey = keyof typeof translations.pt;
@@ -23,10 +24,12 @@ const translations = {
     banks: 'Bancos',
     settings: 'Configurações',
     users: 'Usuários',
+    profiles: 'Perfis',
     logout: 'Sair',
     
     // Ações
     add: 'Adicionar',
+    addTutor: 'Adicionar Tutor',
     addAnimal: 'Adicionar Animal',
     edit: 'Editar',
     save: 'Salvar',
@@ -49,9 +52,17 @@ const translations = {
     // Campos
     name: 'Nome',
     animalName: 'Nome do Animal',
+    tutorName: 'Nome do Tutor',
     email: 'E-mail',
     phone: 'Telefone',
+    cpf: 'CPF',
     address: 'Endereço',
+    street: 'Rua',
+    number: 'Número',
+    neighborhood: 'Bairro',
+    city: 'Cidade',
+    state: 'Estado',
+    zipCode: 'CEP',
     date: 'Data',
     time: 'Hora',
     notes: 'Observações',
@@ -61,6 +72,18 @@ const translations = {
     sex: 'Sexo',
     weight: 'Peso',
     tutor: 'Tutor',
+    
+    // Espécies
+    dog: 'Cão',
+    cat: 'Gato',
+    bird: 'Pássaro',
+    rabbit: 'Coelho',
+    hamster: 'Hamster',
+    other: 'Outro',
+    
+    // Sexo
+    male: 'Macho',
+    female: 'Fêmea',
     
     // Mensagens
     success: 'Sucesso',
@@ -87,6 +110,7 @@ const translations = {
     admin: 'Administrador',
     veterinarian: 'Veterinário',
     receptionist: 'Recepcionista',
+    manager: 'Gerente',
     
     // Novos campos
     rooms: 'Salas',
@@ -97,7 +121,26 @@ const translations = {
     crmv: 'CRMV',
     userProfile: 'Perfil do Usuário',
     
-    // Novos textos
+    // Formulários
+    tutorData: 'Dados do Tutor',
+    personalData: 'Dados Pessoais',
+    addressData: 'Dados de Endereço',
+    contactData: 'Dados de Contato',
+    
+    // Perfis e Permissões
+    newProfile: 'Novo Perfil',
+    editProfile: 'Editar Perfil',
+    profileName: 'Nome do Perfil',
+    profileDescription: 'Descrição do Perfil',
+    systemProfile: 'Perfil do Sistema',
+    customProfile: 'Perfil Personalizado',
+    profilePermissions: 'Permissões do Perfil',
+    modulePermissions: 'Permissões por Módulo',
+    read: 'Ler',
+    write: 'Escrever',
+    deletePermission: 'Excluir',
+    
+    // Novos textos para outras telas
     productCategories: 'Categorias de Produtos',
     categories: 'Categorias',
     newCategory: 'Nova Categoria',
@@ -181,10 +224,12 @@ const translations = {
     banks: 'Banks',
     settings: 'Settings',
     users: 'Users',
+    profiles: 'Profiles',
     logout: 'Logout',
     
     // Actions
     add: 'Add',
+    addTutor: 'Add Tutor',
     addAnimal: 'Add Animal',
     edit: 'Edit',
     save: 'Save',
@@ -207,9 +252,17 @@ const translations = {
     // Fields
     name: 'Name',
     animalName: 'Animal Name',
+    tutorName: 'Tutor Name',
     email: 'Email',
     phone: 'Phone',
+    cpf: 'CPF',
     address: 'Address',
+    street: 'Street',
+    number: 'Number',
+    neighborhood: 'Neighborhood',
+    city: 'City',
+    state: 'State',
+    zipCode: 'Zip Code',
     date: 'Date',
     time: 'Time',
     notes: 'Notes',
@@ -219,6 +272,18 @@ const translations = {
     sex: 'Sex',
     weight: 'Weight',
     tutor: 'Tutor',
+    
+    // Species
+    dog: 'Dog',
+    cat: 'Cat',
+    bird: 'Bird',
+    rabbit: 'Rabbit',
+    hamster: 'Hamster',
+    other: 'Other',
+    
+    // Sex
+    male: 'Male',
+    female: 'Female',
     
     // Messages
     success: 'Success',
@@ -245,6 +310,7 @@ const translations = {
     admin: 'Administrator',
     veterinarian: 'Veterinarian',
     receptionist: 'Receptionist',
+    manager: 'Manager',
     
     // New fields
     rooms: 'Rooms',
@@ -254,6 +320,25 @@ const translations = {
     permissions: 'Permissions',
     crmv: 'CRMV',
     userProfile: 'User Profile',
+    
+    // Forms
+    tutorData: 'Tutor Data',
+    personalData: 'Personal Data',
+    addressData: 'Address Data',
+    contactData: 'Contact Data',
+    
+    // Profiles and Permissions
+    newProfile: 'New Profile',
+    editProfile: 'Edit Profile',
+    profileName: 'Profile Name',
+    profileDescription: 'Profile Description',
+    systemProfile: 'System Profile',
+    customProfile: 'Custom Profile',
+    profilePermissions: 'Profile Permissions',
+    modulePermissions: 'Module Permissions',
+    read: 'Read',
+    write: 'Write',
+    deletePermission: 'Delete',
     
     // New texts
     productCategories: 'Product Categories',
@@ -339,10 +424,12 @@ const translations = {
     banks: 'Bancos',
     settings: 'Configuraciones',
     users: 'Usuarios',
+    profiles: 'Perfiles',
     logout: 'Salir',
     
     // Acciones
     add: 'Agregar',
+    addTutor: 'Agregar Tutor',
     addAnimal: 'Agregar Animal',
     edit: 'Editar',
     save: 'Guardar',
@@ -365,9 +452,17 @@ const translations = {
     // Campos
     name: 'Nombre',
     animalName: 'Nombre del Animal',
+    tutorName: 'Nombre del Tutor',
     email: 'Email',
     phone: 'Teléfono',
+    cpf: 'CPF',
     address: 'Dirección',
+    street: 'Calle',
+    number: 'Número',
+    neighborhood: 'Barrio',
+    city: 'Ciudad',
+    state: 'Estado',
+    zipCode: 'Código Postal',
     date: 'Fecha',
     time: 'Hora',
     notes: 'Observaciones',
@@ -377,6 +472,18 @@ const translations = {
     sex: 'Sexo',
     weight: 'Peso',
     tutor: 'Tutor',
+    
+    // Especies
+    dog: 'Perro',
+    cat: 'Gato',
+    bird: 'Pájaro',
+    rabbit: 'Conejo',
+    hamster: 'Hámster',
+    other: 'Otro',
+    
+    // Sexo
+    male: 'Macho',
+    female: 'Hembra',
     
     // Mensajes
     success: 'Éxito',
@@ -403,6 +510,7 @@ const translations = {
     admin: 'Administrador',
     veterinarian: 'Veterinario',
     receptionist: 'Recepcionista',
+    manager: 'Gerente',
     
     // Nuevos campos
     rooms: 'Salas',
@@ -412,6 +520,25 @@ const translations = {
     permissions: 'Permisos',
     crmv: 'CRMV',
     userProfile: 'Perfil de Usuario',
+    
+    // Formularios
+    tutorData: 'Datos del Tutor',
+    personalData: 'Datos Personales',
+    addressData: 'Datos de Dirección',
+    contactData: 'Datos de Contacto',
+    
+    // Perfiles y Permisos
+    newProfile: 'Nuevo Perfil',
+    editProfile: 'Editar Perfil',
+    profileName: 'Nombre del Perfil',
+    profileDescription: 'Descripción del Perfil',
+    systemProfile: 'Perfil del Sistema',
+    customProfile: 'Perfil Personalizado',
+    profilePermissions: 'Permisos del Perfil',
+    modulePermissions: 'Permisos por Módulo',
+    read: 'Leer',
+    write: 'Escribir',
+    deletePermission: 'Eliminar',
     
     // New texts
     productCategories: 'Categorías de Productos',

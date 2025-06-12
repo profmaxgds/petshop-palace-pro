@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Plus, Edit, Trash2, Heart, Scale, Calendar, Syringe, Download, Stethoscope, Scissors } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Animal, Tutor, Vaccine, Appointment, GroomingService } from '@/types';
+import type { Animal, Tutor, Vaccine, Appointment, GroomingService, Breed } from '@/types';
 
 const Animals: React.FC = () => {
   // Mock tutors data
@@ -30,6 +30,8 @@ const Animals: React.FC = () => {
         state: 'SP',
         zipCode: '01234-567'
       },
+      isActive: true,
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -47,8 +49,31 @@ const Animals: React.FC = () => {
         state: 'SP',
         zipCode: '05432-100'
       },
+      isActive: true,
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
+    }
+  ];
+
+  const breeds: Breed[] = [
+    {
+      id: '1',
+      name: 'Golden Retriever',
+      species: 'dog',
+      isActive: true,
+      createdBy: 'system',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: '2',
+      name: 'Persa',
+      species: 'cat',
+      isActive: true,
+      createdBy: 'system',
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ];
 
@@ -57,12 +82,13 @@ const Animals: React.FC = () => {
     {
       id: '1',
       animalId: '1',
-      type: 'V8',
+      vaccineType: 'V8',
       batch: '12345',
       applicationDate: new Date('2024-11-15'),
       nextDueDate: new Date('2025-11-15'),
-      veterinarian: 'Dr. Carlos Silva',
+      veterinarianId: '1',
       notes: 'Primeira dose da V8',
+      createdBy: 'system',
       createdAt: new Date(),
     },
   ];
@@ -71,13 +97,15 @@ const Animals: React.FC = () => {
     {
       id: '1',
       animalId: '1',
-      date: new Date('2024-12-10'),
-      time: '09:00',
-      type: 'consultation',
-      veterinarian: 'Dr. Carlos Silva',
+      appointmentDate: new Date('2024-12-10'),
+      appointmentTime: '09:00',
+      serviceTypeId: '1',
+      veterinarianId: '1',
       status: 'scheduled',
       notes: 'Consulta de rotina',
+      createdBy: 'system',
       createdAt: new Date(),
+      updatedAt: new Date(),
     },
   ];
 
@@ -85,11 +113,12 @@ const Animals: React.FC = () => {
     {
       id: '1',
       animalId: '1',
-      date: new Date('2024-12-08'),
-      serviceType: 'Banho e Tosa Completa',
+      serviceDate: new Date('2024-12-08'),
+      serviceTypeId: '1',
       status: 'completed',
       notes: 'Serviço realizado com sucesso',
       price: 80.00,
+      createdBy: 'system',
       createdAt: new Date(),
     },
   ];
@@ -98,26 +127,32 @@ const Animals: React.FC = () => {
     {
       id: '1',
       name: 'Rex',
-      species: 'Cão',
-      breed: 'Golden Retriever',
+      species: 'dog',
+      breedId: '1',
+      breed: breeds[0],
       age: 3,
       sex: 'male',
       weight: 32.5,
       tutorId: '1',
       tutor: tutors[0],
+      isActive: true,
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
       id: '2',
       name: 'Luna',
-      species: 'Gato',
-      breed: 'Persa',
+      species: 'cat',
+      breedId: '2',
+      breed: breeds[1],
       age: 2,
       sex: 'female',
       weight: 4.2,
       tutorId: '2',
       tutor: tutors[1],
+      isActive: true,
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -130,8 +165,8 @@ const Animals: React.FC = () => {
   const [editingAnimal, setEditingAnimal] = useState<Animal | null>(null);
   const [formData, setFormData] = useState({
     name: '',
-    species: '',
-    breed: '',
+    species: '' as 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other' | '',
+    breedId: '',
     age: 0,
     sex: 'male' as 'male' | 'female',
     weight: 0,
@@ -140,17 +175,22 @@ const Animals: React.FC = () => {
 
   const filteredAnimals = animals.filter(animal =>
     animal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    animal.species.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t(animal.species).toLowerCase().includes(searchTerm.toLowerCase()) ||
     animal.tutor?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getFilteredBreeds = () => {
+    return breeds.filter(breed => breed.species === formData.species && breed.isActive);
+  };
+
   const handleSave = () => {
     const selectedTutor = tutors.find(t => t.id === formData.tutorId);
+    const selectedBreed = breeds.find(b => b.id === formData.breedId);
     
     if (editingAnimal) {
       setAnimals(animals.map(a => 
         a.id === editingAnimal.id 
-          ? { ...editingAnimal, ...formData, tutor: selectedTutor, updatedAt: new Date() }
+          ? { ...editingAnimal, ...formData, tutor: selectedTutor, breed: selectedBreed, updatedAt: new Date() }
           : a
       ));
     } else {
@@ -158,6 +198,9 @@ const Animals: React.FC = () => {
         id: Date.now().toString(),
         ...formData,
         tutor: selectedTutor,
+        breed: selectedBreed,
+        isActive: true,
+        createdBy: 'current-user',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -172,7 +215,7 @@ const Animals: React.FC = () => {
     setFormData({
       name: '',
       species: '',
-      breed: '',
+      breedId: '',
       age: 0,
       sex: 'male',
       weight: 0,
@@ -185,7 +228,7 @@ const Animals: React.FC = () => {
     setFormData({
       name: animal.name,
       species: animal.species,
-      breed: animal.breed,
+      breedId: animal.breedId,
       age: animal.age,
       sex: animal.sex,
       weight: animal.weight,
@@ -227,18 +270,17 @@ const Animals: React.FC = () => {
           <div class="animal-info">
             <h2>Dados do Animal</h2>
             <p><strong>Nome:</strong> ${animal.name}</p>
-            <p><strong>Espécie:</strong> ${animal.species}</p>
-            <p><strong>Raça:</strong> ${animal.breed}</p>
+            <p><strong>Espécie:</strong> ${t(animal.species)}</p>
+            <p><strong>Raça:</strong> ${animal.breed?.name}</p>
             <p><strong>Tutor:</strong> ${animal.tutor?.name}</p>
           </div>
           ${animalVaccines.map(vaccine => `
             <div class="vaccine-record">
               <h3>Registro de Vacinação</h3>
-              <p><strong>Vacina:</strong> ${vaccine.type}</p>
+              <p><strong>Vacina:</strong> ${vaccine.vaccineType}</p>
               <p><strong>Lote:</strong> ${vaccine.batch}</p>
               <p><strong>Data de Aplicação:</strong> ${vaccine.applicationDate.toLocaleDateString('pt-BR')}</p>
-              <p><strong>Próxima Dose:</strong> ${vaccine.nextDueDate.toLocaleDateString('pt-BR')}</p>
-              <p><strong>Veterinário:</strong> ${vaccine.veterinarian}</p>
+              <p><strong>Próxima Dose:</strong> ${vaccine.nextDueDate?.toLocaleDateString('pt-BR')}</p>
               ${vaccine.notes ? `<p><strong>Observações:</strong> ${vaccine.notes}</p>` : ''}
             </div>
           `).join('')}
@@ -307,30 +349,40 @@ const Animals: React.FC = () => {
                     <Label htmlFor="species">{t('species')}</Label>
                     <Select
                       value={formData.species}
-                      onValueChange={(value) => setFormData({...formData, species: value})}
+                      onValueChange={(value: 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other') => setFormData({...formData, species: value, breedId: ''})}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a espécie" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Cão">Cão</SelectItem>
-                        <SelectItem value="Gato">Gato</SelectItem>
-                        <SelectItem value="Pássaro">Pássaro</SelectItem>
-                        <SelectItem value="Coelho">Coelho</SelectItem>
-                        <SelectItem value="Hamster">Hamster</SelectItem>
-                        <SelectItem value="Outro">Outro</SelectItem>
+                        <SelectItem value="dog">{t('dog')}</SelectItem>
+                        <SelectItem value="cat">{t('cat')}</SelectItem>
+                        <SelectItem value="bird">{t('bird')}</SelectItem>
+                        <SelectItem value="rabbit">{t('rabbit')}</SelectItem>
+                        <SelectItem value="hamster">{t('hamster')}</SelectItem>
+                        <SelectItem value="other">{t('other')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
                   <div>
-                    <Label htmlFor="breed">{t('breed')}</Label>
-                    <Input
-                      id="breed"
-                      value={formData.breed}
-                      onChange={(e) => setFormData({...formData, breed: e.target.value})}
-                      placeholder="Raça do animal"
-                    />
+                    <Label htmlFor="breedId">{t('breed')}</Label>
+                    <Select
+                      value={formData.breedId}
+                      onValueChange={(value) => setFormData({...formData, breedId: value})}
+                      disabled={!formData.species}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a raça" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getFilteredBreeds().map((breed) => (
+                          <SelectItem key={breed.id} value={breed.id}>
+                            {breed.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   
                   <div>
@@ -354,8 +406,8 @@ const Animals: React.FC = () => {
                         <SelectValue placeholder="Selecione o sexo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="male">Macho</SelectItem>
-                        <SelectItem value="female">Fêmea</SelectItem>
+                        <SelectItem value="male">{t('male')}</SelectItem>
+                        <SelectItem value="female">{t('female')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -438,15 +490,15 @@ const Animals: React.FC = () => {
                         <div>
                           <div className="font-medium">{animal.name}</div>
                           <Badge variant={animal.sex === 'male' ? 'default' : 'secondary'} className="text-xs">
-                            {animal.sex === 'male' ? 'Macho' : 'Fêmea'}
+                            {t(animal.sex)}
                           </Badge>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{animal.species}</div>
-                        <div className="text-sm text-gray-500">{animal.breed}</div>
+                        <div className="font-medium">{t(animal.species)}</div>
+                        <div className="text-sm text-gray-500">{animal.breed?.name}</div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -559,17 +611,15 @@ const Animals: React.FC = () => {
                       <TableHead>Lote</TableHead>
                       <TableHead>Aplicação</TableHead>
                       <TableHead>Próxima Dose</TableHead>
-                      <TableHead>Veterinário</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {mockVaccines.filter(v => v.animalId === selectedAnimal?.id).map((vaccine) => (
                       <TableRow key={vaccine.id}>
-                        <TableCell>{vaccine.type}</TableCell>
+                        <TableCell>{vaccine.vaccineType}</TableCell>
                         <TableCell>{vaccine.batch}</TableCell>
                         <TableCell>{vaccine.applicationDate.toLocaleDateString('pt-BR')}</TableCell>
-                        <TableCell>{vaccine.nextDueDate.toLocaleDateString('pt-BR')}</TableCell>
-                        <TableCell>{vaccine.veterinarian}</TableCell>
+                        <TableCell>{vaccine.nextDueDate?.toLocaleDateString('pt-BR')}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -586,22 +636,20 @@ const Animals: React.FC = () => {
                       <TableHead>Data</TableHead>
                       <TableHead>Horário</TableHead>
                       <TableHead>Tipo</TableHead>
-                      <TableHead>Veterinário</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockAppointments.filter(a => a.animalId === selectedAnimal?.id && a.type === 'consultation').map((appointment) => (
+                    {mockAppointments.filter(a => a.animalId === selectedAnimal?.id).map((appointment) => (
                       <TableRow key={appointment.id}>
-                        <TableCell>{appointment.date.toLocaleDateString('pt-BR')}</TableCell>
-                        <TableCell>{appointment.time}</TableCell>
+                        <TableCell>{appointment.appointmentDate.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>{appointment.appointmentTime}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Stethoscope className="w-4 h-4 text-blue-600" />
                             Consulta
                           </div>
                         </TableCell>
-                        <TableCell>{appointment.veterinarian}</TableCell>
                         <TableCell>
                           <Badge variant={appointment.status === 'completed' ? 'default' : 'secondary'}>
                             {appointment.status === 'completed' ? 'Realizada' : 'Agendada'}
@@ -623,29 +671,15 @@ const Animals: React.FC = () => {
                       <TableHead>Data</TableHead>
                       <TableHead>Horário</TableHead>
                       <TableHead>Tipo de Exame</TableHead>
-                      <TableHead>Veterinário</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockAppointments.filter(a => a.animalId === selectedAnimal?.id && a.type === 'exam').map((appointment) => (
-                      <TableRow key={appointment.id}>
-                        <TableCell>{appointment.date.toLocaleDateString('pt-BR')}</TableCell>
-                        <TableCell>{appointment.time}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Stethoscope className="w-4 h-4 text-purple-600" />
-                            Exame
-                          </div>
-                        </TableCell>
-                        <TableCell>{appointment.veterinarian}</TableCell>
-                        <TableCell>
-                          <Badge variant={appointment.status === 'completed' ? 'default' : 'secondary'}>
-                            {appointment.status === 'completed' ? 'Realizado' : 'Agendado'}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center text-gray-500">
+                        Nenhum exame registrado
+                      </TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </div>
@@ -666,14 +700,14 @@ const Animals: React.FC = () => {
                   <TableBody>
                     {mockGrooming.filter(g => g.animalId === selectedAnimal?.id).map((service) => (
                       <TableRow key={service.id}>
-                        <TableCell>{service.date.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>{service.serviceDate.toLocaleDateString('pt-BR')}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Scissors className="w-4 h-4 text-green-600" />
-                            {service.serviceType}
+                            Banho e Tosa
                           </div>
                         </TableCell>
-                        <TableCell>R$ {service.price.toFixed(2)}</TableCell>
+                        <TableCell>R$ {service.price?.toFixed(2)}</TableCell>
                         <TableCell>
                           <Badge variant={service.status === 'completed' ? 'default' : 'secondary'}>
                             {service.status === 'completed' ? 'Concluído' : 'Agendado'}

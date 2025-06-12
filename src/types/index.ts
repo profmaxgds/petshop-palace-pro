@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -13,6 +12,18 @@ export interface User {
   crmv?: string;
   specialties?: string[];
   consultationPrice?: number;
+}
+
+export interface Profile {
+  id: string;
+  name: string;
+  description?: string;
+  permissions: Record<string, string[]>;
+  isActive: boolean;
+  isSystemProfile: boolean; // Para perfis padrão do sistema
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Tutor {

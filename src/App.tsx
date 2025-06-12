@@ -24,6 +24,7 @@ import CashFlow from './components/pages/CashFlow';
 import Banks from './components/pages/Banks';
 import ProductCategories from './components/pages/ProductCategories';
 import Users from './components/pages/Users';
+import Profiles from './components/pages/Profiles';
 import Settings from './components/pages/Settings';
 import Breeds from './components/pages/Breeds';
 import Rooms from './components/pages/Rooms';
@@ -114,6 +115,7 @@ const App = () => {
       'banks': { module: 'financial' },
       'product-categories': { module: 'products', action: 'write' },
       'users': { module: 'system', action: 'write' },
+      'profiles': { module: 'system', action: 'write' },
       'settings': { module: 'system' }
     };
 
@@ -166,6 +168,8 @@ const App = () => {
         return <ProductCategories />;
       case 'users':
         return <Users />;
+      case 'profiles':
+        return <Profiles />;
       case 'profile':
         return <div className="p-6">Página de Perfil em desenvolvimento...</div>;
       case 'settings':
