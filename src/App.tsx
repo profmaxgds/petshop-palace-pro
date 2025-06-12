@@ -19,6 +19,10 @@ import Products from './components/pages/Products';
 import Inventory from './components/pages/Inventory';
 import Purchases from './components/pages/Purchases';
 import AccountsPayable from './components/pages/AccountsPayable';
+import AccountsReceivable from './components/pages/AccountsReceivable';
+import CashFlow from './components/pages/CashFlow';
+import Banks from './components/pages/Banks';
+import ProductCategories from './components/pages/ProductCategories';
 import Users from './components/pages/Users';
 import Settings from './components/pages/Settings';
 import Breeds from './components/pages/Breeds';
@@ -153,13 +157,13 @@ const App = () => {
       case 'accounts-payable':
         return <AccountsPayable />;
       case 'accounts-receivable':
-        return <div className="p-6">Página de Contas a Receber em desenvolvimento...</div>;
+        return <AccountsReceivable />;
       case 'cash-flow':
-        return <div className="p-6">Página de Fluxo de Caixa em desenvolvimento...</div>;
+        return <CashFlow />;
       case 'banks':
-        return <div className="p-6">Página de Bancos em desenvolvimento...</div>;
+        return <Banks />;
       case 'product-categories':
-        return <div className="p-6">Página de Categorias de Produtos em desenvolvimento...</div>;
+        return <ProductCategories />;
       case 'users':
         return <Users />;
       case 'profile':

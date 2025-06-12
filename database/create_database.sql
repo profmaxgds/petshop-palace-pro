@@ -323,19 +323,49 @@ CREATE TABLE activity_logs (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tabela de configurações do sistema
+CREATE TABLE system_settings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    key VARCHAR(255) UNIQUE NOT NULL,
+    value JSONB,
+    description TEXT,
+    created_by UUID NOT NULL REFERENCES users(id),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Índices para melhor performance
 CREATE INDEX idx_animals_tutor ON animals(tutor_id);
 CREATE INDEX idx_animals_breed ON animals(breed_id);
+CREATE INDEX idx_animals_species ON animals(species);
 CREATE INDEX idx_appointments_animal ON appointments(animal_id);
 CREATE INDEX idx_appointments_veterinarian ON appointments(veterinarian_id);
+CREATE INDEX idx_appointments_room ON appointments(room_id);
 CREATE INDEX idx_appointments_date ON appointments(appointment_date);
+CREATE INDEX idx_appointments_status ON appointments(status);
 CREATE INDEX idx_vaccines_animal ON vaccines(animal_id);
+CREATE INDEX idx_vaccines_veterinarian ON vaccines(veterinarian_id);
+CREATE INDEX idx_grooming_animal ON grooming_services(animal_id);
+CREATE INDEX idx_grooming_room ON grooming_services(room_id);
 CREATE INDEX idx_products_category ON products(category_id);
+CREATE INDEX idx_products_supplier ON products(supplier_id);
+CREATE INDEX idx_products_barcode ON products(barcode);
 CREATE INDEX idx_purchase_items_purchase ON purchase_items(purchase_id);
 CREATE INDEX idx_purchase_items_product ON purchase_items(product_id);
+CREATE INDEX idx_accounts_payable_supplier ON accounts_payable(supplier_id);
+CREATE INDEX idx_accounts_payable_status ON accounts_payable(status);
+CREATE INDEX idx_accounts_payable_due_date ON accounts_payable(due_date);
+CREATE INDEX idx_accounts_receivable_tutor ON accounts_receivable(tutor_id);
+CREATE INDEX idx_accounts_receivable_status ON accounts_receivable(status);
+CREATE INDEX idx_accounts_receivable_due_date ON accounts_receivable(due_date);
+CREATE INDEX idx_cash_transactions_date ON cash_transactions(transaction_date);
+CREATE INDEX idx_cash_transactions_type ON cash_transactions(type);
 CREATE INDEX idx_inventory_movements_product ON inventory_movements(product_id);
+CREATE INDEX idx_inventory_movements_type ON inventory_movements(movement_type);
 CREATE INDEX idx_activity_logs_user ON activity_logs(user_id);
 CREATE INDEX idx_activity_logs_created_at ON activity_logs(created_at);
+CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_email ON users(email);
 
 -- Triggers para atualizar updated_at automaticamente
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -346,6 +376,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Aplicar trigger a todas as tabelas necessárias
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -388,7 +419,12 @@ CREATE TRIGGER update_accounts_receivable_updated_at BEFORE UPDATE ON accounts_r
 CREATE TRIGGER update_bank_accounts_updated_at BEFORE UPDATE ON bank_accounts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Trigger para movimentação automática de estoque
+CREATE TRIGGER update_system_settings_updated_at BEFORE UPDATE ON system_settings
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Triggers para automação
+
+-- Trigger para movimentação automática de estoque nas compras
 CREATE OR REPLACE FUNCTION handle_purchase_item_inventory()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -430,38 +466,211 @@ CREATE TRIGGER trigger_purchase_item_inventory
     AFTER INSERT ON purchase_items
     FOR EACH ROW EXECUTE FUNCTION handle_purchase_item_inventory();
 
+-- Trigger para criar conta a pagar automaticamente
+CREATE OR REPLACE FUNCTION create_account_payable_for_purchase()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO accounts_payable (
+        description,
+        amount,
+        due_date,
+        supplier_id,
+        category,
+        purchase_id,
+        created_by
+    ) VALUES (
+        'Compra #' || NEW.invoice_number,
+        NEW.total,
+        NEW.purchase_date + INTERVAL '30 days',
+        NEW.supplier_id,
+        'Compras',
+        NEW.id,
+        NEW.created_by
+    );
+    
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER trigger_create_account_payable
+    AFTER INSERT ON purchases
+    FOR EACH ROW EXECUTE FUNCTION create_account_payable_for_purchase();
+
+-- Trigger para criar conta a receber para agendamentos
+CREATE OR REPLACE FUNCTION create_account_receivable_for_appointment()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'completed' AND NEW.total_price > 0 THEN
+        INSERT INTO accounts_receivable (
+            tutor_id,
+            description,
+            amount,
+            due_date,
+            appointment_id,
+            created_by
+        )
+        SELECT 
+            a.tutor_id,
+            'Serviço: ' || st.name || ' - ' || an.name,
+            NEW.total_price,
+            NEW.appointment_date,
+            NEW.id,
+            NEW.created_by
+        FROM animals a
+        JOIN service_types st ON st.id = NEW.service_type_id
+        JOIN animals an ON an.id = NEW.animal_id
+        WHERE a.id = NEW.animal_id;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER trigger_create_account_receivable
+    AFTER UPDATE ON appointments
+    FOR EACH ROW EXECUTE FUNCTION create_account_receivable_for_appointment();
+
+-- Trigger para registrar transações de caixa
+CREATE OR REPLACE FUNCTION register_cash_transaction()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Para contas a pagar pagas
+    IF TG_TABLE_NAME = 'accounts_payable' AND OLD.status != 'paid' AND NEW.status = 'paid' THEN
+        INSERT INTO cash_transactions (
+            transaction_date,
+            type,
+            amount,
+            description,
+            payment_method,
+            category,
+            reference_id,
+            reference_type,
+            created_by
+        ) VALUES (
+            COALESCE(NEW.payment_date, CURRENT_DATE),
+            'expense',
+            NEW.amount,
+            NEW.description,
+            NEW.payment_method,
+            NEW.category,
+            NEW.id,
+            'account_payable',
+            NEW.created_by
+        );
+    END IF;
+    
+    -- Para contas a receber pagas
+    IF TG_TABLE_NAME = 'accounts_receivable' AND OLD.status != 'paid' AND NEW.status = 'paid' THEN
+        INSERT INTO cash_transactions (
+            transaction_date,
+            type,
+            amount,
+            description,
+            payment_method,
+            category,
+            reference_id,
+            reference_type,
+            created_by
+        ) VALUES (
+            COALESCE(NEW.payment_date, CURRENT_DATE),
+            'income',
+            NEW.amount,
+            NEW.description,
+            NEW.payment_method,
+            'Serviços',
+            NEW.id,
+            'account_receivable',
+            NEW.created_by
+        );
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER trigger_register_cash_transaction_payable
+    AFTER UPDATE ON accounts_payable
+    FOR EACH ROW EXECUTE FUNCTION register_cash_transaction();
+
+CREATE TRIGGER trigger_register_cash_transaction_receivable
+    AFTER UPDATE ON accounts_receivable
+    FOR EACH ROW EXECUTE FUNCTION register_cash_transaction();
+
 -- Dados iniciais
 
--- Usuário administrador padrão
+-- Usuário administrador master
 INSERT INTO users (name, email, password_hash, role, permissions) VALUES
-('Administrador', 'admin@petshop.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', '{"all": true}');
+('Administrador Master', 'admin@petshop.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', '{"all": true}');
 
--- Raças padrão
+-- Raças padrão organizadas por espécie
 INSERT INTO breeds (name, species, characteristics, created_by) VALUES
+-- Cães
 ('Labrador', 'dog', 'Cão dócil e amigável, excelente para famílias', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
 ('Golden Retriever', 'dog', 'Cão inteligente e leal, muito carinhoso', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
 ('Pastor Alemão', 'dog', 'Cão protetor e inteligente, ótimo para guarda', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
 ('Bulldog', 'dog', 'Cão calmo e companeiro, ideal para apartamentos', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Poodle', 'dog', 'Cão inteligente e hipoalergênico', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('SRD', 'dog', 'Sem Raça Definida', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+-- Gatos
 ('Persa', 'cat', 'Gato de pelo longo, elegante e tranquilo', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
 ('Siamês', 'cat', 'Gato ativo e vocal, muito inteligente', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
 ('Maine Coon', 'cat', 'Gato grande e peludo, muito gentil', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
-('SRD', 'dog', 'Sem Raça Definida', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
-('SRD', 'cat', 'Sem Raça Definida', (SELECT id FROM users WHERE email = 'admin@petshop.com'));
+('British Shorthair', 'cat', 'Gato calmo e de temperamento equilibrado', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('SRD', 'cat', 'Sem Raça Definida', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+-- Outros
+('Canário', 'bird', 'Ave canora pequena e colorida', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Coelho Anão', 'rabbit', 'Coelho de pequeno porte, dócil', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Hamster Sírio', 'hamster', 'Hamster de médio porte, solitário', (SELECT id FROM users WHERE email = 'admin@petshop.com'));
 
--- Salas padrão
+-- Salas organizadas por tipo
 INSERT INTO rooms (name, type, capacity, equipment, created_by) VALUES
-('Consultório 1', 'consultation', 4, ARRAY['Mesa de exame', 'Estetoscópio', 'Balança'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
-('Consultório 2', 'consultation', 4, ARRAY['Mesa de exame', 'Estetoscópio', 'Balança'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
-('Sala Cirúrgica 1', 'surgery', 6, ARRAY['Mesa cirúrgica', 'Aparelho de anestesia', 'Monitor cardíaco'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
-('Sala de Banho e Tosa 1', 'grooming', 2, ARRAY['Banheira', 'Secador', 'Mesa de tosa'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
-('Sala de Banho e Tosa 2', 'grooming', 2, ARRAY['Banheira', 'Secador', 'Mesa de tosa'], (SELECT id FROM users WHERE email = 'admin@petshop.com'));
+('Consultório 1', 'consultation', 4, ARRAY['Mesa de exame', 'Estetoscópio', 'Balança', 'Termômetro'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Consultório 2', 'consultation', 4, ARRAY['Mesa de exame', 'Estetoscópio', 'Balança', 'Termômetro'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Consultório 3', 'consultation', 4, ARRAY['Mesa de exame', 'Estetoscópio', 'Balança', 'Oftalmoscópio'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Centro Cirúrgico 1', 'surgery', 6, ARRAY['Mesa cirúrgica', 'Aparelho de anestesia', 'Monitor cardíaco', 'Respirador'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Centro Cirúrgico 2', 'surgery', 6, ARRAY['Mesa cirúrgica', 'Aparelho de anestesia', 'Monitor cardíaco', 'Respirador'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Sala de Banho e Tosa 1', 'grooming', 2, ARRAY['Banheira', 'Secador', 'Mesa de tosa', 'Tesouras'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Sala de Banho e Tosa 2', 'grooming', 2, ARRAY['Banheira', 'Secador', 'Mesa de tosa', 'Máquina de corte'], (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Sala de Banho e Tosa 3', 'grooming', 2, ARRAY['Banheira grande', 'Secador potente', 'Mesa hidráulica'], (SELECT id FROM users WHERE email = 'admin@petshop.com'));
 
--- Tipos de serviços padrão
+-- Tipos de serviços categorizados
 INSERT INTO service_types (name, category, duration, price, requires_veterinarian, created_by) VALUES
-('Consulta Veterinária', 'consultation', 30, 80.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
-('Exame de Sangue', 'exam', 15, 120.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
-('Cirurgia Simples', 'surgery', 120, 500.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+-- Consultas
+('Consulta Veterinária Geral', 'consultation', 30, 80.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Consulta de Retorno', 'consultation', 20, 50.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Consulta de Emergência', 'consultation', 45, 150.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+-- Exames
+('Exame de Sangue Completo', 'exam', 15, 120.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Exame de Urina', 'exam', 10, 80.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Raio-X', 'exam', 30, 200.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Ultrassom', 'exam', 45, 250.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+-- Cirurgias
+('Castração Macho', 'surgery', 90, 300.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Castração Fêmea', 'surgery', 120, 400.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Cirurgia Dentária', 'surgery', 180, 600.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+-- Banho e Tosa
 ('Banho Simples', 'grooming', 60, 40.00, false, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
-('Banho e Tosa', 'grooming', 90, 60.00, false, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Banho e Tosa Completa', 'grooming', 90, 60.00, false, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Banho e Tosa Higiênica', 'grooming', 45, 45.00, false, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Tosa Bebê', 'grooming', 75, 55.00, false, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+-- Vacinas
 ('Vacinação V8', 'vaccine', 15, 45.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
-('Vacinação Antirrábica', 'vaccine', 15, 35.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com'));
+('Vacinação V10', 'vaccine', 15, 55.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Vacinação Antirrábica', 'vaccine', 15, 35.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Vacinação Tríplice Felina', 'vaccine', 15, 50.00, true, (SELECT id FROM users WHERE email = 'admin@petshop.com'));
+
+-- Categorias de produtos
+INSERT INTO product_categories (name, description, created_by) VALUES
+('Medicamentos', 'Medicamentos veterinários e farmacêuticos', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Rações', 'Rações para diferentes tipos e idades de animais', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Acessórios', 'Coleiras, brinquedos e acessórios diversos', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Higiene', 'Produtos de higiene e limpeza para animais', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('Equipamentos', 'Equipamentos médicos e de uso veterinário', (SELECT id FROM users WHERE email = 'admin@petshop.com'));
+
+-- Configurações do sistema
+INSERT INTO system_settings (key, value, description, created_by) VALUES
+('system_name', '"Sistema PetShop"', 'Nome do sistema', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('default_language', '"pt"', 'Idioma padrão do sistema', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('appointment_duration', '30', 'Duração padrão dos agendamentos em minutos', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('working_hours', '{"start": "08:00", "end": "18:00"}', 'Horário de funcionamento', (SELECT id FROM users WHERE email = 'admin@petshop.com')),
+('working_days', '["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]', 'Dias de funcionamento', (SELECT id FROM users WHERE email = 'admin@petshop.com'));
