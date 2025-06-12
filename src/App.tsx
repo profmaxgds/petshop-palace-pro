@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -69,6 +68,12 @@ const App = () => {
         return <div className="p-6">Página de Fluxo de Caixa em desenvolvimento...</div>;
       case 'banks':
         return <div className="p-6">Página de Bancos em desenvolvimento...</div>;
+      case 'product-categories':
+        return <div className="p-6">Página de Categorias de Produtos em desenvolvimento...</div>;
+      case 'users':
+        return <div className="p-6">Página de Usuários em desenvolvimento...</div>;
+      case 'profile':
+        return <div className="p-6">Página de Perfil em desenvolvimento...</div>;
       case 'settings':
         return <Settings />;
       default:
