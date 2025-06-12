@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -9,6 +8,10 @@ export interface User {
   lastLogin?: Date;
   createdAt: Date;
   updatedAt: Date;
+  // Campos específicos para veterinários
+  crmv?: string;
+  specialties?: string[];
+  consultationPrice?: number;
 }
 
 export interface Tutor {
@@ -32,11 +35,23 @@ export interface Tutor {
   updatedAt: Date;
 }
 
+export interface Breed {
+  id: string;
+  name: string;
+  species: 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other';
+  characteristics?: string;
+  isActive: boolean;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Animal {
   id: string;
   name: string;
   species: 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other';
-  breed: string;
+  breedId: string;
+  breed?: Breed;
   age: number;
   sex: 'male' | 'female';
   weight: number;
@@ -45,6 +60,18 @@ export interface Animal {
   observations?: string;
   tutorId: string;
   tutor?: Tutor;
+  isActive: boolean;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Room {
+  id: string;
+  name: string;
+  type: 'consultation' | 'surgery' | 'grooming' | 'other';
+  capacity?: number;
+  equipment?: string[];
   isActive: boolean;
   createdBy: string;
   createdAt: Date;
@@ -90,6 +117,8 @@ export interface Appointment {
   serviceType?: ServiceType;
   veterinarianId?: string;
   veterinarian?: Veterinarian;
+  roomId?: string;
+  room?: Room;
   status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
   totalPrice?: number;
   notes?: string;
@@ -123,6 +152,8 @@ export interface GroomingService {
   serviceTime?: string;
   serviceTypeId: string;
   serviceType?: ServiceType;
+  roomId?: string;
+  room?: Room;
   status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
   price?: number;
   notes?: string;

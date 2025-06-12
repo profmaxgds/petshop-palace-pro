@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { 
@@ -25,8 +26,9 @@ import {
   User,
   FolderOpen,
   Archive,
-  PlusCircle,
-  Tag
+  Tag,
+  Building,
+  PawPrint
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
@@ -37,6 +39,7 @@ interface SidebarProps {
   collapsed: boolean;
   onToggleCollapse: () => void;
   hasPermission: (module: string, action?: string) => boolean;
+  onLogout: () => void;
 }
 
 interface MenuItem {
@@ -60,7 +63,8 @@ const modules: ModuleItem[] = [
     items: [
       { key: 'tutors', icon: Users, label: 'tutors' },
       { key: 'animals', icon: Heart, label: 'animals' },
-      { key: 'veterinarians', icon: Stethoscope, label: 'veterinarians' },
+      { key: 'breeds', icon: PawPrint, label: 'breeds' },
+      { key: 'rooms', icon: Building, label: 'rooms' },
     ]
   },
   {
@@ -102,8 +106,8 @@ const modules: ModuleItem[] = [
     icon: Settings,
     items: [
       { key: 'settings', icon: Settings, label: 'settings' },
-      { key: 'users', icon: UserCog, label: 'Usuários' },
-      { key: 'profile', icon: User, label: 'Perfil' },
+      { key: 'users', icon: UserCog, label: 'users' },
+      { key: 'profile', icon: User, label: 'profile' },
     ]
   }
 ];
@@ -114,6 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   collapsed,
   onToggleCollapse,
   hasPermission,
+  onLogout,
 }) => {
   const [expandedModules, setExpandedModules] = useState<string[]>(['cadastros', 'servicos', 'financeiro', 'produtos-estoque']);
 
@@ -149,7 +154,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     const itemPermissions: Record<string, { module: string; action?: string }> = {
       'tutors': { module: 'tutors' },
       'animals': { module: 'animals' },
-      'veterinarians': { module: 'system', action: 'write' },
+      'breeds': { module: 'animals' },
+      'rooms': { module: 'system', action: 'write' },
       'appointments': { module: 'appointments' },
       'grooming': { module: 'appointments' },
       'vaccines': { module: 'vaccines' },
@@ -282,7 +288,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Footer */}
       <div className="p-2 border-t border-teal-500">
         <button
-          onClick={() => {/* Handle logout - será implementado no componente pai */}}
+          onClick={onLogout}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-teal-100 hover:bg-red-500 hover:text-white transition-colors"
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />

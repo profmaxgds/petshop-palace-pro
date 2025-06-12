@@ -5,9 +5,9 @@ import { setLanguage, getCurrentLanguage, type Language } from '@/lib/i18n';
 import { Globe } from 'lucide-react';
 
 const languages = [
-  { code: 'pt-BR', name: 'Português', flag: '🇧🇷' },
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'pt' as Language, name: 'Português', flag: '🇧🇷' },
+  { code: 'en' as Language, name: 'English', flag: '🇺🇸' },
+  { code: 'es' as Language, name: 'Español', flag: '🇪🇸' },
 ] as const;
 
 interface LanguageSelectorProps {

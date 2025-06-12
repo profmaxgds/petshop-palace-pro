@@ -21,6 +21,8 @@ import Purchases from './components/pages/Purchases';
 import AccountsPayable from './components/pages/AccountsPayable';
 import Users from './components/pages/Users';
 import Settings from './components/pages/Settings';
+import Breeds from './components/pages/Breeds';
+import Rooms from './components/pages/Rooms';
 import { getCurrentLanguage } from './lib/i18n';
 import { User } from './types';
 
@@ -92,6 +94,8 @@ const App = () => {
     const pagePermissions: Record<string, { module: string; action?: string }> = {
       'tutors': { module: 'tutors' },
       'animals': { module: 'animals' },
+      'breeds': { module: 'animals' },
+      'rooms': { module: 'system', action: 'write' },
       'vaccines': { module: 'vaccines' },
       'appointments': { module: 'appointments' },
       'grooming': { module: 'appointments' },
@@ -126,6 +130,10 @@ const App = () => {
         return <Tutors />;
       case 'animals':
         return <Animals />;
+      case 'breeds':
+        return <Breeds />;
+      case 'rooms':
+        return <Rooms />;
       case 'vaccines':
         return <Vaccines />;
       case 'appointments':
@@ -178,13 +186,14 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-gray-50 flex w-full">
           <Sidebar
             currentPage={currentPage}
             onPageChange={setCurrentPage}
             collapsed={sidebarCollapsed}
             onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
             hasPermission={hasPermission}
+            onLogout={handleLogout}
           />
           
           <div className="flex-1 flex flex-col">
