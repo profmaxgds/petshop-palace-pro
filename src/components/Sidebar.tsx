@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { 
@@ -37,6 +36,7 @@ interface SidebarProps {
   onPageChange: (page: string) => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  hasPermission: (module: string, action?: string) => boolean;
 }
 
 interface MenuItem {
@@ -113,6 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onPageChange,
   collapsed,
   onToggleCollapse,
+  hasPermission,
 }) => {
   const [expandedModules, setExpandedModules] = useState<string[]>(['cadastros', 'servicos', 'financeiro', 'produtos-estoque']);
 
@@ -128,6 +129,48 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const isModuleExpanded = (moduleKey: string) => {
     return expandedModules.includes(moduleKey);
+  };
+
+  // Verificar se o módulo deve ser visível baseado nas permissões
+  const isModuleVisible = (moduleKey: string) => {
+    const modulePermissions: Record<string, string> = {
+      'cadastros': 'tutors',
+      'servicos': 'appointments',
+      'financeiro': 'financial',
+      'produtos-estoque': 'products',
+      'sistema': 'system'
+    };
+
+    return hasPermission(modulePermissions[moduleKey]);
+  };
+
+  // Verificar se um item específico deve ser visível
+  const isItemVisible = (itemKey: string) => {
+    const itemPermissions: Record<string, { module: string; action?: string }> = {
+      'tutors': { module: 'tutors' },
+      'animals': { module: 'animals' },
+      'veterinarians': { module: 'system', action: 'write' },
+      'appointments': { module: 'appointments' },
+      'grooming': { module: 'appointments' },
+      'vaccines': { module: 'vaccines' },
+      'accounts-payable': { module: 'financial' },
+      'accounts-receivable': { module: 'financial' },
+      'cash-flow': { module: 'financial' },
+      'banks': { module: 'financial' },
+      'inventory': { module: 'products' },
+      'purchases': { module: 'purchases' },
+      'products': { module: 'products' },
+      'product-categories': { module: 'products', action: 'write' },
+      'service-types': { module: 'system', action: 'write' },
+      'settings': { module: 'system' },
+      'users': { module: 'system', action: 'write' },
+      'profile': { module: 'system' }
+    };
+
+    const permission = itemPermissions[itemKey];
+    if (!permission) return true; // Se não há restrição específica, mostrar
+    
+    return hasPermission(permission.module, permission.action);
   };
 
   return (
@@ -174,66 +217,72 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Navigation */}
       <nav className="flex-1 p-2 overflow-y-auto">
         <div className="space-y-1">
-          {modules.map((module) => {
-            const ModuleIcon = module.icon;
-            const isExpanded = isModuleExpanded(module.key);
-            
-            return (
-              <div key={module.key}>
-                <button
-                  onClick={() => toggleModule(module.key)}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-teal-100 hover:bg-teal-500 hover:text-white",
-                    collapsed && "justify-center"
+          {modules
+            .filter(module => isModuleVisible(module.key))
+            .map((module) => {
+              const ModuleIcon = module.icon;
+              const isExpanded = isModuleExpanded(module.key);
+              const visibleItems = module.items.filter(item => isItemVisible(item.key));
+              
+              // Se não há itens visíveis, não mostrar o módulo
+              if (visibleItems.length === 0) return null;
+              
+              return (
+                <div key={module.key}>
+                  <button
+                    onClick={() => toggleModule(module.key)}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-teal-100 hover:bg-teal-500 hover:text-white",
+                      collapsed && "justify-center"
+                    )}
+                  >
+                    <ModuleIcon className="w-5 h-5 flex-shrink-0" />
+                    {!collapsed && (
+                      <>
+                        <span className="flex-1 text-left font-medium">{module.label}</span>
+                        {isExpanded ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </>
+                    )}
+                  </button>
+                  
+                  {!collapsed && isExpanded && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {visibleItems.map((item) => {
+                        const ItemIcon = item.icon;
+                        const isActive = currentPage === item.key;
+                        
+                        return (
+                          <button
+                            key={item.key}
+                            onClick={() => onPageChange(item.key)}
+                            className={cn(
+                              "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
+                              isActive
+                                ? "bg-white text-teal-700 shadow-sm"
+                                : "text-teal-100 hover:bg-teal-500 hover:text-white"
+                            )}
+                          >
+                            <ItemIcon className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{t(item.label as any)}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
-                >
-                  <ModuleIcon className="w-5 h-5 flex-shrink-0" />
-                  {!collapsed && (
-                    <>
-                      <span className="flex-1 text-left font-medium">{module.label}</span>
-                      {isExpanded ? (
-                        <ChevronUp className="w-4 h-4" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4" />
-                      )}
-                    </>
-                  )}
-                </button>
-                
-                {!collapsed && isExpanded && (
-                  <div className="ml-4 mt-1 space-y-1">
-                    {module.items.map((item) => {
-                      const ItemIcon = item.icon;
-                      const isActive = currentPage === item.key;
-                      
-                      return (
-                        <button
-                          key={item.key}
-                          onClick={() => onPageChange(item.key)}
-                          className={cn(
-                            "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
-                            isActive
-                              ? "bg-white text-teal-700 shadow-sm"
-                              : "text-teal-100 hover:bg-teal-500 hover:text-white"
-                          )}
-                        >
-                          <ItemIcon className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{t(item.label as any)}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
         </div>
       </nav>
 
       {/* Footer */}
       <div className="p-2 border-t border-teal-500">
         <button
-          onClick={() => {/* Handle logout */}}
+          onClick={() => {/* Handle logout - será implementado no componente pai */}}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-teal-100 hover:bg-red-500 hover:text-white transition-colors"
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
