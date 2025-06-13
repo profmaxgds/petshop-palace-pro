@@ -249,8 +249,7 @@ i18next
 
           // Species
           dog: 'Perro',
-          cat: '
-Gato',
+          cat: 'Gato',
           bird: 'Ave',
           rabbit: 'Conejo',
           hamster: 'Hámster',
