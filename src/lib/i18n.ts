@@ -1,4 +1,3 @@
-
 // Definição de tipos para as traduções
 export type Language = 'pt' | 'en' | 'es';
 type TranslationKey = keyof typeof translations.pt;
@@ -203,7 +202,29 @@ const translations = {
     activeAccount: 'Conta Ativa',
     totalBalance: 'Saldo Total',
     bankAccountsList: 'Lista de Contas Bancárias',
-    balance: 'Saldo'
+    balance: 'Saldo',
+    
+    // Dashboard specific
+    todayAppointments: 'Agendamentos Hoje',
+    lowStock: 'Estoque Baixo',
+    pendingPayments: 'Pagamentos Pendentes',
+    todayRevenue: 'Receita Hoje',
+    overdueVaccines: 'Vacinas Atrasadas',
+    
+    // Appointments
+    appointments: 'Agendamentos',
+    appointmentDescription: 'Gestão de consultas e exames veterinários',
+    appointmentsList: 'Lista de Agendamentos',
+    appointmentsFound: 'agendamentos encontrados',
+    newAppointment: 'Novo Agendamento',
+    dateTime: 'Data/Hora',
+    appointmentHistory: 'Histórico de Consultas',
+    
+    // Status
+    scheduled: 'Agendado',
+    completed: 'Realizado',
+    cancelled: 'Cancelado',
+    today: 'Hoje'
   },
   en: {
     // Navigation
@@ -603,7 +624,29 @@ const translations = {
     activeAccount: 'Cuenta Activa',
     totalBalance: 'Saldo Total',
     bankAccountsList: 'Lista de Cuentas Bancarias',
-    balance: 'Saldo'
+    balance: 'Saldo',
+    
+    // Dashboard specific
+    todayAppointments: 'Citas de Hoy',
+    lowStock: 'Stock Bajo',
+    pendingPayments: 'Pagos Pendientes',
+    todayRevenue: 'Ingresos de Hoy',
+    overdueVaccines: 'Vacunas Vencidas',
+    
+    // Appointments
+    appointments: 'Citas',
+    appointmentDescription: 'Gestión de consultas y exámenes veterinarios',
+    appointmentsList: 'Lista de Citas',
+    appointmentsFound: 'citas encontradas',
+    newAppointment: 'Nueva Cita',
+    dateTime: 'Fecha/Hora',
+    appointmentHistory: 'Historial de Consultas',
+    
+    // Status
+    scheduled: 'Programado',
+    completed: 'Completado',
+    cancelled: 'Cancelado',
+    today: 'Hoy'
   }
 } as const;
 

@@ -23,6 +23,7 @@ const Appointments: React.FC = () => {
       phone: '(11) 99999-9999',
       email: 'carlos@clinica.com',
       status: 'active',
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -34,6 +35,7 @@ const Appointments: React.FC = () => {
       phone: '(11) 88888-8888',
       email: 'ana@clinica.com',
       status: 'active',
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -46,7 +48,9 @@ const Appointments: React.FC = () => {
       category: 'consultation',
       duration: 30,
       price: 80.00,
+      requiresVeterinarian: true,
       isActive: true,
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -56,7 +60,9 @@ const Appointments: React.FC = () => {
       category: 'exam',
       duration: 15,
       price: 45.00,
+      requiresVeterinarian: true,
       isActive: true,
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -66,7 +72,9 @@ const Appointments: React.FC = () => {
       category: 'grooming',
       duration: 120,
       price: 35.00,
+      requiresVeterinarian: false,
       isActive: true,
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -76,7 +84,9 @@ const Appointments: React.FC = () => {
       category: 'surgery',
       duration: 180,
       price: 200.00,
+      requiresVeterinarian: true,
       isActive: true,
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -86,24 +96,28 @@ const Appointments: React.FC = () => {
     {
       id: '1',
       name: 'Rex',
-      species: 'Cão',
-      breed: 'Golden Retriever',
+      species: 'dog',
+      breedId: '1',
       age: 3,
       sex: 'male',
       weight: 32.5,
       tutorId: '1',
+      isActive: true,
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
       id: '2',
       name: 'Luna',
-      species: 'Gato',
-      breed: 'Persa',
+      species: 'cat',
+      breedId: '2',
       age: 2,
       sex: 'female',
       weight: 4.2,
       tutorId: '2',
+      isActive: true,
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -114,43 +128,46 @@ const Appointments: React.FC = () => {
       id: '1',
       animalId: '1',
       animal: animals[0],
-      date: new Date('2024-12-10'),
-      time: '09:00',
-      type: 'consultation',
+      appointmentDate: new Date('2024-12-10'),
+      appointmentTime: '09:00',
       serviceTypeId: '1',
       veterinarianId: '1',
-      veterinarian: 'Dr. Carlos Silva',
+      veterinarian: veterinarians[0],
       status: 'scheduled',
       notes: 'Consulta de rotina',
+      createdBy: 'system',
       createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       id: '2',
       animalId: '2',
       animal: animals[1],
-      date: new Date('2024-12-11'),
-      time: '14:30',
-      type: 'exam',
+      appointmentDate: new Date('2024-12-11'),
+      appointmentTime: '14:30',
       serviceTypeId: '2',
       veterinarianId: '2',
-      veterinarian: 'Dra. Ana Costa',
+      veterinarian: veterinarians[1],
       status: 'scheduled',
       notes: 'Exame de sangue',
+      createdBy: 'system',
       createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       id: '3',
       animalId: '1',
       animal: animals[0],
-      date: new Date('2024-12-08'),
-      time: '10:00',
-      type: 'consultation',
+      appointmentDate: new Date('2024-12-08'),
+      appointmentTime: '10:00',
       serviceTypeId: '1',
       veterinarianId: '1',
-      veterinarian: 'Dr. Carlos Silva',
+      veterinarian: veterinarians[0],
       status: 'completed',
       notes: 'Consulta realizada com sucesso',
+      createdBy: 'system',
       createdAt: new Date(),
+      updatedAt: new Date(),
     },
   ]);
 
@@ -170,8 +187,8 @@ const Appointments: React.FC = () => {
   const filteredAppointments = appointments.filter(appointment => {
     const matchesSearch = 
       appointment.animal?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.veterinarian.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.type.toLowerCase().includes(searchTerm.toLowerCase());
+      appointment.veterinarian?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      appointment.serviceType?.category.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
     
@@ -191,8 +208,8 @@ const Appointments: React.FC = () => {
     }
   };
 
-  const getTypeIcon = (type: Appointment['type']) => {
-    switch (type) {
+  const getTypeIcon = (category: ServiceType['category']) => {
+    switch (category) {
       case 'consultation':
         return <Stethoscope className="w-4 h-4 text-blue-600" />;
       case 'exam':
@@ -206,8 +223,8 @@ const Appointments: React.FC = () => {
     }
   };
 
-  const getTypeBadge = (type: Appointment['type']) => {
-    switch (type) {
+  const getTypeBadge = (category: ServiceType['category']) => {
+    switch (category) {
       case 'consultation':
         return { label: 'Consulta', color: 'default' };
       case 'exam':
@@ -217,7 +234,7 @@ const Appointments: React.FC = () => {
       case 'grooming':
         return { label: 'Banho & Tosa', color: 'outline' };
       default:
-        return { label: type, color: 'default' };
+        return { label: category, color: 'default' };
     }
   };
 
@@ -233,11 +250,14 @@ const Appointments: React.FC = () => {
               ...editingAppointment, 
               animalId: formData.animalId,
               animal: selectedAnimal,
-              date: new Date(formData.date),
-              time: formData.time,
-              type: selectedService?.category || 'consultation',
-              veterinarian: selectedVet?.name || '',
+              appointmentDate: new Date(formData.date),
+              appointmentTime: formData.time,
+              serviceTypeId: formData.serviceTypeId,
+              serviceType: selectedService,
+              veterinarianId: formData.veterinarianId,
+              veterinarian: selectedVet,
               notes: formData.notes,
+              updatedAt: new Date(),
             }
           : a
       ));
@@ -246,13 +266,17 @@ const Appointments: React.FC = () => {
         id: Date.now().toString(),
         animalId: formData.animalId,
         animal: selectedAnimal,
-        date: new Date(formData.date),
-        time: formData.time,
-        type: selectedService?.category || 'consultation',
-        veterinarian: selectedVet?.name || '',
+        appointmentDate: new Date(formData.date),
+        appointmentTime: formData.time,
+        serviceTypeId: formData.serviceTypeId,
+        serviceType: selectedService,
+        veterinarianId: formData.veterinarianId,
+        veterinarian: selectedVet,
         status: 'scheduled',
         notes: formData.notes,
+        createdBy: 'current-user',
         createdAt: new Date(),
+        updatedAt: new Date(),
       };
       setAppointments([...appointments, newAppointment]);
     }
@@ -276,8 +300,8 @@ const Appointments: React.FC = () => {
     setEditingAppointment(appointment);
     setFormData({
       animalId: appointment.animalId,
-      date: appointment.date.toISOString().split('T')[0],
-      time: appointment.time,
+      date: appointment.appointmentDate.toISOString().split('T')[0],
+      time: appointment.appointmentTime,
       serviceTypeId: appointment.serviceTypeId || '',
       veterinarianId: appointment.veterinarianId || '',
       notes: appointment.notes || '',
@@ -304,8 +328,8 @@ const Appointments: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Agendamentos</h1>
-          <p className="text-gray-600">Gestão de consultas e exames veterinários</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('appointments')}</h1>
+          <p className="text-gray-600">{t('appointmentDescription')}</p>
         </div>
       </div>
 
@@ -316,10 +340,10 @@ const Appointments: React.FC = () => {
             <div className="flex items-center gap-2">
               <CalendarIcon className="w-5 h-5 text-blue-600" />
               <div>
-                <p className="text-sm text-gray-600">Hoje</p>
+                <p className="text-sm text-gray-600">{t('today')}</p>
                 <p className="text-2xl font-bold">
                   {appointments.filter(a => 
-                    a.date.toDateString() === new Date().toDateString() && a.status === 'scheduled'
+                    a.appointmentDate.toDateString() === new Date().toDateString() && a.status === 'scheduled'
                   ).length}
                 </p>
               </div>
@@ -332,7 +356,7 @@ const Appointments: React.FC = () => {
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-green-600" />
               <div>
-                <p className="text-sm text-gray-600">Agendados</p>
+                <p className="text-sm text-gray-600">{t('scheduled')}</p>
                 <p className="text-2xl font-bold">
                   {appointments.filter(a => a.status === 'scheduled').length}
                 </p>
@@ -346,7 +370,7 @@ const Appointments: React.FC = () => {
             <div className="flex items-center gap-2">
               <Stethoscope className="w-5 h-5 text-teal-600" />
               <div>
-                <p className="text-sm text-gray-600">Realizados</p>
+                <p className="text-sm text-gray-600">{t('completed')}</p>
                 <p className="text-2xl font-bold">
                   {appointments.filter(a => a.status === 'completed').length}
                 </p>
@@ -360,7 +384,7 @@ const Appointments: React.FC = () => {
             <div className="flex items-center gap-2">
               <User className="w-5 h-5 text-orange-600" />
               <div>
-                <p className="text-sm text-gray-600">Cancelados</p>
+                <p className="text-sm text-gray-600">{t('cancelled')}</p>
                 <p className="text-2xl font-bold">
                   {appointments.filter(a => a.status === 'cancelled').length}
                 </p>
@@ -374,16 +398,16 @@ const Appointments: React.FC = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Lista de Agendamentos</CardTitle>
+              <CardTitle>{t('appointmentsList')}</CardTitle>
               <CardDescription>
-                {filteredAppointments.length} agendamentos encontrados
+                {filteredAppointments.length} {t('appointmentsFound')}
               </CardDescription>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="w-4 h-4 mr-2" />
-                  Novo Agendamento
+                  {t('newAppointment')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
@@ -537,34 +561,34 @@ const Appointments: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Animal</TableHead>
-                  <TableHead>Data/Hora</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Veterinário</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t('animal')}</TableHead>
+                  <TableHead>{t('dateTime')}</TableHead>
+                  <TableHead>{t('type')}</TableHead>
+                  <TableHead>{t('veterinarian')}</TableHead>
+                  <TableHead>{t('status')}</TableHead>
                   <TableHead className="text-right">{t('actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAppointments.map((appointment) => {
                   const statusBadge = getStatusBadge(appointment.status);
-                  const typeBadge = getTypeBadge(appointment.type);
+                  const typeBadge = getTypeBadge(appointment.serviceType?.category || 'consultation');
                   
                   return (
                     <TableRow key={appointment.id}>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {getTypeIcon(appointment.type)}
+                          {getTypeIcon(appointment.serviceType?.category || 'consultation')}
                           <div>
                             <div className="font-medium">{appointment.animal?.name}</div>
-                            <div className="text-sm text-gray-500">{appointment.animal?.species}</div>
+                            <div className="text-sm text-gray-500">{t(appointment.animal?.species || 'dog')}</div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{appointment.date.toLocaleDateString('pt-BR')}</div>
-                          <div className="text-sm text-gray-500">{appointment.time}</div>
+                          <div className="font-medium">{appointment.appointmentDate.toLocaleDateString('pt-BR')}</div>
+                          <div className="text-sm text-gray-500">{appointment.appointmentTime}</div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -573,7 +597,7 @@ const Appointments: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm">{appointment.veterinarian}</div>
+                        <div className="text-sm">{appointment.veterinarian?.name}</div>
                       </TableCell>
                       <TableCell>
                         <Select
@@ -586,9 +610,9 @@ const Appointments: React.FC = () => {
                             </Badge>
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="scheduled">Agendado</SelectItem>
-                            <SelectItem value="completed">Realizado</SelectItem>
-                            <SelectItem value="cancelled">Cancelado</SelectItem>
+                            <SelectItem value="scheduled">{t('scheduled')}</SelectItem>
+                            <SelectItem value="completed">{t('completed')}</SelectItem>
+                            <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </TableCell>

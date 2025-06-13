@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -165,7 +164,7 @@ const Animals: React.FC = () => {
   const [editingAnimal, setEditingAnimal] = useState<Animal | null>(null);
   const [formData, setFormData] = useState({
     name: '',
-    species: '' as 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other' | '',
+    species: 'dog' as 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other',
     breedId: '',
     age: 0,
     sex: 'male' as 'male' | 'female',
@@ -184,6 +183,10 @@ const Animals: React.FC = () => {
   };
 
   const handleSave = () => {
+    if (!formData.species || !formData.name || !formData.tutorId) {
+      return; // Basic validation
+    }
+
     const selectedTutor = tutors.find(t => t.id === formData.tutorId);
     const selectedBreed = breeds.find(b => b.id === formData.breedId);
     
@@ -214,7 +217,7 @@ const Animals: React.FC = () => {
     setEditingAnimal(null);
     setFormData({
       name: '',
-      species: '',
+      species: 'dog',
       breedId: '',
       age: 0,
       sex: 'male',
