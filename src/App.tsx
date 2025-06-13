@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -39,6 +38,7 @@ const App = () => {
   const [language, setLanguage] = useState(getCurrentLanguage());
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [navigationState, setNavigationState] = useState<any>(null);
 
   useEffect(() => {
     // Verificar se há uma sessão salva
@@ -80,6 +80,11 @@ const App = () => {
 
   const handleLanguageChange = () => {
     setLanguage(getCurrentLanguage());
+  };
+
+  const handleNavigation = (page: string, state?: any) => {
+    setCurrentPage(page);
+    setNavigationState(state);
   };
 
   // Verificar permissões
@@ -135,13 +140,13 @@ const App = () => {
       case 'tutors':
         return <Tutors />;
       case 'animals':
-        return <Animals />;
+        return <Animals onNavigate={handleNavigation} />;
       case 'breeds':
         return <Breeds />;
       case 'rooms':
         return <Rooms />;
       case 'vaccines':
-        return <Vaccines />;
+        return <Vaccines navigationState={navigationState} />;
       case 'appointments':
         return <Appointments />;
       case 'grooming':

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,16 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Search, Plus } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import { useNavigate } from 'react-router-dom';
 import type { Animal, Tutor, Vaccine, Appointment, GroomingService, Breed } from '@/types';
 import AnimalForm from './animals/AnimalForm';
 import AnimalsTable from './animals/AnimalsTable';
 import AnimalHistoryDialog from './animals/AnimalHistoryDialog';
 
-const Animals: React.FC = () => {
-  const navigate = useNavigate();
+interface AnimalsProps {
+  onNavigate?: (page: string, state?: any) => void;
+}
 
-  // Mock data
+const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
+  
   const tutors: Tutor[] = [
     {
       id: '1',
@@ -179,6 +179,8 @@ const Animals: React.FC = () => {
     animal.tutor?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  
+
   const handleSave = () => {
     if (!formData.species || !formData.name || !formData.tutorId) {
       return;
@@ -247,7 +249,10 @@ const Animals: React.FC = () => {
   };
 
   const handleVaccinate = (animalId: string) => {
-    navigate('/vaccines', { state: { selectedAnimalId: animalId } });
+    
+    if (onNavigate) {
+      onNavigate('vaccines', { selectedAnimalId: animalId });
+    }
   };
 
   const downloadVaccineCard = (animalId: string) => {
