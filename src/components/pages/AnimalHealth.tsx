@@ -5,211 +5,72 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Trash2, Calendar, Activity, Clock, MapPin } from 'lucide-react';
-import { t } from '@/lib/i18n';
+import { Calendar, Plus, Edit, Trash2, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { Animal, Appointment, Veterinarian, ServiceType, Room, Breed, Tutor } from '@/types';
+import { t } from '@/lib/i18n';
+import { Appointment, Animal, ServiceType, Veterinarian, Room } from '@/types';
 
 const AnimalHealth: React.FC = () => {
   const { toast } = useToast();
 
   // Mock data
-  const mockVeterinarians: Veterinarian[] = [
-    {
-      id: '1',
-      name: 'Dr. João Silva',
-      crmv: '12345-SP',
-      specialties: ['Clínica Geral', 'Cirurgia'],
-      phone: '(11) 99999-9999',
-      email: 'joao@veterinaria.com',
-      status: 'active',
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '2',
-      name: 'Dra. Maria Santos',
-      crmv: '67890-SP',
-      specialties: ['Dermatologia', 'Oftalmologia'],
-      phone: '(11) 88888-8888',
-      email: 'maria@veterinaria.com',
-      status: 'active',
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-  ];
-
-  const mockServiceTypes: ServiceType[] = [
-    {
-      id: '1',
-      name: 'Consulta Geral',
-      category: 'consultation',
-      duration: 30,
-      price: 80.00,
-      description: 'Consulta veterinária geral',
-      requiresVeterinarian: true,
-      isActive: true,
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '2',
-      name: 'Exame de Sangue',
-      category: 'exam',
-      duration: 15,
-      price: 120.00,
-      description: 'Exame laboratorial de sangue',
-      requiresVeterinarian: true,
-      isActive: true,
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-  ];
-
-  const mockRooms: Room[] = [
-    {
-      id: '1',
-      name: 'Consultório 1',
-      type: 'consultation',
-      capacity: 3,
-      isActive: true,
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '2',
-      name: 'Sala de Cirurgia',
-      type: 'surgery',
-      capacity: 5,
-      isActive: true,
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-  ];
-
-  const mockBreeds: Breed[] = [
-    {
-      id: '1',
-      name: 'Golden Retriever',
-      species: 'dog',
-      isActive: true,
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '2',
-      name: 'Persa',
-      species: 'cat',
-      isActive: true,
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
-
-  const mockTutors: Tutor[] = [
-    {
-      id: '1',
-      name: 'João Silva Santos',
-      cpf: '123.456.789-00',
-      phone: '(11) 99999-9999',
-      email: 'joao@email.com',
-      address: {
-        street: 'Rua das Flores',
-        number: '123',
-        neighborhood: 'Centro',
-        city: 'São Paulo',
-        state: 'SP',
-        zipCode: '01234-567'
-      },
-      isActive: true,
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-  ];
-
-  const mockAnimals: Animal[] = [
-    {
-      id: '1',
-      name: 'Rex',
-      species: 'dog',
-      breedId: '1',
-      breed: mockBreeds[0],
-      age: 3,
-      sex: 'male',
-      weight: 32.5,
-      tutorId: '1',
-      tutor: mockTutors[0],
-      isActive: true,
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '2',
-      name: 'Luna',
-      species: 'cat',
-      breedId: '2',
-      breed: mockBreeds[1],
-      age: 2,
-      sex: 'female',
-      weight: 4.2,
-      tutorId: '1',
-      tutor: mockTutors[0],
-      isActive: true,
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-  ];
-
   const [appointments, setAppointments] = useState<Appointment[]>([
     {
       id: '1',
+      animal: {
+        id: '1',
+        name: 'Rex',
+        species: 'dog',
+        sex: 'male',
+        tutor: {
+          id: '1',
+          name: 'João Silva',
+          phone: '(11) 99999-9999',
+          isActive: true,
+          createdBy: '1',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        tutorId: '1',
+        isActive: true,
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
       animalId: '1',
-      animal: mockAnimals[0],
       appointmentDate: new Date('2024-12-20'),
       appointmentTime: '09:00',
+      serviceType: {
+        id: '1',
+        name: 'Consulta Veterinária',
+        category: 'consultation',
+        duration: 30,
+        price: 80,
+        requiresVeterinarian: true,
+        isActive: true,
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
       serviceTypeId: '1',
-      serviceType: mockServiceTypes[0],
-      veterinarianId: '1',
-      veterinarian: mockVeterinarians[0],
-      roomId: '1',
-      room: mockRooms[0],
+      veterinarian: {
+        id: '1',
+        name: 'Dr. Carlos Silva',
+        crmv: '12345',
+        status: 'active',
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      veterinariId: '1',
       status: 'scheduled',
-      totalPrice: 80.00,
-      notes: 'Consulta de rotina',
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '2',
-      animalId: '2',
-      animal: mockAnimals[1],
-      appointmentDate: new Date('2024-12-21'),
-      appointmentTime: '14:30',
-      serviceTypeId: '2',
-      serviceType: mockServiceTypes[1],
-      veterinarianId: '2',
-      veterinarian: mockVeterinarians[1],
-      roomId: '1',
-      room: mockRooms[0],
-      status: 'confirmed',
-      totalPrice: 120.00,
-      notes: 'Exame de sangue para check-up',
-      createdBy: 'system',
+      totalPrice: 80,
+      isActive: true,
+      createdBy: '1',
       createdAt: new Date(),
       updatedAt: new Date(),
     }
@@ -219,7 +80,8 @@ const AnimalHealth: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
-  const [formData, setFormData] = useState({
+
+  const [appointmentForm, setAppointmentForm] = useState({
     animalId: '',
     appointmentDate: '',
     appointmentTime: '',
@@ -229,37 +91,113 @@ const AnimalHealth: React.FC = () => {
     notes: '',
   });
 
+  // Mock data for selects
+  const animals: Animal[] = [
+    {
+      id: '1',
+      name: 'Rex',
+      species: 'dog',
+      sex: 'male',
+      tutor: {
+        id: '1',
+        name: 'João Silva',
+        phone: '(11) 99999-9999',
+        isActive: true,
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      tutorId: '1',
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+  ];
+
+  const serviceTypes: ServiceType[] = [
+    {
+      id: '1',
+      name: 'Consulta Veterinária',
+      category: 'consultation',
+      duration: 30,
+      price: 80,
+      requiresVeterinarian: true,
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+  ];
+
+  const veterinarians: Veterinarian[] = [
+    {
+      id: '1',
+      name: 'Dr. Carlos Silva',
+      crmv: '12345',
+      status: 'active',
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+  ];
+
+  const rooms: Room[] = [
+    {
+      id: '1',
+      name: 'Consultório 1',
+      type: 'consultation',
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+  ];
+
   const filteredAppointments = appointments.filter(appointment => {
-    const matchesSearch = appointment.animal?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         appointment.serviceType?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         appointment.veterinarian?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = appointment.animal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      appointment.veterinarian?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      appointment.animal.tutor.name.toLowerCase().includes(searchTerm.toLowerCase());
+    
     const matchesStatus = !statusFilter || appointment.status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
 
-  const handleSave = () => {
-    if (!formData.animalId || !formData.appointmentDate || !formData.appointmentTime || !formData.serviceTypeId) {
+  const handleSaveAppointment = () => {
+    if (!appointmentForm.animalId || !appointmentForm.appointmentDate || !appointmentForm.serviceTypeId) {
+      toast({
+        title: "Erro",
+        description: "Preencha todos os campos obrigatórios.",
+        variant: "destructive",
+      });
       return;
     }
 
-    const selectedAnimal = mockAnimals.find(a => a.id === formData.animalId);
-    const selectedServiceType = mockServiceTypes.find(s => s.id === formData.serviceTypeId);
-    const selectedVeterinarian = mockVeterinarians.find(v => v.id === formData.veterinarianId);
-    const selectedRoom = mockRooms.find(r => r.id === formData.roomId);
+    const animal = animals.find(a => a.id === appointmentForm.animalId);
+    const serviceType = serviceTypes.find(s => s.id === appointmentForm.serviceTypeId);
+    const veterinarian = veterinarians.find(v => v.id === appointmentForm.veterinarianId);
+    const room = rooms.find(r => r.id === appointmentForm.roomId);
+
+    if (!animal || !serviceType) return;
 
     if (editingAppointment) {
       setAppointments(appointments.map(a => 
         a.id === editingAppointment.id 
-          ? { 
-              ...editingAppointment, 
-              ...formData,
-              animal: selectedAnimal,
-              serviceType: selectedServiceType,
-              veterinarian: selectedVeterinarian,
-              room: selectedRoom,
-              appointmentDate: new Date(formData.appointmentDate),
-              totalPrice: selectedServiceType?.price,
+          ? {
+              ...editingAppointment,
+              animal,
+              animalId: appointmentForm.animalId,
+              appointmentDate: new Date(appointmentForm.appointmentDate),
+              appointmentTime: appointmentForm.appointmentTime,
+              serviceType,
+              serviceTypeId: appointmentForm.serviceTypeId,
+              veterinarian,
+              veterinariId: appointmentForm.veterinarianId,
+              room,
+              roomId: appointmentForm.roomId,
+              notes: appointmentForm.notes,
+              totalPrice: serviceType.price,
               updatedAt: new Date(),
             }
           : a
@@ -271,15 +209,21 @@ const AnimalHealth: React.FC = () => {
     } else {
       const newAppointment: Appointment = {
         id: Date.now().toString(),
-        ...formData,
-        animal: selectedAnimal,
-        serviceType: selectedServiceType,
-        veterinarian: selectedVeterinarian,
-        room: selectedRoom,
-        appointmentDate: new Date(formData.appointmentDate),
+        animal,
+        animalId: appointmentForm.animalId,
+        appointmentDate: new Date(appointmentForm.appointmentDate),
+        appointmentTime: appointmentForm.appointmentTime,
+        serviceType,
+        serviceTypeId: appointmentForm.serviceTypeId,
+        veterinarian,
+        veterinariId: appointmentForm.veterinarianId,
+        room,
+        roomId: appointmentForm.roomId,
         status: 'scheduled',
-        totalPrice: selectedServiceType?.price,
-        createdBy: 'current-user',
+        totalPrice: serviceType.price,
+        notes: appointmentForm.notes,
+        isActive: true,
+        createdBy: '1',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -295,7 +239,7 @@ const AnimalHealth: React.FC = () => {
   const handleCloseDialog = () => {
     setIsAddDialogOpen(false);
     setEditingAppointment(null);
-    setFormData({
+    setAppointmentForm({
       animalId: '',
       appointmentDate: '',
       appointmentTime: '',
@@ -306,60 +250,50 @@ const AnimalHealth: React.FC = () => {
     });
   };
 
-  const handleEdit = (appointment: Appointment) => {
+  const handleEditAppointment = (appointment: Appointment) => {
     setEditingAppointment(appointment);
-    setFormData({
+    setAppointmentForm({
       animalId: appointment.animalId,
       appointmentDate: appointment.appointmentDate.toISOString().split('T')[0],
       appointmentTime: appointment.appointmentTime,
       serviceTypeId: appointment.serviceTypeId,
-      veterinarianId: appointment.veterinarianId || '',
+      veterinarianId: appointment.veterinariId || '',
       roomId: appointment.roomId || '',
       notes: appointment.notes || '',
     });
     setIsAddDialogOpen(true);
   };
 
-  const handleDelete = (appointmentId: string) => {
-    setAppointments(appointments.filter(a => a.id !== appointmentId));
-    toast({
-      title: "Agendamento excluído",
-      description: "O agendamento foi excluído com sucesso.",
-    });
+  const handleDeleteAppointment = (appointmentId: string) => {
+    if (confirm('Tem certeza que deseja excluir este agendamento?')) {
+      setAppointments(appointments.filter(a => a.id !== appointmentId));
+      toast({
+        title: "Agendamento excluído",
+        description: "O agendamento foi excluído com sucesso.",
+      });
+    }
   };
 
-  const handleUpdateStatus = (appointmentId: string, newStatus: Appointment['status']) => {
-    setAppointments(appointments.map(a => 
-      a.id === appointmentId 
-        ? { ...a, status: newStatus, updatedAt: new Date() }
-        : a
-    ));
-    toast({
-      title: "Status atualizado",
-      description: "O status do agendamento foi atualizado.",
-    });
-  };
-
-  const getStatusBadge = (status: Appointment['status']) => {
-    const statusMap = {
-      scheduled: { label: 'Agendado', variant: 'secondary' as const },
-      confirmed: { label: 'Confirmado', variant: 'default' as const },
-      in_progress: { label: 'Em Andamento', variant: 'destructive' as const },
-      completed: { label: 'Concluído', variant: 'outline' as const },
-      cancelled: { label: 'Cancelado', variant: 'destructive' as const },
-      no_show: { label: 'Não Compareceu', variant: 'destructive' as const },
+  const getStatusBadge = (status: string) => {
+    const statusMap: Record<string, { label: string; variant: any }> = {
+      'scheduled': { label: 'Agendado', variant: 'secondary' },
+      'confirmed': { label: 'Confirmado', variant: 'default' },
+      'in_progress': { label: 'Em Andamento', variant: 'default' },
+      'completed': { label: 'Concluído', variant: 'default' },
+      'cancelled': { label: 'Cancelado', variant: 'destructive' },
+      'no_show': { label: 'Não Compareceu', variant: 'outline' },
     };
     
-    const config = statusMap[status];
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    const statusInfo = statusMap[status] || { label: status, variant: 'outline' };
+    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Saúde Animal</h1>
-          <p className="text-gray-600">Gerencie consultas e procedimentos veterinários</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('animalHealth')}</h1>
+          <p className="text-gray-600">{t('manageAppointments')}</p>
         </div>
       </div>
 
@@ -367,42 +301,42 @@ const AnimalHealth: React.FC = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Agendamentos</CardTitle>
+              <CardTitle>{t('appointmentsList')}</CardTitle>
               <CardDescription>
-                {filteredAppointments.length} agendamentos encontrados
+                {filteredAppointments.length} {t('appointmentsRegistered')}
               </CardDescription>
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-teal-600 hover:bg-teal-700">
                   <Plus className="w-4 h-4 mr-2" />
-                  Novo Agendamento
+                  {t('addAppointment')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingAppointment ? 'Editar Agendamento' : 'Novo Agendamento'}
+                    {editingAppointment ? t('editAppointment') : t('addAppointment')}
                   </DialogTitle>
                   <DialogDescription>
-                    Preencha os dados do agendamento
+                    {t('fillAppointmentData')}
                   </DialogDescription>
                 </DialogHeader>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div>
-                    <Label htmlFor="animalId">Animal</Label>
+                    <Label htmlFor="animal">{t('animal')}</Label>
                     <Select
-                      value={formData.animalId}
-                      onValueChange={(value) => setFormData({...formData, animalId: value})}
+                      value={appointmentForm.animalId}
+                      onValueChange={(value) => setAppointmentForm({...appointmentForm, animalId: value})}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o animal" />
+                        <SelectValue placeholder={t('selectAnimal')} />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockAnimals.map((animal) => (
+                        {animals.map((animal) => (
                           <SelectItem key={animal.id} value={animal.id}>
-                            {animal.name} - {animal.tutor?.name}
+                            {animal.name} - {animal.tutor.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -410,18 +344,18 @@ const AnimalHealth: React.FC = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="serviceTypeId">Tipo de Serviço</Label>
+                    <Label htmlFor="serviceType">{t('serviceType')}</Label>
                     <Select
-                      value={formData.serviceTypeId}
-                      onValueChange={(value) => setFormData({...formData, serviceTypeId: value})}
+                      value={appointmentForm.serviceTypeId}
+                      onValueChange={(value) => setAppointmentForm({...appointmentForm, serviceTypeId: value})}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o serviço" />
+                        <SelectValue placeholder={t('selectServiceType')} />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockServiceTypes.map((service) => (
+                        {serviceTypes.map((service) => (
                           <SelectItem key={service.id} value={service.id}>
-                            {service.name} - R$ {service.price.toFixed(2)}
+                            {service.name} - R$ {service.price}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -429,38 +363,38 @@ const AnimalHealth: React.FC = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="appointmentDate">Data</Label>
+                    <Label htmlFor="date">{t('date')}</Label>
                     <Input
-                      id="appointmentDate"
+                      id="date"
                       type="date"
-                      value={formData.appointmentDate}
-                      onChange={(e) => setFormData({...formData, appointmentDate: e.target.value})}
+                      value={appointmentForm.appointmentDate}
+                      onChange={(e) => setAppointmentForm({...appointmentForm, appointmentDate: e.target.value})}
                     />
                   </div>
                   
                   <div>
-                    <Label htmlFor="appointmentTime">Horário</Label>
+                    <Label htmlFor="time">{t('time')}</Label>
                     <Input
-                      id="appointmentTime"
+                      id="time"
                       type="time"
-                      value={formData.appointmentTime}
-                      onChange={(e) => setFormData({...formData, appointmentTime: e.target.value})}
+                      value={appointmentForm.appointmentTime}
+                      onChange={(e) => setAppointmentForm({...appointmentForm, appointmentTime: e.target.value})}
                     />
                   </div>
                   
                   <div>
-                    <Label htmlFor="veterinarianId">Veterinário</Label>
+                    <Label htmlFor="veterinarian">{t('veterinarian')}</Label>
                     <Select
-                      value={formData.veterinarianId}
-                      onValueChange={(value) => setFormData({...formData, veterinarianId: value})}
+                      value={appointmentForm.veterinarianId}
+                      onValueChange={(value) => setAppointmentForm({...appointmentForm, veterinarianId: value})}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o veterinário" />
+                        <SelectValue placeholder={t('selectVeterinarian')} />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockVeterinarians.map((vet) => (
+                        {veterinarians.map((vet) => (
                           <SelectItem key={vet.id} value={vet.id}>
-                            {vet.name}
+                            {vet.name} - CRMV {vet.crmv}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -468,16 +402,16 @@ const AnimalHealth: React.FC = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="roomId">Sala</Label>
+                    <Label htmlFor="room">{t('room')}</Label>
                     <Select
-                      value={formData.roomId}
-                      onValueChange={(value) => setFormData({...formData, roomId: value})}
+                      value={appointmentForm.roomId}
+                      onValueChange={(value) => setAppointmentForm({...appointmentForm, roomId: value})}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione a sala" />
+                        <SelectValue placeholder={t('selectRoom')} />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockRooms.map((room) => (
+                        {rooms.map((room) => (
                           <SelectItem key={room.id} value={room.id}>
                             {room.name}
                           </SelectItem>
@@ -487,22 +421,23 @@ const AnimalHealth: React.FC = () => {
                   </div>
                   
                   <div className="md:col-span-2">
-                    <Label htmlFor="notes">Observações</Label>
-                    <Input
+                    <Label htmlFor="notes">{t('observationsNotes')}</Label>
+                    <Textarea
                       id="notes"
-                      value={formData.notes}
-                      onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                      placeholder="Observações sobre o agendamento"
+                      value={appointmentForm.notes}
+                      onChange={(e) => setAppointmentForm({...appointmentForm, notes: e.target.value})}
+                      placeholder={t('observationsNotes')}
+                      rows={3}
                     />
                   </div>
                 </div>
                 
                 <DialogFooter>
                   <Button variant="outline" onClick={handleCloseDialog}>
-                    Cancelar
+                    {t('cancel')}
                   </Button>
-                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700">
-                    Salvar
+                  <Button onClick={handleSaveAppointment} className="bg-teal-600 hover:bg-teal-700">
+                    {t('save')}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -511,107 +446,75 @@ const AnimalHealth: React.FC = () => {
         </CardHeader>
         
         <CardContent>
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="flex items-center space-x-2">
-              <Search className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center space-x-2 mb-6">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Buscar por animal, serviço ou veterinário..."
+                placeholder={t('searchByAnimalOrVeterinarian')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-sm"
+                className="pl-10"
               />
             </div>
-            
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-60">
-                <SelectValue placeholder="Todos os status" />
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder={t('allStatuses')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os status</SelectItem>
-                <SelectItem value="scheduled">Agendado</SelectItem>
-                <SelectItem value="confirmed">Confirmado</SelectItem>
-                <SelectItem value="in_progress">Em Andamento</SelectItem>
-                <SelectItem value="completed">Concluído</SelectItem>
-                <SelectItem value="cancelled">Cancelado</SelectItem>
-                <SelectItem value="no_show">Não Compareceu</SelectItem>
+                <SelectItem value="">{t('allStatuses')}</SelectItem>
+                <SelectItem value="scheduled">{t('scheduled')}</SelectItem>
+                <SelectItem value="completed">{t('completed')}</SelectItem>
+                <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Animal</TableHead>
-                  <TableHead>Serviço</TableHead>
-                  <TableHead>Data/Hora</TableHead>
-                  <TableHead>Veterinário</TableHead>
-                  <TableHead>Sala</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('animalName')}</TableHead>
+                <TableHead>Tutor</TableHead>
+                <TableHead>{t('service')}</TableHead>
+                <TableHead>{t('dateTime')}</TableHead>
+                <TableHead>{t('veterinarian')}</TableHead>
+                <TableHead>{t('status')}</TableHead>
+                <TableHead>{t('actions')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredAppointments.map((appointment) => (
+                <TableRow key={appointment.id}>
+                  <TableCell className="font-medium">{appointment.animal.name}</TableCell>
+                  <TableCell>{appointment.animal.tutor.name}</TableCell>
+                  <TableCell>{appointment.serviceType.name}</TableCell>
+                  <TableCell>
+                    {appointment.appointmentDate.toLocaleDateString('pt-BR')} às {appointment.appointmentTime}
+                  </TableCell>
+                  <TableCell>{appointment.veterinarian?.name || '-'}</TableCell>
+                  <TableCell>{getStatusBadge(appointment.status)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditAppointment(appointment)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteAppointment(appointment.id)}
+                        className="text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAppointments.map((appointment) => (
-                  <TableRow key={appointment.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{appointment.animal?.name}</div>
-                        <div className="text-sm text-gray-500">{appointment.animal?.tutor?.name}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Activity className="w-4 h-4 text-blue-600" />
-                        {appointment.serviceType?.name}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <div>
-                          <div>{appointment.appointmentDate.toLocaleDateString('pt-BR')}</div>
-                          <div className="text-sm text-gray-500 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {appointment.appointmentTime}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{appointment.veterinarian?.name || '-'}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        {appointment.room?.name || '-'}
-                      </div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(appointment.status)}</TableCell>
-                    <TableCell>R$ {appointment.totalPrice?.toFixed(2) || '0,00'}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(appointment)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(appointment.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>

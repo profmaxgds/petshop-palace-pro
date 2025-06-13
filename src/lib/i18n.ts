@@ -1,4 +1,3 @@
-
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -73,6 +72,7 @@ i18next
           import: 'Import',
           active: 'Active',
           inactive: 'Inactive',
+          logout: 'Logout',
 
           // Animal related
           addAnimal: 'Add Animal',
@@ -199,6 +199,7 @@ i18next
           import: 'Importar',
           active: 'Ativo',
           inactive: 'Inativo',
+          logout: 'Sair',
           addAnimal: 'Adicionar Animal',
           animal: 'Animal',
           selectAnimal: 'Selecionar Animal',
@@ -307,6 +308,7 @@ i18next
           import: 'Importar',
           active: 'Activo',
           inactive: 'Inactivo',
+          logout: 'Salir',
           addAnimal: 'Agregar Animal',
           animal: 'Animal',
           selectAnimal: 'Seleccionar Animal',
@@ -354,7 +356,7 @@ i18next
           editAppointment: 'Editar Cita',
           fillAppointmentData: 'Complete los datos de la cita',
           serviceType: 'Tipo de Servicio',
-          selectServiceType: 'Seleccionar Tipo de Servicio',
+          selectServiceType: 'Seleccionar Tipo de Serviço',
           date: 'Fecha',
           time: 'Hora',
           room: 'Sala',

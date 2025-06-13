@@ -28,7 +28,10 @@ import {
   Archive,
   Tag,
   Building,
-  PawPrint
+  PawPrint,
+  FileText,
+  BarChart3,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
@@ -72,7 +75,7 @@ const modules: ModuleItem[] = [
     label: 'Serviços',
     icon: ClipboardList,
     items: [
-      { key: 'appointments', icon: Calendar, label: 'appointments' },
+      { key: 'animal-health', icon: Stethoscope, label: 'animalHealth' },
       { key: 'grooming', icon: Scissors, label: 'grooming' },
       { key: 'vaccines', icon: Syringe, label: 'vaccines' },
     ]
@@ -96,8 +99,9 @@ const modules: ModuleItem[] = [
       { key: 'inventory', icon: Archive, label: 'inventory' },
       { key: 'purchases', icon: ShoppingCart, label: 'purchases' },
       { key: 'products', icon: Package, label: 'products' },
-      { key: 'product-categories', icon: Tag, label: 'Categorias de Produtos' },
+      { key: 'product-categories', icon: Tag, label: 'productCategories' },
       { key: 'service-types', icon: ClipboardList, label: 'serviceTypes' },
+      { key: 'veterinarians', icon: Stethoscope, label: 'veterinarians' },
     ]
   },
   {
@@ -105,9 +109,11 @@ const modules: ModuleItem[] = [
     label: 'Sistema',
     icon: Settings,
     items: [
-      { key: 'settings', icon: Settings, label: 'settings' },
       { key: 'users', icon: UserCog, label: 'users' },
-      { key: 'profile', icon: User, label: 'profile' },
+      { key: 'profiles', icon: Shield, label: 'profiles' },
+      { key: 'vaccine-card-layout', icon: FileText, label: 'vaccineCardLayout' },
+      { key: 'reports', icon: BarChart3, label: 'reports' },
+      { key: 'settings', icon: Settings, label: 'settings' },
     ]
   }
 ];
@@ -120,7 +126,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   hasPermission,
   onLogout,
 }) => {
-  const [expandedModules, setExpandedModules] = useState<string[]>(['cadastros', 'servicos', 'financeiro', 'produtos-estoque']);
+  const [expandedModules, setExpandedModules] = useState<string[]>(['cadastros', 'servicos', 'financeiro', 'produtos-estoque', 'sistema']);
 
   const toggleModule = (moduleKey: string) => {
     if (collapsed) return;
@@ -156,7 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       'animals': { module: 'animals' },
       'breeds': { module: 'animals' },
       'rooms': { module: 'system', action: 'write' },
-      'appointments': { module: 'appointments' },
+      'animal-health': { module: 'appointments' },
       'grooming': { module: 'appointments' },
       'vaccines': { module: 'vaccines' },
       'accounts-payable': { module: 'financial' },
@@ -168,9 +174,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       'products': { module: 'products' },
       'product-categories': { module: 'products', action: 'write' },
       'service-types': { module: 'system', action: 'write' },
-      'settings': { module: 'system' },
+      'veterinarians': { module: 'system', action: 'write' },
       'users': { module: 'system', action: 'write' },
-      'profile': { module: 'system' }
+      'profiles': { module: 'system', action: 'write' },
+      'vaccine-card-layout': { module: 'system', action: 'write' },
+      'reports': { module: 'system' },
+      'settings': { module: 'system' }
     };
 
     const permission = itemPermissions[itemKey];
