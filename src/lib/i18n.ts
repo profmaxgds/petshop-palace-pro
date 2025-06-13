@@ -151,6 +151,13 @@ i18next
           service: 'Service',
           dateTime: 'Date/Time',
           status: 'Status',
+
+          // Dashboard
+          todayAppointments: 'Today\'s Appointments',
+          lowStock: 'Low Stock',
+          pendingPayments: 'Pending Payments',
+          todayRevenue: 'Today\'s Revenue',
+          overdueVaccines: 'Overdue Vaccines',
         }
       },
       pt: {
@@ -254,6 +261,11 @@ i18next
           service: 'Serviço',
           dateTime: 'Data/Hora',
           status: 'Status',
+          todayAppointments: 'Agendamentos de Hoje',
+          lowStock: 'Estoque Baixo',
+          pendingPayments: 'Pagamentos Pendentes',
+          todayRevenue: 'Receita de Hoje',
+          overdueVaccines: 'Vacinas Atrasadas',
         }
       },
       es: {
@@ -357,6 +369,11 @@ i18next
           service: 'Servicio',
           dateTime: 'Fecha/Hora',
           status: 'Estado',
+          todayAppointments: 'Citas de Hoy',
+          lowStock: 'Stock Bajo',
+          pendingPayments: 'Pagos Pendientes',
+          todayRevenue: 'Ingresos de Hoy',
+          overdueVaccines: 'Vacunas Vencidas',
         }
       }
     },
