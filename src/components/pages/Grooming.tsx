@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -307,7 +306,7 @@ const Grooming: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600">Em Andamento</p>
                 <p className="text-2xl font-bold">
-                  {groomingServices.filter(s => s.status === 'in-progress').length}
+                  {groomingServices.filter(s => s.status === 'in_progress').length}
                 </p>
               </div>
             </div>
@@ -366,7 +365,7 @@ const Grooming: React.FC = () => {
                       <SelectContent>
                         {animals.map((animal) => (
                           <SelectItem key={animal.id} value={animal.id}>
-                            {animal.name} - {animal.species} ({animal.breed})
+                            {animal.name} - {animal.species} ({animal.breed?.name})
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -446,7 +445,7 @@ const Grooming: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">Todos os status</SelectItem>
                 <SelectItem value="scheduled">Agendados</SelectItem>
-                <SelectItem value="in-progress">Em Andamento</SelectItem>
+                <SelectItem value="in_progress">Em Andamento</SelectItem>
                 <SelectItem value="completed">Concluídos</SelectItem>
               </SelectContent>
             </Select>

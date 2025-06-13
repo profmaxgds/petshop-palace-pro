@@ -84,7 +84,6 @@ i18next
           phone: 'Phone',
           email: 'Email',
           street: 'Street',
-          number: 'Number',
           neighborhood: 'Neighborhood',
           city: 'City',
           state: 'State',
@@ -129,8 +128,29 @@ i18next
           // System
           system: 'System',
 
-          // Numbers (for navigation consistency)
-          number: 'Number',
+          // Appointments
+          manageAppointments: 'Manage appointments',
+          appointmentsList: 'Appointments List',
+          appointmentsRegistered: 'appointments registered',
+          addAppointment: 'Add Appointment',
+          editAppointment: 'Edit Appointment',
+          fillAppointmentData: 'Fill appointment data',
+          serviceType: 'Service Type',
+          selectServiceType: 'Select Service Type',
+          date: 'Date',
+          time: 'Time',
+          room: 'Room',
+          selectRoom: 'Select Room',
+          observationsNotes: 'Observations/Notes',
+          searchByAnimalOrVeterinarian: 'Search by animal or veterinarian',
+          allStatuses: 'All Statuses',
+          scheduled: 'Scheduled',
+          completed: 'Completed',
+          cancelled: 'Cancelled',
+          animalName: 'Animal Name',
+          service: 'Service',
+          dateTime: 'Date/Time',
+          status: 'Status',
         }
       },
       pt: {
@@ -160,8 +180,6 @@ i18next
           reports: 'Relatórios',
           vaccineCardLayout: 'Layout da Carteirinha',
           animalHealth: 'Saúde Animal',
-
-          // Common actions
           actions: 'Ações',
           add: 'Adicionar',
           edit: 'Editar',
@@ -174,8 +192,6 @@ i18next
           import: 'Importar',
           active: 'Ativo',
           inactive: 'Inativo',
-
-          // Animal related
           addAnimal: 'Adicionar Animal',
           animal: 'Animal',
           selectAnimal: 'Selecionar Animal',
@@ -185,21 +201,16 @@ i18next
           phone: 'Telefone',
           email: 'Email',
           street: 'Rua',
-          number: 'Número',
           neighborhood: 'Bairro',
           city: 'Cidade',
           state: 'Estado',
           zipCode: 'CEP',
-
-          // Species
           dog: 'Cão',
           cat: 'Gato',
           bird: 'Ave',
           rabbit: 'Coelho',
           hamster: 'Hamster',
           other: 'Outro',
-
-          // Vaccine related
           addVaccine: 'Adicionar Vacina',
           editVaccine: 'Editar Vacina',
           vaccineType: 'Tipo de Vacina',
@@ -211,27 +222,38 @@ i18next
           selectVeterinarian: 'Selecionar Veterinário',
           notes: 'Observações',
           vaccineCannotBeDeleted: 'Vacinas não podem ser excluídas após 2 dias de seu lançamento.',
-
-          // Profile related
           newProfile: 'Novo Perfil',
           editProfile: 'Editar Perfil',
           profileName: 'Nome do Perfil',
           profileDescription: 'Descrição do Perfil',
           modulePermissions: 'Permissões por Módulo',
-
-          // Permissions
           read: 'Visualizar',
           write: 'Editar',
           deletePermission: 'Excluir',
-
-          // Financial
           financial: 'Financeiro',
-
-          // System
           system: 'Sistema',
-
-          // Numbers (for navigation consistency)
-          number: 'Número',
+          manageAppointments: 'Gerenciar agendamentos',
+          appointmentsList: 'Lista de Agendamentos',
+          appointmentsRegistered: 'agendamentos registrados',
+          addAppointment: 'Adicionar Agendamento',
+          editAppointment: 'Editar Agendamento',
+          fillAppointmentData: 'Preencha os dados do agendamento',
+          serviceType: 'Tipo de Serviço',
+          selectServiceType: 'Selecionar Tipo de Serviço',
+          date: 'Data',
+          time: 'Horário',
+          room: 'Sala',
+          selectRoom: 'Selecionar Sala',
+          observationsNotes: 'Observações/Notas',
+          searchByAnimalOrVeterinarian: 'Buscar por animal ou veterinário',
+          allStatuses: 'Todos os Status',
+          scheduled: 'Agendado',
+          completed: 'Concluído',
+          cancelled: 'Cancelado',
+          animalName: 'Nome do Animal',
+          service: 'Serviço',
+          dateTime: 'Data/Hora',
+          status: 'Status',
         }
       },
       es: {
@@ -261,8 +283,6 @@ i18next
           reports: 'Informes',
           vaccineCardLayout: 'Diseño de Tarjeta de Vacunas',
           animalHealth: 'Salud Animal',
-
-          // Common actions
           actions: 'Acciones',
           add: 'Agregar',
           edit: 'Editar',
@@ -275,8 +295,6 @@ i18next
           import: 'Importar',
           active: 'Activo',
           inactive: 'Inactivo',
-
-          // Animal related
           addAnimal: 'Agregar Animal',
           animal: 'Animal',
           selectAnimal: 'Seleccionar Animal',
@@ -286,21 +304,16 @@ i18next
           phone: 'Teléfono',
           email: 'Email',
           street: 'Calle',
-          number: 'Número',
           neighborhood: 'Barrio',
           city: 'Ciudad',
           state: 'Estado',
           zipCode: 'Código Postal',
-
-          // Species
           dog: 'Perro',
           cat: 'Gato',
           bird: 'Ave',
           rabbit: 'Conejo',
           hamster: 'Hámster',
           other: 'Otro',
-
-          // Vaccine related
           addVaccine: 'Agregar Vacuna',
           editVaccine: 'Editar Vacuna',
           vaccineType: 'Tipo de Vacuna',
@@ -312,27 +325,38 @@ i18next
           selectVeterinarian: 'Seleccionar Veterinario',
           notes: 'Observaciones',
           vaccineCannotBeDeleted: 'Las vacunas no pueden eliminarse después de 2 días de su registro.',
-
-          // Profile related
           newProfile: 'Nuevo Perfil',
           editProfile: 'Editar Perfil',
           profileName: 'Nombre del Perfil',
           profileDescription: 'Descripción del Perfil',
           modulePermissions: 'Permisos por Módulo',
-
-          // Permissions
           read: 'Ver',
           write: 'Escribir',
           deletePermission: 'Eliminar',
-
-          // Financial
           financial: 'Financiero',
-
-          // System
           system: 'Sistema',
-
-          // Numbers (for navigation consistency)
-          number: 'Número',
+          manageAppointments: 'Gestionar citas',
+          appointmentsList: 'Lista de Citas',
+          appointmentsRegistered: 'citas registradas',
+          addAppointment: 'Agregar Cita',
+          editAppointment: 'Editar Cita',
+          fillAppointmentData: 'Complete los datos de la cita',
+          serviceType: 'Tipo de Servicio',
+          selectServiceType: 'Seleccionar Tipo de Servicio',
+          date: 'Fecha',
+          time: 'Hora',
+          room: 'Sala',
+          selectRoom: 'Seleccionar Sala',
+          observationsNotes: 'Observaciones/Notas',
+          searchByAnimalOrVeterinarian: 'Buscar por animal o veterinario',
+          allStatuses: 'Todos los Estados',
+          scheduled: 'Programado',
+          completed: 'Completado',
+          cancelled: 'Cancelado',
+          animalName: 'Nombre del Animal',
+          service: 'Servicio',
+          dateTime: 'Fecha/Hora',
+          status: 'Estado',
         }
       }
     },

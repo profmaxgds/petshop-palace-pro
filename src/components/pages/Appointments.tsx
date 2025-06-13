@@ -288,7 +288,6 @@ const Appointments: React.FC = () => {
         room: selectedRoom,
         appointmentDate: new Date(formData.appointmentDate),
         status: 'scheduled',
-        isActive: true,
         createdBy: 'current-user',
         createdAt: new Date(),
         updatedAt: new Date(),
