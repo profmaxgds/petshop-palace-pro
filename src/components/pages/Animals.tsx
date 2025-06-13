@@ -10,9 +10,12 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Plus, Edit, Trash2, Heart, Scale, Calendar, Syringe, Download, Stethoscope, Scissors } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { useNavigate } from 'react-router-dom';
 import type { Animal, Tutor, Vaccine, Appointment, GroomingService, Breed } from '@/types';
 
 const Animals: React.FC = () => {
+  const navigate = useNavigate();
+
   // Mock tutors data
   const tutors: Tutor[] = [
     {
@@ -247,6 +250,10 @@ const Animals: React.FC = () => {
   const handleViewHistory = (animal: Animal) => {
     setSelectedAnimal(animal);
     setIsHistoryDialogOpen(true);
+  };
+
+  const handleVaccinate = (animalId: string) => {
+    navigate('/vaccines', { state: { selectedAnimalId: animalId } });
   };
 
   const downloadVaccineCard = (animalId: string) => {
@@ -544,7 +551,7 @@ const Animals: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => {/* Navigate to vaccines with animal pre-selected */}}
+                          onClick={() => handleVaccinate(animal.id)}
                           className="text-green-600 hover:text-green-800"
                           title="Vacinar"
                         >
