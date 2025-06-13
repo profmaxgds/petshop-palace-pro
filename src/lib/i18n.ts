@@ -1,3 +1,4 @@
+
 const translations = {
   // Navigation
   dashboard: { pt: 'Dashboard', en: 'Dashboard' },
@@ -92,6 +93,9 @@ const translations = {
   scheduled: { pt: 'Agendado', en: 'Scheduled' },
   completed: { pt: 'Realizado', en: 'Completed' },
   cancelled: { pt: 'Cancelado', en: 'Cancelled' },
+  confirmed: { pt: 'Confirmado', en: 'Confirmed' },
+  in_progress: { pt: 'Em Andamento', en: 'In Progress' },
+  no_show: { pt: 'Faltou', en: 'No Show' },
   addAppointment: { pt: 'Agendar Consulta', en: 'Schedule Appointment' },
   editAppointment: { pt: 'Editar Agendamento', en: 'Edit Appointment' },
   serviceType: { pt: 'Tipo de Serviço', en: 'Service Type' },
@@ -164,11 +168,27 @@ const translations = {
   profile: { pt: 'Perfil', en: 'Profile' },
   addUser: { pt: 'Adicionar Usuário', en: 'Add User' },
   editUser: { pt: 'Editar Usuário', en: 'Edit User' },
+
+  // System/Admin
+  admin: { pt: 'Administrador', en: 'Administrator' },
+  receptionist: { pt: 'Recepcionista', en: 'Receptionist' },
+  manager: { pt: 'Gerente', en: 'Manager' },
+  userProfile: { pt: 'Perfil do Usuário', en: 'User Profile' },
+  logout: { pt: 'Sair', en: 'Logout' },
+  success: { pt: 'Sucesso', en: 'Success' },
+
+  // Common actions/messages
+  read: { pt: 'Ler', en: 'Read' },
+  write: { pt: 'Escrever', en: 'Write' },
+  system: { pt: 'Sistema', en: 'System' },
+  financial: { pt: 'Financeiro', en: 'Financial' },
 };
 
-let currentLanguage: 'pt' | 'en' = 'pt';
+export type Language = 'pt' | 'en';
 
-export const setLanguage = (lang: 'pt' | 'en') => {
+let currentLanguage: Language = 'pt';
+
+export const setLanguage = (lang: Language) => {
   currentLanguage = lang;
 };
 

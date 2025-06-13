@@ -1,22 +1,21 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Plus, Edit, Trash2, Heart, Scale, Calendar, Syringe, Download, Stethoscope, Scissors } from 'lucide-react';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { Search, Plus } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useNavigate } from 'react-router-dom';
 import type { Animal, Tutor, Vaccine, Appointment, GroomingService, Breed } from '@/types';
+import AnimalForm from './animals/AnimalForm';
+import AnimalsTable from './animals/AnimalsTable';
+import AnimalHistoryDialog from './animals/AnimalHistoryDialog';
 
 const Animals: React.FC = () => {
   const navigate = useNavigate();
 
-  // Mock tutors data
+  // Mock data
   const tutors: Tutor[] = [
     {
       id: '1',
@@ -79,7 +78,6 @@ const Animals: React.FC = () => {
     }
   ];
 
-  // Mock historical data
   const mockVaccines: Vaccine[] = [
     {
       id: '1',
@@ -181,13 +179,9 @@ const Animals: React.FC = () => {
     animal.tutor?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getFilteredBreeds = () => {
-    return breeds.filter(breed => breed.species === formData.species && breed.isActive);
-  };
-
   const handleSave = () => {
     if (!formData.species || !formData.name || !formData.tutorId) {
-      return; // Basic validation
+      return;
     }
 
     const selectedTutor = tutors.find(t => t.id === formData.tutorId);
@@ -334,135 +328,6 @@ const Animals: React.FC = () => {
                   {t('addAnimal')}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingAnimal ? 'Editar Animal' : t('addAnimal')}
-                  </DialogTitle>
-                  <DialogDescription>
-                    Preencha os dados do animal
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                  <div className="md:col-span-2">
-                    <Label htmlFor="name">{t('animalName')}</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      placeholder="Nome do animal"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="species">{t('species')}</Label>
-                    <Select
-                      value={formData.species}
-                      onValueChange={(value: 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other') => setFormData({...formData, species: value, breedId: ''})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a espécie" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="dog">{t('dog')}</SelectItem>
-                        <SelectItem value="cat">{t('cat')}</SelectItem>
-                        <SelectItem value="bird">{t('bird')}</SelectItem>
-                        <SelectItem value="rabbit">{t('rabbit')}</SelectItem>
-                        <SelectItem value="hamster">{t('hamster')}</SelectItem>
-                        <SelectItem value="other">{t('other')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="breedId">{t('breed')}</Label>
-                    <Select
-                      value={formData.breedId}
-                      onValueChange={(value) => setFormData({...formData, breedId: value})}
-                      disabled={!formData.species}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a raça" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getFilteredBreeds().map((breed) => (
-                          <SelectItem key={breed.id} value={breed.id}>
-                            {breed.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="age">{t('age')}</Label>
-                    <Input
-                      id="age"
-                      type="number"
-                      value={formData.age}
-                      onChange={(e) => setFormData({...formData, age: parseInt(e.target.value) || 0})}
-                      placeholder="Idade em anos"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="sex">{t('sex')}</Label>
-                    <Select
-                      value={formData.sex}
-                      onValueChange={(value: 'male' | 'female') => setFormData({...formData, sex: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o sexo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">{t('male')}</SelectItem>
-                        <SelectItem value="female">{t('female')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="weight">{t('weight')} (kg)</Label>
-                    <Input
-                      id="weight"
-                      type="number"
-                      step="0.1"
-                      value={formData.weight}
-                      onChange={(e) => setFormData({...formData, weight: parseFloat(e.target.value) || 0})}
-                      placeholder="Peso em kg"
-                    />
-                  </div>
-                  
-                  <div className="md:col-span-2">
-                    <Label htmlFor="tutorId">{t('tutor')}</Label>
-                    <Select
-                      value={formData.tutorId}
-                      onValueChange={(value) => setFormData({...formData, tutorId: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tutor" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tutors.map((tutor) => (
-                          <SelectItem key={tutor.id} value={tutor.id}>
-                            {tutor.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <DialogFooter>
-                  <Button variant="outline" onClick={handleCloseDialog}>
-                    {t('cancel')}
-                  </Button>
-                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700">
-                    {t('save')}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
             </Dialog>
           </div>
         </CardHeader>
@@ -478,260 +343,37 @@ const Animals: React.FC = () => {
             />
           </div>
           
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Animal</TableHead>
-                  <TableHead>Espécie/Raça</TableHead>
-                  <TableHead>Detalhes</TableHead>
-                  <TableHead>Tutor</TableHead>
-                  <TableHead className="text-right">{t('actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAnimals.map((animal) => (
-                  <TableRow key={animal.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
-                          <Heart className="w-4 h-4 text-teal-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium">{animal.name}</div>
-                          <Badge variant={animal.sex === 'male' ? 'default' : 'secondary'} className="text-xs">
-                            {t(animal.sex)}
-                          </Badge>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{t(animal.species)}</div>
-                        <div className="text-sm text-gray-500">{animal.breed?.name}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center text-sm">
-                          <Calendar className="w-3 h-3 mr-1" />
-                          {animal.age} anos
-                        </div>
-                        <div className="flex items-center text-sm">
-                          <Scale className="w-3 h-3 mr-1" />
-                          {animal.weight} kg
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div className="font-medium">{animal.tutor?.name}</div>
-                        <div className="text-gray-500">{animal.tutor?.phone}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewHistory(animal)}
-                          title="Ver Histórico"
-                        >
-                          <Calendar className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => downloadVaccineCard(animal.id)}
-                          className="text-blue-600 hover:text-blue-800"
-                          title="Baixar Carteirinha"
-                        >
-                          <Download className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleVaccinate(animal.id)}
-                          className="text-green-600 hover:text-green-800"
-                          title="Vacinar"
-                        >
-                          <Syringe className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(animal)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(animal.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <AnimalsTable
+            animals={filteredAnimals}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onViewHistory={handleViewHistory}
+            onVaccinate={handleVaccinate}
+            onDownloadCard={downloadVaccineCard}
+          />
         </CardContent>
       </Card>
 
-      {/* Dialog de Histórico */}
-      <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Histórico - {selectedAnimal?.name}</DialogTitle>
-            <DialogDescription>
-              Histórico completo de vacinas, consultas e serviços
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Tabs defaultValue="vaccines" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="vaccines">{t('vaccines')}</TabsTrigger>
-              <TabsTrigger value="appointments">Consultas</TabsTrigger>
-              <TabsTrigger value="exams">Exames</TabsTrigger>
-              <TabsTrigger value="grooming">Banho & Tosa</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="vaccines" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{t('vaccineHistory')}</h3>
-                <Button
-                  size="sm"
-                  onClick={() => selectedAnimal && downloadVaccineCard(selectedAnimal.id)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  {t('downloadCard')}
-                </Button>
-              </div>
-              
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Vacina</TableHead>
-                      <TableHead>Lote</TableHead>
-                      <TableHead>Aplicação</TableHead>
-                      <TableHead>Próxima Dose</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockVaccines.filter(v => v.animalId === selectedAnimal?.id).map((vaccine) => (
-                      <TableRow key={vaccine.id}>
-                        <TableCell>{vaccine.vaccineType}</TableCell>
-                        <TableCell>{vaccine.batch}</TableCell>
-                        <TableCell>{vaccine.applicationDate.toLocaleDateString('pt-BR')}</TableCell>
-                        <TableCell>{vaccine.nextDueDate?.toLocaleDateString('pt-BR')}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="appointments" className="space-y-4">
-              <h3 className="text-lg font-semibold">{t('appointmentHistory')}</h3>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Horário</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockAppointments.filter(a => a.animalId === selectedAnimal?.id).map((appointment) => (
-                      <TableRow key={appointment.id}>
-                        <TableCell>{appointment.appointmentDate.toLocaleDateString('pt-BR')}</TableCell>
-                        <TableCell>{appointment.appointmentTime}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Stethoscope className="w-4 h-4 text-blue-600" />
-                            Consulta
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={appointment.status === 'completed' ? 'default' : 'secondary'}>
-                            {appointment.status === 'completed' ? 'Realizada' : 'Agendada'}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="exams" className="space-y-4">
-              <h3 className="text-lg font-semibold">Histórico de Exames</h3>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Horário</TableHead>
-                      <TableHead>Tipo de Exame</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center text-gray-500">
-                        Nenhum exame registrado
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="grooming" className="space-y-4">
-              <h3 className="text-lg font-semibold">Histórico de Banho & Tosa</h3>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Serviço</TableHead>
-                      <TableHead>Preço</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockGrooming.filter(g => g.animalId === selectedAnimal?.id).map((service) => (
-                      <TableRow key={service.id}>
-                        <TableCell>{service.serviceDate.toLocaleDateString('pt-BR')}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Scissors className="w-4 h-4 text-green-600" />
-                            Banho e Tosa
-                          </div>
-                        </TableCell>
-                        <TableCell>R$ {service.price?.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <Badge variant={service.status === 'completed' ? 'default' : 'secondary'}>
-                            {service.status === 'completed' ? 'Concluído' : 'Agendado'}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
+      <AnimalForm
+        isOpen={isAddDialogOpen}
+        onClose={handleCloseDialog}
+        onSave={handleSave}
+        editingAnimal={editingAnimal}
+        formData={formData}
+        setFormData={setFormData}
+        tutors={tutors}
+        breeds={breeds}
+      />
+
+      <AnimalHistoryDialog
+        isOpen={isHistoryDialogOpen}
+        onClose={() => setIsHistoryDialogOpen(false)}
+        animal={selectedAnimal}
+        vaccines={mockVaccines}
+        appointments={mockAppointments}
+        grooming={mockGrooming}
+        onDownloadCard={downloadVaccineCard}
+      />
     </div>
   );
 };
