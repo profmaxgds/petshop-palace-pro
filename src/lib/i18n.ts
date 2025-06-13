@@ -1,204 +1,313 @@
+import i18next from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
 
-const translations = {
-  // Navigation
-  dashboard: { pt: 'Dashboard', en: 'Dashboard' },
-  tutors: { pt: 'Tutores', en: 'Tutors' },
-  animals: { pt: 'Animais', en: 'Animals' },
-  vaccines: { pt: 'Vacinas', en: 'Vaccines' },
-  appointments: { pt: 'Agendamentos', en: 'Appointments' },
-  grooming: { pt: 'Banho & Tosa', en: 'Grooming' },
-  veterinarians: { pt: 'Veterinários', en: 'Veterinarians' },
-  serviceTypes: { pt: 'Tipos de Serviço', en: 'Service Types' },
-  products: { pt: 'Produtos', en: 'Products' },
-  inventory: { pt: 'Estoque', en: 'Inventory' },
-  purchases: { pt: 'Compras', en: 'Purchases' },
-  accountsPayable: { pt: 'Contas a Pagar', en: 'Accounts Payable' },
-  accountsReceivable: { pt: 'Contas a Receber', en: 'Accounts Receivable' },
-  cashFlow: { pt: 'Fluxo de Caixa', en: 'Cash Flow' },
-  banks: { pt: 'Bancos', en: 'Banks' },
-  settings: { pt: 'Configurações', en: 'Settings' },
-  users: { pt: 'Usuários', en: 'Users' },
-  profiles: { pt: 'Perfis', en: 'Profiles' },
-  breeds: { pt: 'Raças', en: 'Breeds' },
-  rooms: { pt: 'Salas', en: 'Rooms' },
-  productCategories: { pt: 'Categorias de Produtos', en: 'Product Categories' },
+const availableLanguages = ['pt', 'en', 'es'];
+let defaultLanguage = 'pt';
 
-  // Common
-  name: { pt: 'Nome', en: 'Name' },
-  email: { pt: 'E-mail', en: 'Email' },
-  phone: { pt: 'Telefone', en: 'Phone' },
-  address: { pt: 'Endereço', en: 'Address' },
-  actions: { pt: 'Ações', en: 'Actions' },
-  add: { pt: 'Adicionar', en: 'Add' },
-  edit: { pt: 'Editar', en: 'Edit' },
-  delete: { pt: 'Excluir', en: 'Delete' },
-  save: { pt: 'Salvar', en: 'Save' },
-  cancel: { pt: 'Cancelar', en: 'Cancel' },
-  search: { pt: 'Buscar', en: 'Search' },
-  filter: { pt: 'Filtrar', en: 'Filter' },
-  status: { pt: 'Status', en: 'Status' },
-  active: { pt: 'Ativo', en: 'Active' },
-  inactive: { pt: 'Inativo', en: 'Inactive' },
-  date: { pt: 'Data', en: 'Date' },
-  time: { pt: 'Horário', en: 'Time' },
-  notes: { pt: 'Observações', en: 'Notes' },
-  price: { pt: 'Preço', en: 'Price' },
-  total: { pt: 'Total', en: 'Total' },
-  description: { pt: 'Descrição', en: 'Description' },
-  category: { pt: 'Categoria', en: 'Category' },
-  type: { pt: 'Tipo', en: 'Type' },
-  number: { pt: 'Número', en: 'Number' },
-
-  // Animals
-  animalName: { pt: 'Nome do Animal', en: 'Animal Name' },
-  species: { pt: 'Espécie', en: 'Species' },
-  breed: { pt: 'Raça', en: 'Breed' },
-  age: { pt: 'Idade', en: 'Age' },
-  weight: { pt: 'Peso', en: 'Weight' },
-  sex: { pt: 'Sexo', en: 'Sex' },
-  tutor: { pt: 'Tutor', en: 'Tutor' },
-  addAnimal: { pt: 'Adicionar Animal', en: 'Add Animal' },
-  editAnimal: { pt: 'Editar Animal', en: 'Edit Animal' },
-  
-  // Species
-  dog: { pt: 'Cão', en: 'Dog' },
-  cat: { pt: 'Gato', en: 'Cat' },
-  bird: { pt: 'Ave', en: 'Bird' },
-  rabbit: { pt: 'Coelho', en: 'Rabbit' },
-  hamster: { pt: 'Hamster', en: 'Hamster' },
-  other: { pt: 'Outro', en: 'Other' },
-
-  // Sex
-  male: { pt: 'Macho', en: 'Male' },
-  female: { pt: 'Fêmea', en: 'Female' },
-
-  // Vaccines
-  vaccineHistory: { pt: 'Histórico de Vacinas', en: 'Vaccine History' },
-  vaccineType: { pt: 'Tipo de Vacina', en: 'Vaccine Type' },
-  applicationDate: { pt: 'Data de Aplicação', en: 'Application Date' },
-  nextDueDate: { pt: 'Próxima Dose', en: 'Next Due Date' },
-  batch: { pt: 'Lote', en: 'Batch' },
-  veterinarian: { pt: 'Veterinário', en: 'Veterinarian' },
-  downloadCard: { pt: 'Baixar Carteirinha', en: 'Download Card' },
-  addVaccine: { pt: 'Adicionar Vacina', en: 'Add Vaccine' },
-  editVaccine: { pt: 'Editar Vacina', en: 'Edit Vaccine' },
-  animal: { pt: 'Animal', en: 'Animal' },
-  selectAnimal: { pt: 'Selecione o animal', en: 'Select animal' },
-  selectVaccineType: { pt: 'Selecione o tipo de vacina', en: 'Select vaccine type' },
-  selectVeterinarian: { pt: 'Selecione o veterinário', en: 'Select veterinarian' },
-  vaccineCannotBeDeleted: { pt: 'Vacina não pode ser excluída após 2 dias do lançamento', en: 'Vaccine cannot be deleted after 2 days from registration' },
-
-  // Appointments  
-  appointmentHistory: { pt: 'Histórico de Consultas', en: 'Appointment History' },
-  scheduled: { pt: 'Agendado', en: 'Scheduled' },
-  completed: { pt: 'Realizado', en: 'Completed' },
-  cancelled: { pt: 'Cancelado', en: 'Cancelled' },
-  confirmed: { pt: 'Confirmado', en: 'Confirmed' },
-  in_progress: { pt: 'Em Andamento', en: 'In Progress' },
-  no_show: { pt: 'Faltou', en: 'No Show' },
-  addAppointment: { pt: 'Agendar Consulta', en: 'Schedule Appointment' },
-  editAppointment: { pt: 'Editar Agendamento', en: 'Edit Appointment' },
-  serviceType: { pt: 'Tipo de Serviço', en: 'Service Type' },
-  room: { pt: 'Sala', en: 'Room' },
-  selectServiceType: { pt: 'Selecione o tipo de serviço', en: 'Select service type' },
-  selectRoom: { pt: 'Selecione a sala', en: 'Select room' },
-  manageAppointments: { pt: 'Gerencie os agendamentos', en: 'Manage appointments' },
-  appointmentsList: { pt: 'Lista de Agendamentos', en: 'Appointments List' },
-  appointmentsRegistered: { pt: 'agendamentos cadastrados', en: 'registered appointments' },
-  fillAppointmentData: { pt: 'Preencha os dados do agendamento', en: 'Fill appointment data' },
-  dateTime: { pt: 'Data/Hora', en: 'Date/Time' },
-  service: { pt: 'Serviço', en: 'Service' },
-  allStatuses: {pt: 'Todos os Status', en: 'All Statuses' },
-  searchByAnimalOrVeterinarian: { pt: 'Buscar por animal ou veterinário...', en: 'Search by animal or veterinarian...' },
-  observationsNotes: { pt: 'Observações/Notas', en: 'Observations/Notes' },
-
-  // Service Types
-  addServiceType: { pt: 'Adicionar Tipo de Serviço', en: 'Add Service Type' },
-  editServiceType: { pt: 'Editar Tipo de Serviço', en: 'Edit Service Type' },
-  serviceName: { pt: 'Nome do Serviço', en: 'Service Name' },
-  duration: { pt: 'Duração (min)', en: 'Duration (min)' },
-  requiresVeterinarian: { pt: 'Requer Veterinário', en: 'Requires Veterinarian' },
-  consultation: { pt: 'Consulta', en: 'Consultation' },
-  exam: { pt: 'Exame', en: 'Exam' },
-  surgery: { pt: 'Cirurgia', en: 'Surgery' },
-  vaccine: { pt: 'Vacina', en: 'Vaccine' },
-
-  // Dashboard
-  todayAppointments: { pt: 'Consultas Hoje', en: 'Today\'s Appointments' },
-  lowStock: { pt: 'Estoque Baixo', en: 'Low Stock' },
-  pendingPayments: { pt: 'Pagamentos Pendentes', en: 'Pending Payments' },
-  todayRevenue: { pt: 'Faturamento Hoje', en: 'Today\'s Revenue' },
-  overdueVaccines: { pt: 'Vacinas Atrasadas', en: 'Overdue Vaccines' },
-  recentAppointments: { pt: 'Consultas Recentes', en: 'Recent Appointments' },
-  quickStats: { pt: 'Estatísticas Rápidas', en: 'Quick Stats' },
-  monthlyRevenue: { pt: 'Faturamento Mensal', en: 'Monthly Revenue' },
-  revenue: { pt: 'Faturamento', en: 'Revenue' },
-  month: { pt: 'Mês', en: 'Month' },
-  jan: { pt: 'Jan', en: 'Jan' },
-  feb: { pt: 'Fev', en: 'Feb' },
-  mar: { pt: 'Mar', en: 'Mar' },
-  apr: { pt: 'Abr', en: 'Apr' },
-  may: { pt: 'Mai', en: 'May' },
-  jun: { pt: 'Jun', en: 'Jun' },
-  jul: { pt: 'Jul', en: 'Jul' },
-  aug: { pt: 'Ago', en: 'Aug' },
-  sep: { pt: 'Set', en: 'Sep' },
-  oct: { pt: 'Out', en: 'Oct' },
-  nov: { pt: 'Nov', en: 'Nov' },
-  dec: { pt: 'Dez', en: 'Dec' },
-  balance: { pt: 'Saldo', en: 'Balance' },
-  income: { pt: 'Receita', en: 'Income' },
-  expense: { pt: 'Despesa', en: 'Expense' },
-  today: { pt: 'Hoje', en: 'Today' },
-
-  // Profiles & Users
-  profileName: { pt: 'Nome do Perfil', en: 'Profile Name' },
-  permissions: { pt: 'Permissões', en: 'Permissions' },
-  canRead: { pt: 'Pode Ler', en: 'Can Read' },
-  canWrite: { pt: 'Pode Escrever', en: 'Can Write' },
-  canDelete: { pt: 'Pode Excluir', en: 'Can Delete' },
-  systemProfile: { pt: 'Perfil do Sistema', en: 'System Profile' },
-  customProfile: { pt: 'Perfil Personalizado', en: 'Custom Profile' },
-  addProfile: { pt: 'Adicionar Perfil', en: 'Add Profile' },
-  editProfile: { pt: 'Editar Perfil', en: 'Edit Profile' },
-  selectProfile: { pt: 'Selecione o perfil', en: 'Select profile' },
-  username: { pt: 'Nome de Usuário', en: 'Username' },
-  password: { pt: 'Senha', en: 'Password' },
-  confirmPassword: { pt: 'Confirmar Senha', en: 'Confirm Password' },
-  profile: { pt: 'Perfil', en: 'Profile' },
-  addUser: { pt: 'Adicionar Usuário', en: 'Add User' },
-  editUser: { pt: 'Editar Usuário', en: 'Edit User' },
-
-  // System/Admin
-  admin: { pt: 'Administrador', en: 'Administrator' },
-  receptionist: { pt: 'Recepcionista', en: 'Receptionist' },
-  manager: { pt: 'Gerente', en: 'Manager' },
-  userProfile: { pt: 'Perfil do Usuário', en: 'User Profile' },
-  logout: { pt: 'Sair', en: 'Logout' },
-  success: { pt: 'Sucesso', en: 'Success' },
-
-  // Common actions/messages
-  read: { pt: 'Ler', en: 'Read' },
-  write: { pt: 'Escrever', en: 'Write' },
-  system: { pt: 'Sistema', en: 'System' },
-  financial: { pt: 'Financeiro', en: 'Financial' },
+// Function to get the current language from localStorage
+export const getCurrentLanguage = () => {
+  return localStorage.getItem('i18nextLng') || defaultLanguage;
 };
 
-export type Language = 'pt' | 'en';
+i18next
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    debug: false,
+    fallbackLng: defaultLanguage,
+    interpolation: {
+      escapeValue: false,
+    },
+    resources: {
+      en: {
+        translation: {
+          // Navigation
+          dashboard: 'Dashboard',
+          tutors: 'Tutors',
+          animals: 'Animals',
+          vaccines: 'Vaccines',
+          appointments: 'Appointments',
+          grooming: 'Grooming',
+          veterinarians: 'Veterinarians',
+          serviceTypes: 'Service Types',
+          products: 'Products',
+          inventory: 'Inventory',
+          purchases: 'Purchases',
+          accountsPayable: 'Accounts Payable',
+          accountsReceivable: 'Accounts Receivable',
+          cashFlow: 'Cash Flow',
+          banks: 'Banks',
+          productCategories: 'Categories',
+          users: 'Users',
+          profiles: 'Profiles',
+          settings: 'Settings',
+          breeds: 'Breeds',
+          rooms: 'Rooms',
+          reports: 'Reports',
+          vaccineCardLayout: 'Vaccine Card Layout',
+          animalHealth: 'Animal Health',
 
-let currentLanguage: Language = 'pt';
+          // Common actions
+          actions: 'Actions',
+          add: 'Add',
+          edit: 'Edit',
+          delete: 'Delete',
+          save: 'Save',
+          cancel: 'Cancel',
+          search: 'Search',
+          filter: 'Filter',
+          export: 'Export',
+          import: 'Import',
+          active: 'Active',
+          inactive: 'Inactive',
 
-export const setLanguage = (lang: Language) => {
-  currentLanguage = lang;
-};
+          // Animal related
+          addAnimal: 'Add Animal',
+          animal: 'Animal',
+          selectAnimal: 'Select Animal',
 
-export const getCurrentLanguage = () => currentLanguage;
+          // Species
+          dog: 'Dog',
+          cat: 'Cat',
+          bird: 'Bird',
+          rabbit: 'Rabbit',
+          hamster: 'Hamster',
+          other: 'Other',
 
-export const t = (key: keyof typeof translations): string => {
-  const translation = translations[key];
-  if (!translation) {
-    console.warn(`Translation missing for key: ${key}`);
-    return key;
+          // Vaccine related
+          addVaccine: 'Add Vaccine',
+          editVaccine: 'Edit Vaccine',
+          vaccineType: 'Vaccine Type',
+          selectVaccineType: 'Select Type',
+          batch: 'Batch',
+          applicationDate: 'Application Date',
+          nextDueDate: 'Next Due Date',
+          veterinarian: 'Veterinarian',
+          selectVeterinarian: 'Select Veterinarian',
+          notes: 'Notes',
+          vaccineCannotBeDeleted: 'Vaccines cannot be deleted after 2 days of registration.',
+
+          // Profile related
+          newProfile: 'New Profile',
+          editProfile: 'Edit Profile',
+          profileName: 'Profile Name',
+          profileDescription: 'Profile Description',
+          modulePermissions: 'Module Permissions',
+
+          // Permissions
+          read: 'Read',
+          write: 'Write',
+          deletePermission: 'Delete',
+
+          // Financial
+          financial: 'Financial',
+
+          // System
+          system: 'System',
+
+          // Numbers (for navigation consistency)
+          number: 'Number',
+        }
+      },
+      pt: {
+        translation: {
+          // Navigation
+          dashboard: 'Dashboard',
+          tutors: 'Tutores',
+          animals: 'Animais',
+          vaccines: 'Vacinas',
+          appointments: 'Agendamentos',
+          grooming: 'Estética',
+          veterinarians: 'Veterinários',
+          serviceTypes: 'Tipos de Serviço',
+          products: 'Produtos',
+          inventory: 'Estoque',
+          purchases: 'Compras',
+          accountsPayable: 'Contas a Pagar',
+          accountsReceivable: 'Contas a Receber',
+          cashFlow: 'Fluxo de Caixa',
+          banks: 'Bancos',
+          productCategories: 'Categorias',
+          users: 'Usuários',
+          profiles: 'Perfis',
+          settings: 'Configurações',
+          breeds: 'Raças',
+          rooms: 'Salas',
+          reports: 'Relatórios',
+          vaccineCardLayout: 'Layout da Carteirinha',
+          animalHealth: 'Saúde Animal',
+
+          // Common actions
+          actions: 'Ações',
+          add: 'Adicionar',
+          edit: 'Editar',
+          delete: 'Excluir',
+          save: 'Salvar',
+          cancel: 'Cancelar',
+          search: 'Buscar',
+          filter: 'Filtrar',
+          export: 'Exportar',
+          import: 'Importar',
+          active: 'Ativo',
+          inactive: 'Inativo',
+
+          // Animal related
+          addAnimal: 'Adicionar Animal',
+          animal: 'Animal',
+          selectAnimal: 'Selecionar Animal',
+
+          // Species
+          dog: 'Cão',
+          cat: 'Gato',
+          bird: 'Ave',
+          rabbit: 'Coelho',
+          hamster: 'Hamster',
+          other: 'Outro',
+
+          // Vaccine related
+          addVaccine: 'Adicionar Vacina',
+          editVaccine: 'Editar Vacina',
+          vaccineType: 'Tipo de Vacina',
+          selectVaccineType: 'Selecionar Tipo',
+          batch: 'Lote',
+          applicationDate: 'Data de Aplicação',
+          nextDueDate: 'Próxima Dose',
+          veterinarian: 'Veterinário',
+          selectVeterinarian: 'Selecionar Veterinário',
+          notes: 'Observações',
+          vaccineCannotBeDeleted: 'Vacinas não podem ser excluídas após 2 dias de seu lançamento.',
+
+          // Profile related
+          newProfile: 'Novo Perfil',
+          editProfile: 'Editar Perfil',
+          profileName: 'Nome do Perfil',
+          profileDescription: 'Descrição do Perfil',
+          modulePermissions: 'Permissões por Módulo',
+
+          // Permissions
+          read: 'Visualizar',
+          write: 'Editar',
+          deletePermission: 'Excluir',
+
+          // Financial
+          financial: 'Financeiro',
+
+          // System
+          system: 'Sistema',
+
+          // Numbers (for navigation consistency)
+          number: 'Número',
+        }
+      },
+      es: {
+        translation: {
+          // Navigation
+          dashboard: 'Panel',
+          tutors: 'Tutores',
+          animals: 'Animales',
+          vaccines: 'Vacunas',
+          appointments: 'Citas',
+          grooming: 'Estética',
+          veterinarians: 'Veterinarios',
+          serviceTypes: 'Tipos de Servicio',
+          products: 'Productos',
+          inventory: 'Inventario',
+          purchases: 'Compras',
+          accountsPayable: 'Cuentas por Pagar',
+          accountsReceivable: 'Cuentas por Cobrar',
+          cashFlow: 'Flujo de Caja',
+          banks: 'Bancos',
+          productCategories: 'Categorías',
+          users: 'Usuarios',
+          profiles: 'Perfiles',
+          settings: 'Configuraciones',
+          breeds: 'Razas',
+          rooms: 'Salas',
+          reports: 'Informes',
+          vaccineCardLayout: 'Diseño de Tarjeta de Vacunas',
+          animalHealth: 'Salud Animal',
+
+          // Common actions
+          actions: 'Acciones',
+          add: 'Agregar',
+          edit: 'Editar',
+          delete: 'Eliminar',
+          save: 'Guardar',
+          cancel: 'Cancelar',
+          search: 'Buscar',
+          filter: 'Filtrar',
+          export: 'Exportar',
+          import: 'Importar',
+          active: 'Activo',
+          inactive: 'Inactivo',
+
+          // Animal related
+          addAnimal: 'Agregar Animal',
+          animal: 'Animal',
+          selectAnimal: 'Seleccionar Animal',
+
+          // Species
+          dog: 'Perro',
+          cat: '
+Gato',
+          bird: 'Ave',
+          rabbit: 'Conejo',
+          hamster: 'Hámster',
+          other: 'Otro',
+
+          // Vaccine related
+          addVaccine: 'Agregar Vacuna',
+          editVaccine: 'Editar Vacuna',
+          vaccineType: 'Tipo de Vacuna',
+          selectVaccineType: 'Seleccionar Tipo',
+          batch: 'Lote',
+          applicationDate: 'Fecha de Aplicación',
+          nextDueDate: 'Próxima Dosis',
+          veterinarian: 'Veterinario',
+          selectVeterinarian: 'Seleccionar Veterinario',
+          notes: 'Observaciones',
+          vaccineCannotBeDeleted: 'Las vacunas no pueden eliminarse después de 2 días de su registro.',
+
+          // Profile related
+          newProfile: 'Nuevo Perfil',
+          editProfile: 'Editar Perfil',
+          profileName: 'Nombre del Perfil',
+          profileDescription: 'Descripción del Perfil',
+          modulePermissions: 'Permisos por Módulo',
+
+          // Permissions
+          read: 'Ver',
+          write: 'Escribir',
+          deletePermission: 'Eliminar',
+
+          // Financial
+          financial: 'Financiero',
+
+          // System
+          system: 'Sistema',
+
+          // Numbers (for navigation consistency)
+          number: 'Número',
+        }
+      }
+    },
+    detection: {
+      order: ['localStorage', 'cookie', 'htmlTag', 'path', 'subdomain'],
+      caches: ['localStorage']
+    },
+  });
+
+i18next.on('languageChanged', (lng) => {
+  localStorage.setItem('i18nextLng', lng);
+});
+
+export const t = (key: string) => i18next.t(key);
+
+export const changeLanguage = (lng: string) => {
+  if (availableLanguages.includes(lng)) {
+    i18next.changeLanguage(lng);
+  } else {
+    console.warn(`Language ${lng} not available`);
   }
-  return translation[currentLanguage] || translation.pt || key;
 };

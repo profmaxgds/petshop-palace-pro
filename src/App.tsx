@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -10,7 +11,7 @@ import Dashboard from './components/pages/Dashboard';
 import Tutors from './components/pages/Tutors';
 import Animals from './components/pages/Animals';
 import Vaccines from './components/pages/Vaccines';
-import Appointments from './components/pages/Appointments';
+import AnimalHealth from './components/pages/AnimalHealth';
 import Grooming from './components/pages/Grooming';
 import Veterinarians from './components/pages/Veterinarians';
 import ServiceTypes from './components/pages/ServiceTypes';
@@ -27,6 +28,8 @@ import Profiles from './components/pages/Profiles';
 import Settings from './components/pages/Settings';
 import Breeds from './components/pages/Breeds';
 import Rooms from './components/pages/Rooms';
+import Reports from './components/pages/Reports';
+import VaccineCardLayout from './components/pages/VaccineCardLayout';
 import { getCurrentLanguage } from './lib/i18n';
 import { User } from './types';
 
@@ -107,7 +110,7 @@ const App = () => {
       'breeds': { module: 'animals' },
       'rooms': { module: 'system', action: 'write' },
       'vaccines': { module: 'vaccines' },
-      'appointments': { module: 'appointments' },
+      'animal-health': { module: 'appointments' },
       'grooming': { module: 'appointments' },
       'veterinarians': { module: 'system', action: 'write' },
       'service-types': { module: 'system', action: 'write' },
@@ -121,7 +124,9 @@ const App = () => {
       'product-categories': { module: 'products', action: 'write' },
       'users': { module: 'system', action: 'write' },
       'profiles': { module: 'system', action: 'write' },
-      'settings': { module: 'system' }
+      'settings': { module: 'system' },
+      'reports': { module: 'system' },
+      'vaccine-card-layout': { module: 'system', action: 'write' }
     };
 
     const pagePermission = pagePermissions[currentPage];
@@ -147,8 +152,8 @@ const App = () => {
         return <Rooms />;
       case 'vaccines':
         return <Vaccines navigationState={navigationState} />;
-      case 'appointments':
-        return <Appointments />;
+      case 'animal-health':
+        return <AnimalHealth />;
       case 'grooming':
         return <Grooming />;
       case 'veterinarians':
@@ -179,6 +184,10 @@ const App = () => {
         return <div className="p-6">Página de Perfil em desenvolvimento...</div>;
       case 'settings':
         return <Settings />;
+      case 'reports':
+        return <Reports />;
+      case 'vaccine-card-layout':
+        return <VaccineCardLayout />;
       default:
         return <Dashboard />;
     }

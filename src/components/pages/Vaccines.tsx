@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,10 +13,13 @@ import { t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import type { Animal, Vaccine, Veterinarian, Breed, Tutor } from '@/types';
 
-const Vaccines: React.FC = () => {
-  const location = useLocation();
+interface VaccinesProps {
+  navigationState?: any;
+}
+
+const Vaccines: React.FC<VaccinesProps> = ({ navigationState }) => {
   const { toast } = useToast();
-  const selectedAnimalId = location.state?.selectedAnimalId;
+  const selectedAnimalId = navigationState?.selectedAnimalId;
 
   // Mock data
   const mockVeterinarians: Veterinarian[] = [
@@ -255,7 +257,7 @@ const Vaccines: React.FC = () => {
     setFormData({
       animalId: vaccine.animalId,
       vaccineType: vaccine.vaccineType,
-      batch: vaccine.batch,
+      batch: vaccine.batch || '',
       applicationDate: vaccine.applicationDate.toISOString().split('T')[0],
       nextDueDate: vaccine.nextDueDate?.toISOString().split('T')[0] || '',
       veterinarianId: vaccine.veterinarianId || '',
@@ -271,7 +273,7 @@ const Vaccines: React.FC = () => {
     if (!canDeleteVaccine(vaccine)) {
       toast({
         title: "Não é possível excluir",
-        description: t('vaccineCannotBeDeleted'),
+        description: "Vacinas não podem ser excluídas após 2 dias de seu lançamento.",
         variant: "destructive",
       });
       return;
