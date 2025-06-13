@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,30 +19,36 @@ const Grooming: React.FC = () => {
     {
       id: '1',
       name: 'Rex',
-      species: 'Cão',
-      breed: 'Golden Retriever',
+      species: 'dog',
+      breedId: '1',
+      breed: { id: '1', name: 'Golden Retriever', species: 'dog', isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date() },
       age: 3,
       sex: 'male',
       weight: 32.5,
       tutorId: '1',
+      isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
       id: '2',
       name: 'Luna',
-      species: 'Gato',
-      breed: 'Persa',
+      species: 'cat',
+      breedId: '2',
+      breed: { id: '2', name: 'Persa', species: 'cat', isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date() },
       age: 2,
       sex: 'female',
       weight: 4.2,
       tutorId: '2',
+      isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
   ];
 
-  // Mock service types - usando os mesmos dados da tela ServiceTypes
+  // Mock service types
   const serviceTypes: ServiceType[] = [
     {
       id: '1',
@@ -50,7 +57,9 @@ const Grooming: React.FC = () => {
       duration: 30,
       price: 80.00,
       description: 'Consulta veterinária de rotina',
+      requiresVeterinarian: true,
       isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -61,7 +70,9 @@ const Grooming: React.FC = () => {
       duration: 15,
       price: 45.00,
       description: 'Exame de sangue completo',
+      requiresVeterinarian: true,
       isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -72,7 +83,9 @@ const Grooming: React.FC = () => {
       duration: 120,
       price: 35.00,
       description: 'Serviço completo de higiene',
+      requiresVeterinarian: false,
       isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -83,7 +96,9 @@ const Grooming: React.FC = () => {
       duration: 180,
       price: 200.00,
       description: 'Cirurgia de castração',
+      requiresVeterinarian: true,
       isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -99,33 +114,39 @@ const Grooming: React.FC = () => {
       id: '1',
       animalId: '1',
       animal: animals[0],
-      date: new Date('2024-12-10'),
-      serviceType: 'Banho e Tosa',
+      serviceDate: new Date('2024-12-10'),
+      serviceTypeId: '3',
+      serviceType: serviceTypes.find(s => s.id === '3'),
       status: 'scheduled',
       notes: 'Animal de grande porte, cuidado especial com escovação',
       price: 35.00,
+      createdBy: 'admin',
       createdAt: new Date(),
     },
     {
       id: '2',
       animalId: '2',
       animal: animals[1],
-      date: new Date('2024-12-11'),
-      serviceType: 'Banho e Tosa',
-      status: 'in-progress',
+      serviceDate: new Date('2024-12-11'),
+      serviceTypeId: '3',
+      serviceType: serviceTypes.find(s => s.id === '3'),
+      status: 'in_progress',
       notes: 'Gato persa, cuidado com pelos longos',
       price: 35.00,
+      createdBy: 'admin',
       createdAt: new Date(),
     },
     {
       id: '3',
       animalId: '1',
       animal: animals[0],
-      date: new Date('2024-12-08'),
-      serviceType: 'Banho e Tosa',
+      serviceDate: new Date('2024-12-08'),
+      serviceTypeId: '3',
+      serviceType: serviceTypes.find(s => s.id === '3'),
       status: 'completed',
       notes: 'Serviço realizado com sucesso',
       price: 35.00,
+      createdBy: 'admin',
       createdAt: new Date(),
     },
   ]);
@@ -144,7 +165,7 @@ const Grooming: React.FC = () => {
   const filteredServices = groomingServices.filter(service => {
     const matchesSearch = 
       service.animal?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.serviceType.toLowerCase().includes(searchTerm.toLowerCase());
+      service.serviceType?.name.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || service.status === statusFilter;
     
@@ -155,7 +176,7 @@ const Grooming: React.FC = () => {
     switch (status) {
       case 'scheduled':
         return { label: 'Agendado', color: 'default' };
-      case 'in-progress':
+      case 'in_progress':
         return { label: 'Em Andamento', color: 'secondary' };
       case 'completed':
         return { label: 'Concluído', color: 'outline' };
@@ -175,8 +196,9 @@ const Grooming: React.FC = () => {
               ...editingService, 
               animalId: formData.animalId,
               animal: selectedAnimal,
-              date: new Date(formData.date),
-              serviceType: selectedService?.name || '',
+              serviceDate: new Date(formData.date),
+              serviceTypeId: formData.serviceTypeId,
+              serviceType: selectedService,
               price: selectedService?.price || 0,
               notes: formData.notes,
             }
@@ -187,11 +209,13 @@ const Grooming: React.FC = () => {
         id: Date.now().toString(),
         animalId: formData.animalId,
         animal: selectedAnimal,
-        date: new Date(formData.date),
-        serviceType: selectedService?.name || '',
+        serviceDate: new Date(formData.date),
+        serviceTypeId: formData.serviceTypeId,
+        serviceType: selectedService,
         price: selectedService?.price || 0,
         status: 'scheduled',
         notes: formData.notes,
+        createdBy: 'admin',
         createdAt: new Date(),
       };
       setGroomingServices([...groomingServices, newService]);
@@ -211,12 +235,11 @@ const Grooming: React.FC = () => {
   };
 
   const handleEdit = (service: GroomingService) => {
-    const selectedService = groomingServiceTypes.find(s => s.name === service.serviceType);
     setEditingService(service);
     setFormData({
       animalId: service.animalId,
-      date: service.date.toISOString().split('T')[0],
-      serviceTypeId: selectedService?.id || '',
+      date: service.serviceDate.toISOString().split('T')[0],
+      serviceTypeId: service.serviceTypeId,
       notes: service.notes || '',
     });
     setIsDialogOpen(true);
@@ -234,10 +257,10 @@ const Grooming: React.FC = () => {
 
   const totalRevenue = groomingServices
     .filter(s => s.status === 'completed')
-    .reduce((sum, s) => sum + s.price, 0);
+    .reduce((sum, s) => sum + (s.price || 0), 0);
 
   const todayServices = groomingServices.filter(s => 
-    s.date.toDateString() === new Date().toDateString()
+    s.serviceDate.toDateString() === new Date().toDateString()
   );
 
   return (
@@ -453,23 +476,23 @@ const Grooming: React.FC = () => {
                           <div>
                             <div className="font-medium">{service.animal?.name}</div>
                             <div className="text-sm text-gray-500">
-                              {service.animal?.species} - {service.animal?.breed}
+                              {service.animal?.species} - {service.animal?.breed?.name}
                             </div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{service.serviceType}</div>
+                        <div className="font-medium">{service.serviceType?.name}</div>
                         {service.notes && (
                           <div className="text-sm text-gray-500 mt-1">{service.notes}</div>
                         )}
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          {service.date.toLocaleDateString('pt-BR')}
+                          {service.serviceDate.toLocaleDateString('pt-BR')}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {service.date.toLocaleTimeString('pt-BR', { 
+                          {service.serviceDate.toLocaleTimeString('pt-BR', { 
                             hour: '2-digit', 
                             minute: '2-digit' 
                           })}
@@ -477,7 +500,7 @@ const Grooming: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="font-medium text-green-600">
-                          R$ {service.price.toFixed(2)}
+                          R$ {(service.price || 0).toFixed(2)}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -492,7 +515,7 @@ const Grooming: React.FC = () => {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="scheduled">Agendado</SelectItem>
-                            <SelectItem value="in-progress">Em Andamento</SelectItem>
+                            <SelectItem value="in_progress">Em Andamento</SelectItem>
                             <SelectItem value="completed">Concluído</SelectItem>
                           </SelectContent>
                         </Select>

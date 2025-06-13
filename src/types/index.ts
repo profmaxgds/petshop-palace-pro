@@ -260,7 +260,6 @@ export interface AccountPayable {
   purchase?: Purchase;
   createdBy: string;
   createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface AccountReceivable {

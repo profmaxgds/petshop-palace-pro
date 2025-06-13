@@ -1,13 +1,25 @@
+
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-const availableLanguages = ['pt', 'en', 'es'];
-let defaultLanguage = 'pt';
+const availableLanguages = ['pt', 'en', 'es'] as const;
+export type Language = typeof availableLanguages[number];
+let defaultLanguage: Language = 'pt';
 
 // Function to get the current language from localStorage
-export const getCurrentLanguage = () => {
-  return localStorage.getItem('i18nextLng') || defaultLanguage;
+export const getCurrentLanguage = (): Language => {
+  const stored = localStorage.getItem('i18nextLng') as Language;
+  return availableLanguages.includes(stored) ? stored : defaultLanguage;
+};
+
+// Function to set language
+export const setLanguage = (lng: Language) => {
+  if (availableLanguages.includes(lng)) {
+    i18next.changeLanguage(lng);
+  } else {
+    console.warn(`Language ${lng} not available`);
+  }
 };
 
 i18next
@@ -66,6 +78,17 @@ i18next
           addAnimal: 'Add Animal',
           animal: 'Animal',
           selectAnimal: 'Select Animal',
+          addTutor: 'Add Tutor',
+          tutorName: 'Tutor Name',
+          cpf: 'CPF',
+          phone: 'Phone',
+          email: 'Email',
+          street: 'Street',
+          number: 'Number',
+          neighborhood: 'Neighborhood',
+          city: 'City',
+          state: 'State',
+          zipCode: 'ZIP Code',
 
           // Species
           dog: 'Dog',
@@ -156,6 +179,17 @@ i18next
           addAnimal: 'Adicionar Animal',
           animal: 'Animal',
           selectAnimal: 'Selecionar Animal',
+          addTutor: 'Adicionar Tutor',
+          tutorName: 'Nome do Tutor',
+          cpf: 'CPF',
+          phone: 'Telefone',
+          email: 'Email',
+          street: 'Rua',
+          number: 'Número',
+          neighborhood: 'Bairro',
+          city: 'Cidade',
+          state: 'Estado',
+          zipCode: 'CEP',
 
           // Species
           dog: 'Cão',
@@ -246,6 +280,17 @@ i18next
           addAnimal: 'Agregar Animal',
           animal: 'Animal',
           selectAnimal: 'Seleccionar Animal',
+          addTutor: 'Agregar Tutor',
+          tutorName: 'Nombre del Tutor',
+          cpf: 'CPF',
+          phone: 'Teléfono',
+          email: 'Email',
+          street: 'Calle',
+          number: 'Número',
+          neighborhood: 'Barrio',
+          city: 'Ciudad',
+          state: 'Estado',
+          zipCode: 'Código Postal',
 
           // Species
           dog: 'Perro',
@@ -304,7 +349,7 @@ i18next.on('languageChanged', (lng) => {
 export const t = (key: string) => i18next.t(key);
 
 export const changeLanguage = (lng: string) => {
-  if (availableLanguages.includes(lng)) {
+  if (availableLanguages.includes(lng as Language)) {
     i18next.changeLanguage(lng);
   } else {
     console.warn(`Language ${lng} not available`);

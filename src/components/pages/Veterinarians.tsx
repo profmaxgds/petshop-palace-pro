@@ -23,6 +23,7 @@ const Veterinarians: React.FC = () => {
       phone: '(11) 99999-9999',
       email: 'carlos@clinica.com',
       status: 'active',
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -34,6 +35,7 @@ const Veterinarians: React.FC = () => {
       phone: '(11) 88888-8888',
       email: 'ana@clinica.com',
       status: 'active',
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -81,6 +83,7 @@ const Veterinarians: React.FC = () => {
       const newVet: Veterinarian = {
         id: Date.now().toString(),
         ...formData,
+        createdBy: 'admin',
         createdAt: new Date(),
         updatedAt: new Date(),
       };

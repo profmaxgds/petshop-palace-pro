@@ -27,6 +27,8 @@ const Tutors: React.FC = () => {
         state: 'SP',
         zipCode: '01234-567'
       },
+      isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -44,6 +46,8 @@ const Tutors: React.FC = () => {
         state: 'SP',
         zipCode: '05432-100'
       },
+      isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -54,36 +58,45 @@ const Tutors: React.FC = () => {
     {
       id: '1',
       name: 'Rex',
-      species: 'Cão',
-      breed: 'Golden Retriever',
+      species: 'dog',
+      breedId: '1',
+      breed: { id: '1', name: 'Golden Retriever', species: 'dog', isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date() },
       age: 3,
       sex: 'male',
       weight: 32.5,
       tutorId: '1',
+      isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
       id: '2',
       name: 'Luna',
-      species: 'Gato',
-      breed: 'Persa',
+      species: 'cat',
+      breedId: '2',
+      breed: { id: '2', name: 'Persa', species: 'cat', isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date() },
       age: 2,
       sex: 'female',
       weight: 4.2,
       tutorId: '2',
+      isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
       id: '3',
       name: 'Max',
-      species: 'Cão',
-      breed: 'Labrador',
+      species: 'dog',
+      breedId: '3',
+      breed: { id: '3', name: 'Labrador', species: 'dog', isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date() },
       age: 1,
       sex: 'male',
       weight: 25.0,
       tutorId: '1',
+      isActive: true,
+      createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -130,6 +143,8 @@ const Tutors: React.FC = () => {
       const newTutor: Tutor = {
         id: Date.now().toString(),
         ...formData,
+        isActive: true,
+        createdBy: 'admin',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -481,7 +496,7 @@ const Tutors: React.FC = () => {
                   <TableRow key={animal.id}>
                     <TableCell className="font-medium">{animal.name}</TableCell>
                     <TableCell>{animal.species}</TableCell>
-                    <TableCell>{animal.breed}</TableCell>
+                    <TableCell>{animal.breed?.name}</TableCell>
                     <TableCell>{animal.age} anos</TableCell>
                     <TableCell>{animal.weight} kg</TableCell>
                     <TableCell>
