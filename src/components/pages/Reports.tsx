@@ -2,147 +2,45 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { Download, FileText, Calendar, TrendingUp, Users, PlusCircle, Activity } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-
-interface ReportData {
-  id: string;
-  name: string;
-  category: 'animals' | 'vaccines' | 'appointments' | 'financial' | 'inventory';
-  description: string;
-  data: any[];
-}
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Calendar, Download, TrendingUp, Users, Heart, Syringe, DollarSign } from 'lucide-react';
 
 const Reports: React.FC = () => {
-  const { toast } = useToast();
+  const [dateRange, setDateRange] = useState('30');
+  const [reportType, setReportType] = useState('overview');
 
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedPeriod, setSelectedPeriod] = useState<string>('month');
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
-
-  // Mock data for reports
-  const animalsBySpecies = [
-    { name: 'Cães', value: 45, color: '#0088FE' },
-    { name: 'Gatos', value: 32, color: '#00C49F' },
-    { name: 'Aves', value: 8, color: '#FFBB28' },
-    { name: 'Outros', value: 5, color: '#FF8042' },
+  // Mock data for charts
+  const appointmentsData = [
+    { month: 'Jan', count: 45 },
+    { month: 'Fev', count: 52 },
+    { month: 'Mar', count: 48 },
+    { month: 'Abr', count: 61 },
+    { month: 'Mai', count: 55 },
+    { month: 'Jun', count: 67 },
   ];
 
-  const vaccinesPerMonth = [
-    { month: 'Jan', vaccines: 24 },
-    { month: 'Fev', vaccines: 31 },
-    { month: 'Mar', vaccines: 28 },
-    { month: 'Abr', vaccines: 35 },
-    { month: 'Mai', vaccines: 42 },
-    { month: 'Jun', vaccines: 38 },
-  ];
-
-  const appointmentsByStatus = [
-    { status: 'Agendado', count: 15 },
-    { status: 'Confirmado', count: 12 },
-    { status: 'Concluído', count: 28 },
-    { status: 'Cancelado', count: 5 },
+  const servicesData = [
+    { name: 'Consultas', value: 40, color: '#0088FE' },
+    { name: 'Vacinas', value: 30, color: '#00C49F' },
+    { name: 'Cirurgias', value: 20, color: '#FFBB28' },
+    { name: 'Estética', value: 10, color: '#FF8042' },
   ];
 
   const financialData = [
-    { month: 'Jan', receita: 12500, despesa: 8200 },
-    { month: 'Fev', receita: 14200, despesa: 9100 },
-    { month: 'Mar', receita: 13800, despesa: 8800 },
-    { month: 'Abr', receita: 16100, despesa: 9500 },
-    { month: 'Mai', receita: 18200, despesa: 10200 },
-    { month: 'Jun', receita: 17500, despesa: 9800 },
+    { month: 'Jan', receita: 8500, despesa: 3200 },
+    { month: 'Fev', receita: 9200, despesa: 3800 },
+    { month: 'Mar', receita: 7800, despesa: 3500 },
+    { month: 'Abr', receita: 10500, despesa: 4200 },
+    { month: 'Mai', receita: 9800, despesa: 3900 },
+    { month: 'Jun', receita: 11200, despesa: 4500 },
   ];
 
-  const topServices = [
-    { service: 'Consulta Geral', count: 45, revenue: 3600 },
-    { service: 'Vacinação', count: 38, revenue: 1520 },
-    { service: 'Exame de Sangue', count: 22, revenue: 2640 },
-    { service: 'Cirurgia', count: 8, revenue: 4800 },
-    { service: 'Banho e Tosa', count: 35, revenue: 2100 },
-  ];
-
-  const inventoryAlerts = [
-    { product: 'Vacina V8', currentStock: 5, minimumStock: 10, status: 'low' },
-    { product: 'Ração Premium', currentStock: 2, minimumStock: 15, status: 'critical' },
-    { product: 'Medicamento A', currentStock: 12, minimumStock: 8, status: 'ok' },
-    { product: 'Shampoo Pet', currentStock: 7, minimumStock: 10, status: 'low' },
-  ];
-
-  const recentAnimals = [
-    { name: 'Rex', species: 'Cão', tutor: 'João Silva', registrationDate: '2024-12-15' },
-    { name: 'Luna', species: 'Gato', tutor: 'Maria Santos', registrationDate: '2024-12-14' },
-    { name: 'Bob', species: 'Cão', tutor: 'Pedro Costa', registrationDate: '2024-12-13' },
-    { name: 'Mimi', species: 'Gato', tutor: 'Ana Oliveira', registrationDate: '2024-12-12' },
-  ];
-
-  const handleExportReport = (reportType: string) => {
-    let data: any[] = [];
-    let filename = '';
-
-    switch (reportType) {
-      case 'animals':
-        data = recentAnimals;
-        filename = 'relatorio-animais.csv';
-        break;
-      case 'vaccines':
-        data = vaccinesPerMonth;
-        filename = 'relatorio-vacinas.csv';
-        break;
-      case 'appointments':
-        data = appointmentsByStatus;
-        filename = 'relatorio-agendamentos.csv';
-        break;
-      case 'financial':
-        data = financialData;
-        filename = 'relatorio-financeiro.csv';
-        break;
-      case 'inventory':
-        data = inventoryAlerts;
-        filename = 'relatorio-estoque.csv';
-        break;
-      default:
-        return;
-    }
-
-    const csvContent = convertToCSV(data);
-    downloadCSV(csvContent, filename);
-    
-    toast({
-      title: "Relatório exportado",
-      description: `O relatório foi exportado como ${filename}`,
-    });
-  };
-
-  const convertToCSV = (data: any[]): string => {
-    if (!data.length) return '';
-
-    const headers = Object.keys(data[0]).join(',');
-    const rows = data.map(row => 
-      Object.values(row).map(value => 
-        typeof value === 'string' ? `"${value}"` : value
-      ).join(',')
-    );
-
-    return [headers, ...rows].join('\n');
-  };
-
-  const downloadCSV = (content: string, filename: string) => {
-    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', filename);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const exportReport = (format: 'pdf' | 'excel') => {
+    // Mock export functionality
+    alert(`Exportando relatório em ${format.toUpperCase()}`);
   };
 
   return (
@@ -150,7 +48,17 @@ const Reports: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Relatórios</h1>
-          <p className="text-gray-600">Análises e relatórios do sistema</p>
+          <p className="text-gray-600">Análise e estatísticas do sistema</p>
+        </div>
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={() => exportReport('pdf')}>
+            <Download className="w-4 h-4 mr-2" />
+            PDF
+          </Button>
+          <Button variant="outline" onClick={() => exportReport('excel')}>
+            <Download className="w-4 h-4 mr-2" />
+            Excel
+          </Button>
         </div>
       </div>
 
@@ -158,144 +66,132 @@ const Reports: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
-          <CardDescription>Configure os filtros para gerar relatórios personalizados</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <Label htmlFor="category">Categoria</Label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todas as categorias" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todas as categorias</SelectItem>
-                  <SelectItem value="animals">Animais</SelectItem>
-                  <SelectItem value="vaccines">Vacinas</SelectItem>
-                  <SelectItem value="appointments">Agendamentos</SelectItem>
-                  <SelectItem value="financial">Financeiro</SelectItem>
-                  <SelectItem value="inventory">Estoque</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="period">Período</Label>
-              <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="week">Última semana</SelectItem>
-                  <SelectItem value="month">Último mês</SelectItem>
-                  <SelectItem value="quarter">Último trimestre</SelectItem>
-                  <SelectItem value="year">Último ano</SelectItem>
-                  <SelectItem value="custom">Período personalizado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="startDate">Data Inicial</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                disabled={selectedPeriod !== 'custom'}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="endDate">Data Final</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                disabled={selectedPeriod !== 'custom'}
-              />
-            </div>
+        <CardContent className="flex space-x-4">
+          <div className="w-48">
+            <Select value={reportType} onValueChange={setReportType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Tipo de relatório" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="overview">Visão Geral</SelectItem>
+                <SelectItem value="appointments">Agendamentos</SelectItem>
+                <SelectItem value="financial">Financeiro</SelectItem>
+                <SelectItem value="animals">Animais</SelectItem>
+                <SelectItem value="vaccines">Vacinas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-48">
+            <Select value={dateRange} onValueChange={setDateRange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Período" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">Últimos 7 dias</SelectItem>
+                <SelectItem value="30">Últimos 30 dias</SelectItem>
+                <SelectItem value="90">Últimos 3 meses</SelectItem>
+                <SelectItem value="365">Último ano</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
 
-      {/* Dashboard Cards */}
+      {/* Cards de resumo */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Animais</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">90</div>
-            <p className="text-xs text-muted-foreground">+12% desde o mês passado</p>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <Heart className="h-12 w-12 text-teal-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Total de Animais</p>
+                <p className="text-2xl font-bold text-gray-900">324</p>
+                <p className="text-xs text-green-600">+12% este mês</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Vacinas Aplicadas</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">236</div>
-            <p className="text-xs text-muted-foreground">+8% desde o mês passado</p>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <Calendar className="h-12 w-12 text-blue-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Agendamentos</p>
+                <p className="text-2xl font-bold text-gray-900">67</p>
+                <p className="text-xs text-green-600">+8% este mês</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Agendamentos</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">60</div>
-            <p className="text-xs text-muted-foreground">15 para hoje</p>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <Syringe className="h-12 w-12 text-green-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Vacinas Aplicadas</p>
+                <p className="text-2xl font-bold text-gray-900">89</p>
+                <p className="text-xs text-green-600">+15% este mês</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Receita Mensal</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ 17.500</div>
-            <p className="text-xs text-muted-foreground">-3% desde o mês passado</p>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <DollarSign className="h-12 w-12 text-yellow-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Receita Mensal</p>
+                <p className="text-2xl font-bold text-gray-900">R$ 11.200</p>
+                <p className="text-xs text-green-600">+18% este mês</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Animais por Espécie</CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleExportReport('animals')}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Exportar
-              </Button>
-            </div>
+            <CardTitle>Agendamentos por Mês</CardTitle>
+            <CardDescription>Evolução dos agendamentos nos últimos 6 meses</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={appointmentsData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#0d9488" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribuição de Serviços</CardTitle>
+            <CardDescription>Tipos de serviços mais realizados</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={animalsBySpecies}
+                  data={servicesData}
                   cx="50%"
                   cy="50%"
-                  outerRadius={100}
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}`}
                 >
-                  {animalsBySpecies.map((entry, index) => (
+                  {servicesData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -304,205 +200,67 @@ const Reports: React.FC = () => {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Vacinas por Mês</CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleExportReport('vaccines')}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Exportar
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={vaccinesPerMonth}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="vaccines" fill="#0088FE" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Receita vs Despesa</CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleExportReport('financial')}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Exportar
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={financialData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={(value) => `R$ ${value.toLocaleString()}`} />
-                <Line type="monotone" dataKey="receita" stroke="#00C49F" strokeWidth={2} />
-                <Line type="monotone" dataKey="despesa" stroke="#FF8042" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Agendamentos por Status</CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleExportReport('appointments')}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Exportar
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={appointmentsByStatus}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="status" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="#FFBB28" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Tables */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Serviços Mais Realizados</CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleExportReport('services')}
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                Relatório Completo
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Serviço</TableHead>
-                  <TableHead>Qtd</TableHead>
-                  <TableHead>Receita</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {topServices.map((service, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{service.service}</TableCell>
-                    <TableCell>{service.count}</TableCell>
-                    <TableCell>R$ {service.revenue.toLocaleString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Alertas de Estoque</CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleExportReport('inventory')}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Exportar
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Produto</TableHead>
-                  <TableHead>Atual</TableHead>
-                  <TableHead>Mínimo</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {inventoryAlerts.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{item.product}</TableCell>
-                    <TableCell>{item.currentStock}</TableCell>
-                    <TableCell>{item.minimumStock}</TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={
-                          item.status === 'critical' ? 'destructive' : 
-                          item.status === 'low' ? 'secondary' : 
-                          'outline'
-                        }
-                      >
-                        {item.status === 'critical' ? 'Crítico' : 
-                         item.status === 'low' ? 'Baixo' : 'OK'}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Animals */}
+      {/* Gráfico Financeiro */}
       <Card>
         <CardHeader>
-          <CardTitle>Animais Cadastrados Recentemente</CardTitle>
-          <CardDescription>Últimos animais adicionados ao sistema</CardDescription>
+          <CardTitle>Análise Financeira</CardTitle>
+          <CardDescription>Receitas vs Despesas nos últimos 6 meses</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Espécie</TableHead>
-                <TableHead>Tutor</TableHead>
-                <TableHead>Data de Cadastro</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentAnimals.map((animal, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{animal.name}</TableCell>
-                  <TableCell>{animal.species}</TableCell>
-                  <TableCell>{animal.tutor}</TableCell>
-                  <TableCell>{new Date(animal.registrationDate).toLocaleDateString('pt-BR')}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={financialData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value) => [`R$ ${value}`, '']} />
+              <Bar dataKey="receita" fill="#10b981" name="Receita" />
+              <Bar dataKey="despesa" fill="#ef4444" name="Despesa" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Tabela de Dados */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Resumo Detalhado</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+              <div>
+                <h3 className="font-semibold">Animais Cadastrados</h3>
+                <p className="text-sm text-gray-600">Total de animais no sistema</p>
+              </div>
+              <Badge variant="secondary">324</Badge>
+            </div>
+            
+            <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+              <div>
+                <h3 className="font-semibold">Tutores Ativos</h3>
+                <p className="text-sm text-gray-600">Tutores com animais cadastrados</p>
+              </div>
+              <Badge variant="secondary">198</Badge>
+            </div>
+            
+            <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+              <div>
+                <h3 className="font-semibold">Agendamentos Pendentes</h3>
+                <p className="text-sm text-gray-600">Consultas marcadas para os próximos dias</p>
+              </div>
+              <Badge variant="outline">23</Badge>
+            </div>
+            
+            <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+              <div>
+                <h3 className="font-semibold">Vacinas Vencendo</h3>
+                <p className="text-sm text-gray-600">Vacinas com vencimento próximo</p>
+              </div>
+              <Badge variant="destructive">8</Badge>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

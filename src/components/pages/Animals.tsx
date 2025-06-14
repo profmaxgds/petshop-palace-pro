@@ -81,6 +81,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
   const mockVaccines: Vaccine[] = [
     {
       id: '1',
+      animal: {} as Animal, // Will be populated
       animalId: '1',
       vaccineType: 'V8',
       batch: '12345',
@@ -96,13 +97,27 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
   const mockAppointments: Appointment[] = [
     {
       id: '1',
+      animal: {} as Animal, // Will be populated
       animalId: '1',
       appointmentDate: new Date('2024-12-10'),
       appointmentTime: '09:00',
+      serviceType: {
+        id: '1',
+        name: 'Consulta Veterinária',
+        category: 'consultation',
+        duration: 30,
+        price: 80,
+        requiresVeterinarian: true,
+        isActive: true,
+        createdBy: 'system',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
       serviceTypeId: '1',
       veterinarianId: '1',
       status: 'scheduled',
       notes: 'Consulta de rotina',
+      isActive: true,
       createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -112,8 +127,21 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
   const mockGrooming: GroomingService[] = [
     {
       id: '1',
+      animal: {} as Animal, // Will be populated
       animalId: '1',
       serviceDate: new Date('2024-12-08'),
+      serviceType: {
+        id: '1',
+        name: 'Banho e Tosa',
+        category: 'grooming',
+        duration: 60,
+        price: 50,
+        requiresVeterinarian: false,
+        isActive: true,
+        createdBy: 'system',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
       serviceTypeId: '1',
       status: 'completed',
       notes: 'Serviço realizado com sucesso',
@@ -192,14 +220,14 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
     if (editingAnimal) {
       setAnimals(animals.map(a => 
         a.id === editingAnimal.id 
-          ? { ...editingAnimal, ...formData, tutor: selectedTutor, breed: selectedBreed, updatedAt: new Date() }
+          ? { ...editingAnimal, ...formData, tutor: selectedTutor!, breed: selectedBreed, updatedAt: new Date() }
           : a
       ));
     } else {
       const newAnimal: Animal = {
         id: Date.now().toString(),
         ...formData,
-        tutor: selectedTutor,
+        tutor: selectedTutor!,
         breed: selectedBreed,
         isActive: true,
         createdBy: 'current-user',
@@ -230,10 +258,10 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
     setFormData({
       name: animal.name,
       species: animal.species,
-      breedId: animal.breedId,
-      age: animal.age,
+      breedId: animal.breedId || '',
+      age: animal.age || 0,
       sex: animal.sex,
-      weight: animal.weight,
+      weight: animal.weight || 0,
       tutorId: animal.tutorId,
     });
     setIsAddDialogOpen(true);
@@ -249,7 +277,6 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
   };
 
   const handleVaccinate = (animalId: string) => {
-    
     if (onNavigate) {
       onNavigate('vaccines', { selectedAnimalId: animalId });
     }

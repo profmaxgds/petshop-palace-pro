@@ -1,324 +1,400 @@
 
 import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Building2, DollarSign } from 'lucide-react';
-import { BankAccount } from '@/types';
+import { Search, Plus, Edit, Trash2, Building2, DollarSign } from 'lucide-react';
+import type { BankAccount } from '@/types';
 
-const Banks = () => {
+const Banks: React.FC = () => {
   const [accounts, setAccounts] = useState<BankAccount[]>([
     {
       id: '1',
-      bank: 'Banco do Brasil',
-      agency: '1234-5',
-      account: '67890-1',
-      holder: 'PetShop Ltda',
-      accountType: 'business',
+      name: 'Conta Corrente Principal',
+      bankCode: '001',
+      agency: '1234',
+      account: '12345-6',
+      type: 'checking',
       balance: 15000.00,
       isActive: true,
-      createdBy: '1',
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-15')
+      createdBy: 'admin',
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       id: '2',
-      bank: 'Itaú',
+      name: 'Poupança Reserva',
+      bankCode: '341',
       agency: '5678',
-      account: '12345-6',
-      holder: 'PetShop Ltda',
-      accountType: 'checking',
-      balance: 8500.00,
+      account: '98765-4',
+      type: 'savings',
+      balance: 25000.00,
       isActive: true,
-      createdBy: '1',
-      createdAt: new Date('2024-01-02'),
-      updatedAt: new Date('2024-01-14')
+      createdBy: 'admin',
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
   ]);
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<BankAccount | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null);
 
   const [formData, setFormData] = useState({
-    bank: '',
+    name: '',
+    bankCode: '',
     agency: '',
     account: '',
-    holder: '',
-    accountType: 'checking' as BankAccount['accountType'],
+    type: 'checking' as 'checking' | 'savings',
     balance: 0,
-    isActive: true
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const newAccount: BankAccount = {
-      id: selectedAccount?.id || Date.now().toString(),
-      ...formData,
-      balance: Number(formData.balance),
-      createdBy: '1',
-      createdAt: selectedAccount?.createdAt || new Date(),
-      updatedAt: new Date()
-    };
+  const filteredAccounts = accounts.filter(account => 
+    account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    account.bankCode.includes(searchTerm) ||
+    account.agency.includes(searchTerm)
+  );
 
-    if (selectedAccount) {
-      setAccounts(accounts.map(acc => acc.id === selectedAccount.id ? newAccount : acc));
-    } else {
-      setAccounts([...accounts, newAccount]);
+  const totalBalance = accounts
+    .filter(account => account.isActive)
+    .reduce((sum, account) => sum + account.balance, 0);
+
+  const handleSave = () => {
+    if (!formData.name || !formData.bankCode || !formData.agency || !formData.account) {
+      return;
     }
 
-    resetForm();
-    setIsDialogOpen(false);
+    if (editingAccount) {
+      setAccounts(accounts.map(a => 
+        a.id === editingAccount.id 
+          ? { 
+              ...editingAccount, 
+              ...formData,
+              updatedAt: new Date()
+            }
+          : a
+      ));
+    } else {
+      const newAccount: BankAccount = {
+        id: Date.now().toString(),
+        ...formData,
+        isActive: true,
+        createdBy: 'current-user',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      setAccounts([...accounts, newAccount]);
+    }
+    handleCloseDialog();
   };
 
-  const resetForm = () => {
+  const handleCloseDialog = () => {
+    setIsAddDialogOpen(false);
+    setEditingAccount(null);
     setFormData({
-      bank: '',
+      name: '',
+      bankCode: '',
       agency: '',
       account: '',
-      holder: '',
-      accountType: 'checking',
+      type: 'checking',
       balance: 0,
-      isActive: true
     });
-    setSelectedAccount(null);
   };
 
   const handleEdit = (account: BankAccount) => {
-    setSelectedAccount(account);
+    setEditingAccount(account);
     setFormData({
-      bank: account.bank,
-      agency: account.agency || '',
-      account: account.account || '',
-      holder: account.holder || '',
-      accountType: account.accountType,
+      name: account.name,
+      bankCode: account.bankCode,
+      agency: account.agency,
+      account: account.account,
+      type: account.type,
       balance: account.balance,
-      isActive: account.isActive
     });
-    setIsDialogOpen(true);
+    setIsAddDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Tem certeza que deseja excluir esta conta bancária?')) {
-      setAccounts(accounts.filter(acc => acc.id !== id));
-    }
+  const handleDelete = (accountId: string) => {
+    setAccounts(accounts.filter(a => a.id !== accountId));
   };
 
-  const toggleStatus = (id: string) => {
-    setAccounts(accounts.map(acc => 
-      acc.id === id 
-        ? { ...acc, isActive: !acc.isActive, updatedAt: new Date() }
-        : acc
+  const toggleAccountStatus = (accountId: string) => {
+    setAccounts(accounts.map(account => 
+      account.id === accountId 
+        ? { ...account, isActive: !account.isActive, updatedAt: new Date() }
+        : account
     ));
   };
 
-  const getAccountTypeBadge = (type: BankAccount['accountType']) => {
-    const typeConfig = {
-      checking: { label: 'Conta Corrente', variant: 'default' as const },
-      savings: { label: 'Poupança', variant: 'secondary' as const },
-      business: { label: 'Conta Empresarial', variant: 'outline' as const }
+  const getBankName = (bankCode: string) => {
+    const banks: Record<string, string> = {
+      '001': 'Banco do Brasil',
+      '104': 'Caixa Econômica',
+      '237': 'Bradesco',
+      '341': 'Itaú',
+      '033': 'Santander',
+      '748': 'Sicredi',
+      '756': 'Sicoob',
     };
-
-    return (
-      <Badge variant={typeConfig[type].variant}>
-        {typeConfig[type].label}
-      </Badge>
-    );
+    return banks[bankCode] || `Banco ${bankCode}`;
   };
-
-  const totalBalance = accounts
-    .filter(acc => acc.isActive)
-    .reduce((sum, acc) => sum + acc.balance, 0);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Contas Bancárias</h1>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Conta
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {selectedAccount ? 'Editar Conta Bancária' : 'Nova Conta Bancária'}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="bank">Banco</Label>
-                <Input
-                  id="bank"
-                  value={formData.bank}
-                  onChange={(e) => setFormData({ ...formData, bank: e.target.value })}
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="agency">Agência</Label>
-                  <Input
-                    id="agency"
-                    value={formData.agency}
-                    onChange={(e) => setFormData({ ...formData, agency: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="account">Conta</Label>
-                  <Input
-                    id="account"
-                    value={formData.account}
-                    onChange={(e) => setFormData({ ...formData, account: e.target.value })}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="holder">Titular</Label>
-                <Input
-                  id="holder"
-                  value={formData.holder}
-                  onChange={(e) => setFormData({ ...formData, holder: e.target.value })}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="accountType">Tipo de Conta</Label>
-                <Select 
-                  value={formData.accountType} 
-                  onValueChange={(value: BankAccount['accountType']) => setFormData({ ...formData, accountType: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="checking">Conta Corrente</SelectItem>
-                    <SelectItem value="savings">Poupança</SelectItem>
-                    <SelectItem value="business">Conta Empresarial</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="balance">Saldo Inicial</Label>
-                <Input
-                  id="balance"
-                  type="number"
-                  step="0.01"
-                  value={formData.balance}
-                  onChange={(e) => setFormData({ ...formData, balance: Number(e.target.value) })}
-                  required
-                />
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                />
-                <Label htmlFor="isActive">Conta ativa</Label>
-              </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  {selectedAccount ? 'Atualizar' : 'Criar'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Contas Bancárias</h1>
+          <p className="text-gray-600">Gerencie as contas bancárias da clínica</p>
+        </div>
       </div>
 
-      {/* Card de Resumo */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center">
-            <DollarSign className="h-8 w-8 text-green-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Saldo Total</p>
-              <p className="text-2xl font-bold text-green-600">R$ {totalBalance.toFixed(2)}</p>
+      {/* Resumo */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <Building2 className="h-8 w-8 text-blue-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Contas Ativas</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {accounts.filter(a => a.isActive).length}
+                </p>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <DollarSign className="h-8 w-8 text-green-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Saldo Total</p>
+                <p className="text-2xl font-bold text-green-600">
+                  R$ {totalBalance.toFixed(2)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Conta Corrente</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {accounts.filter(a => a.type === 'checking' && a.isActive).length}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Contas Bancárias</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {accounts.map((account) => (
-              <div key={account.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3">
-                    <Building2 className="w-8 h-8 text-blue-600" />
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Lista de Contas</CardTitle>
+              <CardDescription>
+                {filteredAccounts.length} contas cadastradas
+              </CardDescription>
+            </div>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nova Conta
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingAccount ? 'Editar Conta' : 'Nova Conta Bancária'}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Cadastre uma nova conta bancária
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="space-y-4 py-4">
+                  <div>
+                    <Label htmlFor="name">Nome da Conta</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      placeholder="Conta Corrente Principal"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="bankCode">Código do Banco</Label>
+                    <Select value={formData.bankCode} onValueChange={(value) => setFormData({...formData, bankCode: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o banco" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="001">001 - Banco do Brasil</SelectItem>
+                        <SelectItem value="104">104 - Caixa Econômica</SelectItem>
+                        <SelectItem value="237">237 - Bradesco</SelectItem>
+                        <SelectItem value="341">341 - Itaú</SelectItem>
+                        <SelectItem value="033">033 - Santander</SelectItem>
+                        <SelectItem value="748">748 - Sicredi</SelectItem>
+                        <SelectItem value="756">756 - Sicoob</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h3 className="font-medium">{account.bank}</h3>
-                      <p className="text-sm text-gray-500">
-                        Ag: {account.agency} • Conta: {account.account}
-                      </p>
-                      {account.holder && (
-                        <p className="text-sm text-gray-500">Titular: {account.holder}</p>
-                      )}
+                      <Label htmlFor="agency">Agência</Label>
+                      <Input
+                        id="agency"
+                        value={formData.agency}
+                        onChange={(e) => setFormData({...formData, agency: e.target.value})}
+                        placeholder="1234"
+                      />
                     </div>
-                    {getAccountTypeBadge(account.accountType)}
-                    <Badge variant={account.isActive ? 'default' : 'secondary'}>
-                      {account.isActive ? 'Ativa' : 'Inativa'}
-                    </Badge>
+                    <div>
+                      <Label htmlFor="account">Conta</Label>
+                      <Input
+                        id="account"
+                        value={formData.account}
+                        onChange={(e) => setFormData({...formData, account: e.target.value})}
+                        placeholder="12345-6"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="type">Tipo de Conta</Label>
+                    <Select value={formData.type} onValueChange={(value: 'checking' | 'savings') => setFormData({...formData, type: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="checking">Conta Corrente</SelectItem>
+                        <SelectItem value="savings">Poupança</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="balance">Saldo Inicial</Label>
+                    <Input
+                      id="balance"
+                      type="number"
+                      step="0.01"
+                      value={formData.balance}
+                      onChange={(e) => setFormData({...formData, balance: parseFloat(e.target.value)})}
+                      placeholder="0.00"
+                    />
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-4">
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">Saldo</p>
-                    <p className="text-lg font-bold text-green-600">
-                      R$ {account.balance.toFixed(2)}
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(account)}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toggleStatus(account.id)}
-                      className={account.isActive ? 'text-red-600' : 'text-green-600'}
-                    >
-                      {account.isActive ? 'Desativar' : 'Ativar'}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(account.id)}
-                      className="text-red-600"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
+                <DialogFooter>
+                  <Button variant="outline" onClick={handleCloseDialog}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+                    Salvar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
+        </CardHeader>
+        
+        <CardContent>
+          <div className="flex items-center space-x-2 mb-6">
+            <Search className="w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Buscar contas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm"
+            />
+          </div>
+          
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Conta</TableHead>
+                <TableHead>Banco</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Saldo</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredAccounts.map((account) => (
+                <TableRow key={account.id}>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{account.name}</div>
+                      <div className="text-sm text-gray-500">
+                        Ag: {account.agency} | CC: {account.account}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <Building2 className="w-4 h-4 mr-2 text-blue-600" />
+                      {getBankName(account.bankCode)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={account.type === 'checking' ? 'default' : 'secondary'}>
+                      {account.type === 'checking' ? 'Conta Corrente' : 'Poupança'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-medium">R$ {account.balance.toFixed(2)}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={account.isActive ? 'default' : 'secondary'}>
+                      {account.isActive ? 'Ativa' : 'Inativa'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(account)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleAccountStatus(account.id)}
+                        className={account.isActive ? 'text-orange-600' : 'text-green-600'}
+                      >
+                        {account.isActive ? 'Desativar' : 'Ativar'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(account.id)}
+                        className="text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>

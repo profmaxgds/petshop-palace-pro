@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
 import { Search, Plus, Edit, Trash2, Phone, Mail, UserCheck, UserX, Stethoscope } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import type { Veterinarian } from '@/types';
@@ -69,7 +68,7 @@ const Veterinarians: React.FC = () => {
   const filteredVeterinarians = veterinarians.filter(vet =>
     vet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     vet.crmv.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vet.specialties.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()))
+    (vet.specialties && vet.specialties.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
   const handleSave = () => {
@@ -107,7 +106,14 @@ const Veterinarians: React.FC = () => {
 
   const handleEdit = (vet: Veterinarian) => {
     setEditingVet(vet);
-    setFormData(vet);
+    setFormData({
+      name: vet.name,
+      crmv: vet.crmv,
+      specialties: vet.specialties || [],
+      phone: vet.phone || '',
+      email: vet.email || '',
+      status: vet.status,
+    });
     setIsDialogOpen(true);
   };
 
@@ -287,7 +293,7 @@ const Veterinarians: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {vet.specialties.map((specialty) => (
+                        {vet.specialties?.map((specialty) => (
                           <Badge key={specialty} variant="secondary" className="text-xs">
                             {specialty}
                           </Badge>

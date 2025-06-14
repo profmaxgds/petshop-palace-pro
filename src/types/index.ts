@@ -105,7 +105,7 @@ export interface Appointment {
   serviceType: ServiceType;
   serviceTypeId: string;
   veterinarian?: Veterinarian;
-  veterinariId?: string;
+  veterinarianId?: string;
   room?: Room;
   roomId?: string;
   status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
@@ -202,4 +202,53 @@ export interface Product {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ProductCategory {
+  id: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface BankAccount {
+  id: string;
+  name: string;
+  bankCode: string;
+  agency: string;
+  account: string;
+  type: 'checking' | 'savings';
+  balance: number;
+  isActive: boolean;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AccountReceivable {
+  id: string;
+  description: string;
+  dueDate: Date;
+  amount: number;
+  status: 'pending' | 'paid' | 'overdue';
+  tutorId?: string;
+  tutor?: Tutor;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CashTransaction {
+  id: string;
+  type: 'income' | 'expense';
+  amount: number;
+  description: string;
+  date: Date;
+  categoryId?: string;
+  accountId?: string;
+  createdBy: string;
+  createdAt: Date;
 }

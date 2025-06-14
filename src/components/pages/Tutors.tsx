@@ -7,11 +7,32 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Trash2, Phone, Mail, MapPin, Heart, Eye } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, User, Phone, Mail, MapPin } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Tutor, Animal } from '@/types';
+import type { Tutor, Animal, Breed } from '@/types';
 
 const Tutors: React.FC = () => {
+  const mockBreeds: Breed[] = [
+    {
+      id: '1',
+      name: 'Golden Retriever',
+      species: 'dog',
+      isActive: true,
+      createdBy: 'system',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: '2',
+      name: 'Persa',
+      species: 'cat',
+      isActive: true,
+      createdBy: 'system',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ];
+
   const [tutors, setTutors] = useState<Tutor[]>([
     {
       id: '1',
@@ -28,7 +49,7 @@ const Tutors: React.FC = () => {
         zipCode: '01234-567'
       },
       isActive: true,
-      createdBy: 'admin',
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -47,26 +68,26 @@ const Tutors: React.FC = () => {
         zipCode: '05432-100'
       },
       isActive: true,
-      createdBy: 'admin',
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
-    },
+    }
   ]);
 
-  // Mock animals data
-  const mockAnimals: Animal[] = [
+  const [animals, setAnimals] = useState<Animal[]>([
     {
       id: '1',
       name: 'Rex',
       species: 'dog',
       breedId: '1',
-      breed: { id: '1', name: 'Golden Retriever', species: 'dog', isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date() },
+      breed: mockBreeds[0],
       age: 3,
       sex: 'male',
       weight: 32.5,
       tutorId: '1',
+      tutor: tutors[0],
       isActive: true,
-      createdBy: 'admin',
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -75,37 +96,37 @@ const Tutors: React.FC = () => {
       name: 'Luna',
       species: 'cat',
       breedId: '2',
-      breed: { id: '2', name: 'Persa', species: 'cat', isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date() },
+      breed: mockBreeds[1],
       age: 2,
       sex: 'female',
       weight: 4.2,
       tutorId: '2',
+      tutor: tutors[1],
       isActive: true,
-      createdBy: 'admin',
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
       id: '3',
-      name: 'Max',
+      name: 'Buddy',
       species: 'dog',
-      breedId: '3',
-      breed: { id: '3', name: 'Labrador', species: 'dog', isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date() },
-      age: 1,
+      breedId: '1',
+      breed: mockBreeds[0],
+      age: 5,
       sex: 'male',
-      weight: 25.0,
+      weight: 28.0,
       tutorId: '1',
+      tutor: tutors[0],
       isActive: true,
-      createdBy: 'admin',
+      createdBy: 'system',
       createdAt: new Date(),
       updatedAt: new Date(),
-    },
-  ];
+    }
+  ]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isAnimalsDialogOpen, setIsAnimalsDialogOpen] = useState(false);
-  const [selectedTutor, setSelectedTutor] = useState<Tutor | null>(null);
   const [editingTutor, setEditingTutor] = useState<Tutor | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -118,21 +139,21 @@ const Tutors: React.FC = () => {
       neighborhood: '',
       city: '',
       state: '',
-      zipCode: ''
-    }
+      zipCode: '',
+    },
   });
 
   const filteredTutors = tutors.filter(tutor =>
     tutor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    tutor.cpf.includes(searchTerm) ||
-    tutor.email.toLowerCase().includes(searchTerm.toLowerCase())
+    tutor.cpf?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tutor.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getTutorAnimals = (tutorId: string) => {
-    return mockAnimals.filter(animal => animal.tutorId === tutorId);
-  };
-
   const handleSave = () => {
+    if (!formData.name) {
+      return;
+    }
+
     if (editingTutor) {
       setTutors(tutors.map(t => 
         t.id === editingTutor.id 
@@ -144,7 +165,7 @@ const Tutors: React.FC = () => {
         id: Date.now().toString(),
         ...formData,
         isActive: true,
-        createdBy: 'admin',
+        createdBy: 'current-user',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -167,14 +188,27 @@ const Tutors: React.FC = () => {
         neighborhood: '',
         city: '',
         state: '',
-        zipCode: ''
-      }
+        zipCode: '',
+      },
     });
   };
 
   const handleEdit = (tutor: Tutor) => {
     setEditingTutor(tutor);
-    setFormData(tutor);
+    setFormData({
+      name: tutor.name,
+      cpf: tutor.cpf || '',
+      phone: tutor.phone || '',
+      email: tutor.email || '',
+      address: {
+        street: tutor.address?.street || '',
+        number: tutor.address?.number || '',
+        neighborhood: tutor.address?.neighborhood || '',
+        city: tutor.address?.city || '',
+        state: tutor.address?.state || '',
+        zipCode: tutor.address?.zipCode || '',
+      },
+    });
     setIsAddDialogOpen(true);
   };
 
@@ -182,9 +216,8 @@ const Tutors: React.FC = () => {
     setTutors(tutors.filter(t => t.id !== tutorId));
   };
 
-  const handleViewAnimals = (tutor: Tutor) => {
-    setSelectedTutor(tutor);
-    setIsAnimalsDialogOpen(true);
+  const getTutorAnimals = (tutorId: string) => {
+    return animals.filter(animal => animal.tutorId === tutorId);
   };
 
   return (
@@ -207,7 +240,7 @@ const Tutors: React.FC = () => {
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button className="bg-teal-600 hover:bg-teal-700">
                   <Plus className="w-4 h-4 mr-2" />
                   {t('addTutor')}
                 </Button>
@@ -215,7 +248,7 @@ const Tutors: React.FC = () => {
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingTutor ? 'Editar Tutor' : t('addTutor')}
+                    {editingTutor ? 'Editar Tutor' : 'Novo Tutor'}
                   </DialogTitle>
                   <DialogDescription>
                     Preencha os dados do tutor
@@ -229,7 +262,7 @@ const Tutors: React.FC = () => {
                       id="name"
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      placeholder="Nome completo"
+                      placeholder="Nome completo do tutor"
                     />
                   </div>
                   
@@ -249,7 +282,7 @@ const Tutors: React.FC = () => {
                       id="phone"
                       value={formData.phone}
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      placeholder="(11) 99999-9999"
+                      placeholder="(00) 00000-0000"
                     />
                   </div>
                   
@@ -262,6 +295,10 @@ const Tutors: React.FC = () => {
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                       placeholder="email@exemplo.com"
                     />
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <h3 className="text-lg font-semibold mb-2">Endereço</h3>
                   </div>
                   
                   <div>
@@ -278,7 +315,7 @@ const Tutors: React.FC = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="number">{t('number')}</Label>
+                    <Label htmlFor="number">Número</Label>
                     <Input
                       id="number"
                       value={formData.address.number}
@@ -299,7 +336,7 @@ const Tutors: React.FC = () => {
                         ...formData, 
                         address: {...formData.address, neighborhood: e.target.value}
                       })}
-                      placeholder="Bairro"
+                      placeholder="Nome do bairro"
                     />
                   </div>
                   
@@ -312,7 +349,7 @@ const Tutors: React.FC = () => {
                         ...formData, 
                         address: {...formData.address, city: e.target.value}
                       })}
-                      placeholder="Cidade"
+                      placeholder="Nome da cidade"
                     />
                   </div>
                   
@@ -347,7 +384,7 @@ const Tutors: React.FC = () => {
                   <Button variant="outline" onClick={handleCloseDialog}>
                     {t('cancel')}
                   </Button>
-                  <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700">
                     {t('save')}
                   </Button>
                 </DialogFooter>
@@ -360,7 +397,7 @@ const Tutors: React.FC = () => {
           <div className="flex items-center space-x-2 mb-6">
             <Search className="w-4 h-4 text-gray-400" />
             <Input
-              placeholder="Buscar por nome, CPF ou e-mail..."
+              placeholder="Buscar por nome, CPF ou email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-sm"
@@ -371,78 +408,59 @@ const Tutors: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('tutorName')}</TableHead>
-                  <TableHead>{t('cpf')}</TableHead>
+                  <TableHead>Tutor</TableHead>
                   <TableHead>Contato</TableHead>
-                  <TableHead>Animais</TableHead>
                   <TableHead>Endereço</TableHead>
+                  <TableHead>Animais</TableHead>
                   <TableHead className="text-right">{t('actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredTutors.map((tutor) => {
                   const tutorAnimals = getTutorAnimals(tutor.id);
-                  
                   return (
                     <TableRow key={tutor.id}>
                       <TableCell>
-                        <div>
-                          <div className="font-medium">{tutor.name}</div>
-                          <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-teal-600" />
+                          <div>
+                            <div className="font-medium">{tutor.name}</div>
+                            <div className="text-sm text-gray-500">CPF: {tutor.cpf}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="flex items-center text-sm">
+                            <Phone className="w-3 h-3 mr-1" />
+                            {tutor.phone}
+                          </div>
+                          <div className="flex items-center text-sm">
                             <Mail className="w-3 h-3 mr-1" />
                             {tutor.email}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{tutor.cpf}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center text-sm">
-                          <Phone className="w-3 h-3 mr-1" />
-                          {tutor.phone}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary">
-                            {tutorAnimals.length} {tutorAnimals.length === 1 ? 'animal' : 'animais'}
-                          </Badge>
-                          {tutorAnimals.length > 0 && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleViewAnimals(tutor)}
-                              className="text-blue-600 hover:text-blue-800"
-                            >
-                              <Eye className="w-3 h-3" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
                         <div className="flex items-center text-sm">
                           <MapPin className="w-3 h-3 mr-1" />
-                          <div>
-                            {tutor.address.street}, {tutor.address.number} - {tutor.address.neighborhood}
-                            <br />
-                            <span className="text-gray-500">
-                              {tutor.address.city}, {tutor.address.state}
-                            </span>
-                          </div>
+                          {tutor.address?.city}, {tutor.address?.state}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {tutorAnimals.map((animal) => (
+                            <Badge key={animal.id} variant="secondary" className="text-xs">
+                              {animal.name}
+                            </Badge>
+                          ))}
+                          {tutorAnimals.length === 0 && (
+                            <span className="text-gray-400 text-sm">Nenhum animal</span>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {/* Navigate to animals page with tutor pre-selected */}}
-                            className="text-green-600 hover:text-green-800"
-                            title="Cadastrar Animal"
-                          >
-                            <Heart className="w-4 h-4" />
-                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -468,49 +486,6 @@ const Tutors: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Dialog de Animais do Tutor */}
-      <Dialog open={isAnimalsDialogOpen} onOpenChange={setIsAnimalsDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Animais de {selectedTutor?.name}</DialogTitle>
-            <DialogDescription>
-              Lista de animais cadastrados para este tutor
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Espécie</TableHead>
-                  <TableHead>Raça</TableHead>
-                  <TableHead>Idade</TableHead>
-                  <TableHead>Peso</TableHead>
-                  <TableHead>Sexo</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {selectedTutor && getTutorAnimals(selectedTutor.id).map((animal) => (
-                  <TableRow key={animal.id}>
-                    <TableCell className="font-medium">{animal.name}</TableCell>
-                    <TableCell>{animal.species}</TableCell>
-                    <TableCell>{animal.breed?.name}</TableCell>
-                    <TableCell>{animal.age} anos</TableCell>
-                    <TableCell>{animal.weight} kg</TableCell>
-                    <TableCell>
-                      <Badge variant={animal.sex === 'male' ? 'default' : 'secondary'}>
-                        {animal.sex === 'male' ? 'Macho' : 'Fêmea'}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

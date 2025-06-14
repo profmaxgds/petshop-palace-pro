@@ -8,16 +8,62 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Eye, EyeOff, Plus, Edit, Trash2, Shield, UserCog, Key } from 'lucide-react';
-import { User } from '@/types';
+import { User, Profile } from '@/types';
 import { t } from '@/lib/i18n';
 
 const Users = () => {
+  const mockProfiles: Profile[] = [
+    {
+      id: '1',
+      name: 'Administrador Total',
+      description: 'Acesso completo ao sistema',
+      permissions: { all: true },
+      isActive: true,
+      isSystemProfile: true,
+      createdBy: 'system',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: '2',
+      name: 'Veterinário',
+      description: 'Acesso aos módulos veterinários',
+      permissions: { 
+        animals: ['read', 'write'], 
+        appointments: ['read', 'write'], 
+        vaccines: ['read', 'write'] 
+      },
+      isActive: true,
+      isSystemProfile: false,
+      createdBy: 'admin',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: '3',
+      name: 'Recepcionista',
+      description: 'Acesso limitado ao atendimento',
+      permissions: { 
+        tutors: ['read', 'write'], 
+        animals: ['read'], 
+        appointments: ['read', 'write'] 
+      },
+      isActive: true,
+      isSystemProfile: false,
+      createdBy: 'admin',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ];
+
   const [users, setUsers] = useState<User[]>([
     {
       id: '1',
       name: 'Administrador',
       email: 'admin@petshop.com',
       role: 'admin',
+      profileId: '1',
+      profile: mockProfiles[0],
       permissions: { all: true },
       isActive: true,
       lastLogin: new Date('2024-01-15T10:00:00'),
@@ -29,6 +75,8 @@ const Users = () => {
       name: 'Dr. João Silva',
       email: 'joao@petshop.com',
       role: 'veterinarian',
+      profileId: '2',
+      profile: mockProfiles[1],
       permissions: { 
         animals: ['read', 'write'], 
         appointments: ['read', 'write'], 
@@ -44,6 +92,8 @@ const Users = () => {
       name: 'Maria Recepção',
       email: 'maria@petshop.com',
       role: 'receptionist',
+      profileId: '3',
+      profile: mockProfiles[2],
       permissions: { 
         tutors: ['read', 'write'], 
         animals: ['read'], 
@@ -66,6 +116,7 @@ const Users = () => {
     email: '',
     password: '',
     role: 'receptionist' as User['role'],
+    profileId: '',
     isActive: true
   });
 
@@ -83,10 +134,13 @@ const Users = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const selectedProfile = mockProfiles.find(p => p.id === formData.profileId);
+    
     const newUser: User = {
       id: selectedUser?.id || Date.now().toString(),
       ...formData,
-      permissions: formData.role === 'admin' ? { all: true } : permissions,
+      profile: selectedProfile,
+      permissions: formData.role === 'admin' ? { all: true } : (selectedProfile?.permissions || permissions),
       lastLogin: selectedUser?.lastLogin,
       createdAt: selectedUser?.createdAt || new Date(),
       updatedAt: new Date()
@@ -108,6 +162,7 @@ const Users = () => {
       email: '',
       password: '',
       role: 'receptionist',
+      profileId: '',
       isActive: true
     });
     setPermissions({
@@ -130,6 +185,7 @@ const Users = () => {
       email: user.email,
       password: '',
       role: user.role,
+      profileId: user.profileId || '',
       isActive: user.isActive
     });
     
@@ -267,7 +323,7 @@ const Users = () => {
               </div>
               
               <div>
-                <Label htmlFor="role">Perfil</Label>
+                <Label htmlFor="role">Função</Label>
                 <Select value={formData.role} onValueChange={(value: User['role']) => setFormData({ ...formData, role: value })}>
                   <SelectTrigger>
                     <SelectValue />
@@ -277,6 +333,22 @@ const Users = () => {
                     <SelectItem value="veterinarian">Veterinário</SelectItem>
                     <SelectItem value="manager">Gerente</SelectItem>
                     <SelectItem value="receptionist">Recepcionista</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="profile">Perfil de Acesso</Label>
+                <Select value={formData.profileId} onValueChange={(value) => setFormData({ ...formData, profileId: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecionar perfil" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockProfiles.filter(p => p.isActive).map((profile) => (
+                      <SelectItem key={profile.id} value={profile.id}>
+                        {profile.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -325,6 +397,9 @@ const Users = () => {
                     <div>
                       <h3 className="font-medium">{user.name}</h3>
                       <p className="text-sm text-gray-500">{user.email}</p>
+                      {user.profile && (
+                        <p className="text-xs text-blue-600">Perfil: {user.profile.name}</p>
+                      )}
                     </div>
                     {getRoleBadge(user.role)}
                     {!user.isActive && (

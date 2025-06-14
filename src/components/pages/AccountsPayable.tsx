@@ -5,319 +5,306 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { CreditCard, Plus, Edit, Trash2, Search, CheckCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AccountPayable } from '@/types/products';
+import { Search, Plus, Edit, Trash2, Calendar, DollarSign } from 'lucide-react';
 
-const AccountsPayable = () => {
+interface AccountPayable {
+  id: string;
+  description: string;
+  dueDate: Date;
+  amount: number;
+  status: 'pending' | 'paid' | 'overdue';
+  supplierId?: string;
+  supplier?: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const AccountsPayable: React.FC = () => {
   const [accounts, setAccounts] = useState<AccountPayable[]>([
     {
       id: '1',
-      description: 'Compra Pet Food Ltda - Ração Premium',
-      amount: 900.00,
-      dueDate: new Date('2024-12-15'),
-      supplier: 'Pet Food Ltda',
-      category: 'Estoque',
+      description: 'Fornecimento de medicamentos',
+      dueDate: new Date('2024-12-20'),
+      amount: 1500.00,
       status: 'pending',
+      supplier: 'Farmácia Veterinária ABC',
+      createdBy: 'admin',
       createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       id: '2',
-      description: 'Energia Elétrica - Dezembro',
-      amount: 350.00,
-      dueDate: new Date('2024-12-20'),
-      supplier: 'Companhia de Energia',
-      category: 'Utilidades',
-      status: 'overdue',
+      description: 'Aluguel da clínica',
+      dueDate: new Date('2024-12-10'),
+      amount: 3500.00,
+      status: 'paid',
+      supplier: 'Imobiliária XYZ',
+      createdBy: 'admin',
       createdAt: new Date(),
-    },
+      updatedAt: new Date(),
+    }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<AccountPayable | null>(null);
+
   const [formData, setFormData] = useState({
     description: '',
-    amount: '',
     dueDate: '',
+    amount: 0,
     supplier: '',
-    category: '',
   });
 
-  const categories = ['Estoque', 'Utilidades', 'Fixas', 'Equipamentos', 'Marketing', 'Outros'];
+  const filteredAccounts = accounts.filter(account => {
+    const matchesSearch = account.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         account.supplier?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = !statusFilter || account.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   const handleSave = () => {
+    if (!formData.description || !formData.dueDate || !formData.amount) {
+      return;
+    }
+
     if (editingAccount) {
-      setAccounts(accounts.map(account => 
-        account.id === editingAccount.id 
-          ? {
-              ...account,
-              description: formData.description,
-              amount: parseFloat(formData.amount),
+      setAccounts(accounts.map(a => 
+        a.id === editingAccount.id 
+          ? { 
+              ...editingAccount, 
+              ...formData,
               dueDate: new Date(formData.dueDate),
-              supplier: formData.supplier,
-              category: formData.category,
+              updatedAt: new Date()
             }
-          : account
+          : a
       ));
     } else {
       const newAccount: AccountPayable = {
         id: Date.now().toString(),
-        description: formData.description,
-        amount: parseFloat(formData.amount),
+        ...formData,
         dueDate: new Date(formData.dueDate),
-        supplier: formData.supplier,
-        category: formData.category,
         status: 'pending',
+        createdBy: 'current-user',
         createdAt: new Date(),
+        updatedAt: new Date(),
       };
       setAccounts([...accounts, newAccount]);
     }
-    
-    resetForm();
-    setIsDialogOpen(false);
+    handleCloseDialog();
   };
 
-  const resetForm = () => {
+  const handleCloseDialog = () => {
+    setIsAddDialogOpen(false);
+    setEditingAccount(null);
     setFormData({
       description: '',
-      amount: '',
       dueDate: '',
+      amount: 0,
       supplier: '',
-      category: '',
     });
-    setEditingAccount(null);
   };
 
   const handleEdit = (account: AccountPayable) => {
     setEditingAccount(account);
     setFormData({
       description: account.description,
-      amount: account.amount.toString(),
       dueDate: account.dueDate.toISOString().split('T')[0],
-      supplier: account.supplier,
-      category: account.category,
+      amount: account.amount,
+      supplier: account.supplier || '',
     });
-    setIsDialogOpen(true);
+    setIsAddDialogOpen(true);
   };
 
   const handleDelete = (accountId: string) => {
-    setAccounts(accounts.filter(account => account.id !== accountId));
+    setAccounts(accounts.filter(a => a.id !== accountId));
   };
-
-  const handleMarkAsPaid = (accountId: string) => {
-    setAccounts(accounts.map(account => 
-      account.id === accountId 
-        ? { 
-            ...account, 
-            status: 'paid' as const, 
-            paymentDate: new Date() 
-          }
-        : account
-    ));
-  };
-
-  const filteredAccounts = accounts.filter(account =>
-    account.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    account.supplier.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return <Badge className="bg-green-100 text-green-800">Pago</Badge>;
-      case 'overdue':
-        return <Badge variant="destructive">Vencido</Badge>;
-      default:
-        return <Badge variant="secondary">Pendente</Badge>;
-    }
+    const statusMap: Record<string, { label: string; variant: any }> = {
+      'pending': { label: 'Pendente', variant: 'secondary' },
+      'paid': { label: 'Pago', variant: 'default' },
+      'overdue': { label: 'Vencido', variant: 'destructive' },
+    };
+    
+    const statusInfo = statusMap[status] || { label: status, variant: 'outline' };
+    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Contas a Pagar</h1>
-          <p className="text-gray-600">Controle de contas e pagamentos</p>
+          <p className="text-gray-600">Gerencie as contas e despesas da clínica</p>
         </div>
-        
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Conta
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {editingAccount ? 'Editar Conta' : 'Nova Conta a Pagar'}
-              </DialogTitle>
-              <DialogDescription>
-                Preencha as informações da conta
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="description">Descrição</Label>
-                <Input
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  placeholder="Descrição da conta"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="supplier">Fornecedor</Label>
-                <Input
-                  id="supplier"
-                  value={formData.supplier}
-                  onChange={(e) => setFormData({...formData, supplier: e.target.value})}
-                  placeholder="Nome do fornecedor"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="category">Categoria</Label>
-                <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a categoria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="amount">Valor</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    step="0.01"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                    placeholder="0,00"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="dueDate">Data de Vencimento</Label>
-                  <Input
-                    id="dueDate"
-                    type="date"
-                    value={formData.dueDate}
-                    onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
-                  />
-                </div>
-              </div>
-              
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleSave}>
-                  {editingAccount ? 'Salvar Alterações' : 'Criar Conta'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Contas a Pagar</CardTitle>
-          <CardDescription>
-            Gerencie todas as contas e pagamentos
-          </CardDescription>
-          <div className="flex items-center space-x-2">
-            <Search className="w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Buscar contas..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Lista de Contas a Pagar</CardTitle>
+              <CardDescription>
+                {filteredAccounts.length} contas registradas
+              </CardDescription>
+            </div>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-red-600 hover:bg-red-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nova Conta
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingAccount ? 'Editar Conta' : 'Nova Conta a Pagar'}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Preencha os dados da conta
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="space-y-4 py-4">
+                  <div>
+                    <Label htmlFor="description">Descrição</Label>
+                    <Input
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      placeholder="Descrição da despesa"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="supplier">Fornecedor</Label>
+                    <Input
+                      id="supplier"
+                      value={formData.supplier}
+                      onChange={(e) => setFormData({...formData, supplier: e.target.value})}
+                      placeholder="Nome do fornecedor"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="amount">Valor</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      step="0.01"
+                      value={formData.amount}
+                      onChange={(e) => setFormData({...formData, amount: parseFloat(e.target.value)})}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="dueDate">Data de Vencimento</Label>
+                    <Input
+                      id="dueDate"
+                      type="date"
+                      value={formData.dueDate}
+                      onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
+                    />
+                  </div>
+                </div>
+                
+                <DialogFooter>
+                  <Button variant="outline" onClick={handleCloseDialog}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleSave} className="bg-red-600 hover:bg-red-700">
+                    Salvar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardHeader>
+        
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-2">Descrição</th>
-                  <th className="text-left p-2">Fornecedor</th>
-                  <th className="text-left p-2">Categoria</th>
-                  <th className="text-left p-2">Valor</th>
-                  <th className="text-left p-2">Vencimento</th>
-                  <th className="text-left p-2">Status</th>
-                  <th className="text-left p-2">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAccounts.map((account) => (
-                  <tr key={account.id} className="border-b hover:bg-gray-50">
-                    <td className="p-2">
-                      <div className="flex items-center space-x-2">
-                        <CreditCard className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">{account.description}</span>
-                      </div>
-                    </td>
-                    <td className="p-2">{account.supplier}</td>
-                    <td className="p-2">
-                      <Badge variant="outline">{account.category}</Badge>
-                    </td>
-                    <td className="p-2">
-                      <span className="font-bold">R$ {account.amount.toFixed(2)}</span>
-                    </td>
-                    <td className="p-2">
-                      {account.dueDate.toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="p-2">
-                      {getStatusBadge(account.status)}
-                    </td>
-                    <td className="p-2">
-                      <div className="flex space-x-2">
-                        {account.status !== 'paid' && (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => handleMarkAsPaid(account.id)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Pagar
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(account)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(account.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex items-center space-x-2 mb-6">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Buscar por descrição ou fornecedor"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Todos os Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Todos os Status</SelectItem>
+                <SelectItem value="pending">Pendente</SelectItem>
+                <SelectItem value="paid">Pago</SelectItem>
+                <SelectItem value="overdue">Vencido</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Descrição</TableHead>
+                <TableHead>Fornecedor</TableHead>
+                <TableHead>Vencimento</TableHead>
+                <TableHead>Valor</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredAccounts.map((account) => (
+                <TableRow key={account.id}>
+                  <TableCell className="font-medium">{account.description}</TableCell>
+                  <TableCell>{account.supplier}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      {account.dueDate.toLocaleDateString('pt-BR')}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <DollarSign className="w-4 h-4 mr-1" />
+                      R$ {account.amount.toFixed(2)}
+                    </div>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(account.status)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(account)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(account.id)}
+                        className="text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
