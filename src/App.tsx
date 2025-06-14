@@ -111,6 +111,10 @@ function App() {
         return <Reports />;
       case 'settings':
         return <Settings />;
+      case 'point-of-sale':
+        return <PointOfSale />;
+      case 'sales':
+        return <Sales />;
       default:
         return <Dashboard />;
     }
