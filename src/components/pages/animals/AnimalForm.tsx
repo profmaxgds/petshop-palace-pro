@@ -49,6 +49,10 @@ const AnimalForm: React.FC<AnimalFormProps> = ({
     return breeds.filter(breed => breed.species === formData.species && breed.isActive);
   };
 
+  console.log('AnimalForm formData:', formData);
+  console.log('AnimalForm breeds:', breeds);
+  console.log('AnimalForm tutors:', tutors);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
@@ -103,11 +107,17 @@ const AnimalForm: React.FC<AnimalFormProps> = ({
                 <SelectValue placeholder="Selecione a raça" />
               </SelectTrigger>
               <SelectContent>
-                {getFilteredBreeds().map((breed) => (
-                  <SelectItem key={breed.id} value={breed.id}>
-                    {breed.name}
-                  </SelectItem>
-                ))}
+                {getFilteredBreeds().map((breed) => {
+                  console.log('AnimalForm breed SelectItem:', breed.id, breed.name);
+                  if (!breed.id || breed.id === '') {
+                    console.error('AnimalForm: Found breed with empty ID:', breed);
+                  }
+                  return (
+                    <SelectItem key={breed.id} value={breed.id || 'unknown'}>
+                      {breed.name}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
@@ -161,11 +171,17 @@ const AnimalForm: React.FC<AnimalFormProps> = ({
                 <SelectValue placeholder="Selecione o tutor" />
               </SelectTrigger>
               <SelectContent>
-                {tutors.map((tutor) => (
-                  <SelectItem key={tutor.id} value={tutor.id}>
-                    {tutor.name}
-                  </SelectItem>
-                ))}
+                {tutors.map((tutor) => {
+                  console.log('AnimalForm tutor SelectItem:', tutor.id, tutor.name);
+                  if (!tutor.id || tutor.id === '') {
+                    console.error('AnimalForm: Found tutor with empty ID:', tutor);
+                  }
+                  return (
+                    <SelectItem key={tutor.id} value={tutor.id || 'unknown'}>
+                      {tutor.name}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
