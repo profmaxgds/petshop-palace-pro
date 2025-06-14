@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Scale, Calendar, Syringe, Download, Edit, Trash2 } from 'lucide-react';
+import { Heart, Scale, Calendar } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import type { Animal } from '@/types';
+import AnimalActions from './AnimalActions';
 
 interface AnimalsTableProps {
   animals: Animal[];
@@ -77,49 +77,14 @@ const AnimalsTable: React.FC<AnimalsTableProps> = ({
                 </div>
               </TableCell>
               <TableCell className="text-right">
-                <div className="flex items-center justify-end space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onViewHistory(animal)}
-                    title="Ver Histórico"
-                  >
-                    <Calendar className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDownloadCard(animal.id)}
-                    className="text-blue-600 hover:text-blue-800"
-                    title="Baixar Carteirinha"
-                  >
-                    <Download className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onNavigateToVaccines(animal.id)}
-                    className="text-green-600 hover:text-green-800"
-                    title="Vacinar"
-                  >
-                    <Syringe className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onEdit(animal)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDelete(animal.id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                <AnimalActions
+                  animal={animal}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onViewHistory={onViewHistory}
+                  onNavigateToVaccines={onNavigateToVaccines}
+                  onDownloadCard={onDownloadCard}
+                />
               </TableCell>
             </TableRow>
           ))}

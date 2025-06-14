@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import type { Animal, Tutor, Vaccine, Appointment, GroomingService, Breed } from '@/types';
 import AnimalForm from './animals/AnimalForm';
 import AnimalsTable from './animals/AnimalsTable';
 import AnimalHistoryDialog from './animals/AnimalHistoryDialog';
+import AnimalSearchAndFilter from './animals/AnimalSearchAndFilter';
+import { generateVaccineCard } from './animals/VaccineCardGenerator';
 
 interface AnimalsProps {
   onNavigate?: (page: string, state?: any) => void;
@@ -81,7 +82,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
   const mockVaccines: Vaccine[] = [
     {
       id: '1',
-      animal: {} as Animal, // Will be populated
+      animal: {} as Animal,
       animalId: '1',
       vaccineType: 'V8',
       batch: '12345',
@@ -94,62 +95,9 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
     },
   ];
 
-  const mockAppointments: Appointment[] = [
-    {
-      id: '1',
-      animal: {} as Animal, // Will be populated
-      animalId: '1',
-      appointmentDate: new Date('2024-12-10'),
-      appointmentTime: '09:00',
-      serviceType: {
-        id: '1',
-        name: 'Consulta Veterinária',
-        category: 'consultation',
-        duration: 30,
-        price: 80,
-        requiresVeterinarian: true,
-        isActive: true,
-        createdBy: 'system',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      serviceTypeId: '1',
-      veterinarianId: '1',
-      status: 'scheduled',
-      notes: 'Consulta de rotina',
-      isActive: true,
-      createdBy: 'system',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
+  const mockAppointments: Appointment[] = [];
 
-  const mockGrooming: GroomingService[] = [
-    {
-      id: '1',
-      animal: {} as Animal, // Will be populated
-      animalId: '1',
-      serviceDate: new Date('2024-12-08'),
-      serviceType: {
-        id: '1',
-        name: 'Banho e Tosa',
-        category: 'grooming',
-        duration: 60,
-        price: 50,
-        requiresVeterinarian: false,
-        isActive: true,
-        createdBy: 'system',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      serviceTypeId: '1',
-      status: 'completed',
-      notes: 'Serviço realizado com sucesso',
-      price: 80.00,
-      createdBy: 'system',
-      createdAt: new Date(),
-    },
-  ];
+  const mockGrooming: GroomingService[] = [];
 
   const [animals, setAnimals] = useState<Animal[]>([
     {
@@ -281,56 +229,9 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
   };
 
   const downloadVaccineCard = (animalId: string) => {
-    const animalVaccines = mockVaccines.filter(v => v.animalId === animalId);
     const animal = animals.find(a => a.id === animalId);
-    
     if (!animal) return;
-
-    const cardContent = `
-      <html>
-        <head>
-          <title>Carteirinha de Vacinação - ${animal.name}</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .animal-info { background: #f5f5f5; padding: 15px; margin-bottom: 20px; }
-            .vaccine-record { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Carteirinha de Vacinação</h1>
-          </div>
-          <div class="animal-info">
-            <h2>Dados do Animal</h2>
-            <p><strong>Nome:</strong> ${animal.name}</p>
-            <p><strong>Espécie:</strong> ${t(animal.species)}</p>
-            <p><strong>Raça:</strong> ${animal.breed?.name}</p>
-            <p><strong>Tutor:</strong> ${animal.tutor?.name}</p>
-          </div>
-          ${animalVaccines.map(vaccine => `
-            <div class="vaccine-record">
-              <h3>Registro de Vacinação</h3>
-              <p><strong>Vacina:</strong> ${vaccine.vaccineType}</p>
-              <p><strong>Lote:</strong> ${vaccine.batch}</p>
-              <p><strong>Data de Aplicação:</strong> ${vaccine.applicationDate.toLocaleDateString('pt-BR')}</p>
-              <p><strong>Próxima Dose:</strong> ${vaccine.nextDueDate?.toLocaleDateString('pt-BR')}</p>
-              ${vaccine.notes ? `<p><strong>Observações:</strong> ${vaccine.notes}</p>` : ''}
-            </div>
-          `).join('')}
-        </body>
-      </html>
-    `;
-
-    const blob = new Blob([cardContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `carteirinha-${animal.name}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    generateVaccineCard(animal, mockVaccines);
   };
 
   return (
@@ -363,15 +264,10 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
         </CardHeader>
         
         <CardContent>
-          <div className="flex items-center space-x-2 mb-6">
-            <Search className="w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Buscar por nome, espécie ou tutor..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
-          </div>
+          <AnimalSearchAndFilter
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
           
           <AnimalsTable
             animals={filteredAnimals}
@@ -400,8 +296,8 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
         onClose={() => setIsHistoryDialogOpen(false)}
         animal={selectedAnimal}
         vaccines={mockVaccines}
-        appointments={mockAppointments}
-        grooming={mockGrooming}
+        appointments={[]}
+        grooming={[]}
         onDownloadCard={downloadVaccineCard}
       />
     </div>

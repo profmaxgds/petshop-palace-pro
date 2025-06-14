@@ -16,10 +16,8 @@ interface LanguageSelectorProps {
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ onLanguageChange }) => {
   const currentLang = getCurrentLanguage();
-  console.log('LanguageSelector currentLang:', currentLang);
 
   const handleLanguageChange = (value: Language) => {
-    console.log('LanguageSelector handleLanguageChange:', value);
     setLanguage(value);
     onLanguageChange?.();
     window.location.reload(); // Refresh to apply translations
@@ -32,17 +30,14 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ onLanguageChange })
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {languages.map((lang) => {
-          console.log('LanguageSelector rendering SelectItem:', lang.code);
-          return (
-            <SelectItem key={lang.code} value={lang.code}>
-              <span className="flex items-center gap-2">
-                <span>{lang.flag}</span>
-                <span>{lang.name}</span>
-              </span>
-            </SelectItem>
-          );
-        })}
+        {languages.map((lang) => (
+          <SelectItem key={lang.code} value={lang.code}>
+            <span className="flex items-center gap-2">
+              <span>{lang.flag}</span>
+              <span>{lang.name}</span>
+            </span>
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

@@ -159,7 +159,7 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState }) => {
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [animalFilter, setAnimalFilter] = useState<string>('');
+  const [animalFilter, setAnimalFilter] = useState<string>(selectedAnimalId || 'all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingVaccine, setEditingVaccine] = useState<Vaccine | null>(null);
   const [formData, setFormData] = useState({
@@ -183,7 +183,7 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState }) => {
     const matchesSearch = vaccine.animal?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          vaccine.vaccineType.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          vaccine.veterinarian?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesAnimal = !animalFilter || vaccine.animalId === animalFilter;
+    const matchesAnimal = animalFilter === 'all' || vaccine.animalId === animalFilter;
     
     return matchesSearch && matchesAnimal;
   });
@@ -460,7 +460,7 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState }) => {
                 <SelectValue placeholder="Todos os animais" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os animais</SelectItem>
+                <SelectItem value="all">Todos os animais</SelectItem>
                 {mockAnimals.map((animal) => (
                   <SelectItem key={animal.id} value={animal.id}>
                     {animal.name} - {animal.tutor?.name}
