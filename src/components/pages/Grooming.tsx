@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,15 @@ const Grooming: React.FC = () => {
       age: 3,
       sex: 'male',
       weight: 32.5,
+      tutor: {
+        id: '1',
+        name: 'João Silva',
+        phone: '(11) 99999-9999',
+        isActive: true,
+        createdBy: 'admin',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
       tutorId: '1',
       isActive: true,
       createdBy: 'admin',
@@ -39,6 +49,15 @@ const Grooming: React.FC = () => {
       age: 2,
       sex: 'female',
       weight: 4.2,
+      tutor: {
+        id: '2',
+        name: 'Maria Silva',
+        phone: '(11) 88888-8888',
+        isActive: true,
+        createdBy: 'admin',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
       tutorId: '2',
       isActive: true,
       createdBy: 'admin',

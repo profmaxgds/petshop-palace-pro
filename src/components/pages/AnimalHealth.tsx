@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -66,7 +65,7 @@ const AnimalHealth: React.FC = () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-      veterinariId: '1',
+      veterinarianId: '1',
       status: 'scheduled',
       totalPrice: 80,
       isActive: true,
@@ -193,7 +192,7 @@ const AnimalHealth: React.FC = () => {
               serviceType,
               serviceTypeId: appointmentForm.serviceTypeId,
               veterinarian,
-              veterinariId: appointmentForm.veterinarianId,
+              veterinarianId: appointmentForm.veterinarianId,
               room,
               roomId: appointmentForm.roomId,
               notes: appointmentForm.notes,
@@ -216,7 +215,7 @@ const AnimalHealth: React.FC = () => {
         serviceType,
         serviceTypeId: appointmentForm.serviceTypeId,
         veterinarian,
-        veterinariId: appointmentForm.veterinarianId,
+        veterinarianId: appointmentForm.veterinarianId,
         room,
         roomId: appointmentForm.roomId,
         status: 'scheduled',
@@ -257,7 +256,7 @@ const AnimalHealth: React.FC = () => {
       appointmentDate: appointment.appointmentDate.toISOString().split('T')[0],
       appointmentTime: appointment.appointmentTime,
       serviceTypeId: appointment.serviceTypeId,
-      veterinarianId: appointment.veterinariId || '',
+      veterinarianId: appointment.veterinarianId || '',
       roomId: appointment.roomId || '',
       notes: appointment.notes || '',
     });
