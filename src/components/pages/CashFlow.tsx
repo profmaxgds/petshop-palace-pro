@@ -56,7 +56,7 @@ const CashFlow: React.FC = () => {
 
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = !typeFilter || transaction.type === typeFilter;
+    const matchesType = !typeFilter || typeFilter === 'all' || transaction.type === typeFilter;
     
     return matchesSearch && matchesType;
   });
@@ -288,7 +288,7 @@ const CashFlow: React.FC = () => {
                 <SelectValue placeholder="Todos os Tipos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os Tipos</SelectItem>
+                <SelectItem value="all">Todos os Tipos</SelectItem>
                 <SelectItem value="income">Receitas</SelectItem>
                 <SelectItem value="expense">Despesas</SelectItem>
               </SelectContent>

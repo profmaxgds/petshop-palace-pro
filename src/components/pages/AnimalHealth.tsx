@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -158,7 +159,7 @@ const AnimalHealth: React.FC = () => {
       appointment.veterinarian?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       appointment.animal.tutor.name.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = !statusFilter || appointment.status === statusFilter;
+    const matchesStatus = !statusFilter || statusFilter === 'all' || appointment.status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
@@ -460,7 +461,7 @@ const AnimalHealth: React.FC = () => {
                 <SelectValue placeholder={t('allStatuses')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t('allStatuses')}</SelectItem>
+                <SelectItem value="all">{t('allStatuses')}</SelectItem>
                 <SelectItem value="scheduled">{t('scheduled')}</SelectItem>
                 <SelectItem value="completed">{t('completed')}</SelectItem>
                 <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
