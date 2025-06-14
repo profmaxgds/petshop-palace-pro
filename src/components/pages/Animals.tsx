@@ -207,8 +207,6 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
     animal.tutor?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  
-
   const handleSave = () => {
     if (!formData.species || !formData.name || !formData.tutorId) {
       return;
@@ -276,7 +274,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
     setIsHistoryDialogOpen(true);
   };
 
-  const handleVaccinate = (animalId: string) => {
+  const handleNavigateToVaccines = (animalId: string) => {
     if (onNavigate) {
       onNavigate('vaccines', { selectedAnimalId: animalId });
     }
@@ -380,7 +378,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
             onEdit={handleEdit}
             onDelete={handleDelete}
             onViewHistory={handleViewHistory}
-            onVaccinate={handleVaccinate}
+            onNavigateToVaccines={handleNavigateToVaccines}
             onDownloadCard={downloadVaccineCard}
           />
         </CardContent>

@@ -12,7 +12,7 @@ interface AnimalsTableProps {
   onEdit: (animal: Animal) => void;
   onDelete: (animalId: string) => void;
   onViewHistory: (animal: Animal) => void;
-  onVaccinate: (animalId: string) => void;
+  onNavigateToVaccines: (animalId: string) => void;
   onDownloadCard: (animalId: string) => void;
 }
 
@@ -21,7 +21,7 @@ const AnimalsTable: React.FC<AnimalsTableProps> = ({
   onEdit,
   onDelete,
   onViewHistory,
-  onVaccinate,
+  onNavigateToVaccines,
   onDownloadCard
 }) => {
   return (
@@ -98,7 +98,7 @@ const AnimalsTable: React.FC<AnimalsTableProps> = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onVaccinate(animal.id)}
+                    onClick={() => onNavigateToVaccines(animal.id)}
                     className="text-green-600 hover:text-green-800"
                     title="Vacinar"
                   >
