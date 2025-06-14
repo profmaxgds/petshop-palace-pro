@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,10 +8,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Calendar, Plus, Edit, Trash2, Search, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { t } from '@/lib/i18n';
 import { Appointment, Animal, ServiceType, Veterinarian, Room } from '@/types';
+
+interface AppointmentService {
+  serviceTypeId: string;
+  serviceType: ServiceType;
+  price: number;
+}
 
 const AnimalHealth: React.FC = () => {
   const { toast } = useToast();
@@ -154,6 +159,72 @@ const AnimalHealth: React.FC = () => {
     }
   ];
 
+  const veterinaryServiceTypes: ServiceType[] = [
+    {
+      id: '1',
+      name: 'Consulta Veterinária',
+      category: 'consultation',
+      duration: 30,
+      price: 80,
+      requiresVeterinarian: true,
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '2',
+      name: 'Exame de Sangue',
+      category: 'exam',
+      duration: 15,
+      price: 120,
+      requiresVeterinarian: true,
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '3',
+      name: 'Cirurgia',
+      category: 'surgery',
+      duration: 120,
+      price: 500,
+      requiresVeterinarian: true,
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '4',
+      name: 'Raio-X',
+      category: 'exam',
+      duration: 30,
+      price: 150,
+      requiresVeterinarian: true,
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '5',
+      name: 'Ultrassom',
+      category: 'exam',
+      duration: 45,
+      price: 200,
+      requiresVeterinarian: true,
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+  ];
+
+  const [appointmentServices, setAppointmentServices] = useState<AppointmentService[]>([]);
+  const [selectedServiceId, setSelectedServiceId] = useState('');
+
   const filteredAppointments = appointments.filter(appointment => {
     const matchesSearch = appointment.animal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       appointment.veterinarian?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -164,22 +235,58 @@ const AnimalHealth: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const addServiceToAppointment = () => {
+    if (!selectedServiceId) return;
+    
+    const serviceType = veterinaryServiceTypes.find(s => s.id === selectedServiceId);
+    if (!serviceType) return;
+    
+    // Verificar se o serviço já foi adicionado
+    if (appointmentServices.some(s => s.serviceTypeId === selectedServiceId)) {
+      toast({
+        title: "Serviço já adicionado",
+        description: "Este serviço já foi adicionado ao agendamento.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const newService: AppointmentService = {
+      serviceTypeId: selectedServiceId,
+      serviceType,
+      price: serviceType.price,
+    };
+    
+    setAppointmentServices([...appointmentServices, newService]);
+    setSelectedServiceId('');
+  };
+
+  const removeServiceFromAppointment = (serviceTypeId: string) => {
+    setAppointmentServices(appointmentServices.filter(s => s.serviceTypeId !== serviceTypeId));
+  };
+
+  const getTotalPrice = () => {
+    return appointmentServices.reduce((total, service) => total + service.price, 0);
+  };
+
   const handleSaveAppointment = () => {
-    if (!appointmentForm.animalId || !appointmentForm.appointmentDate || !appointmentForm.serviceTypeId) {
+    if (!appointmentForm.animalId || !appointmentForm.appointmentDate || appointmentServices.length === 0) {
       toast({
         title: "Erro",
-        description: "Preencha todos os campos obrigatórios.",
+        description: "Preencha todos os campos obrigatórios e adicione pelo menos um serviço.",
         variant: "destructive",
       });
       return;
     }
 
     const animal = animals.find(a => a.id === appointmentForm.animalId);
-    const serviceType = serviceTypes.find(s => s.id === appointmentForm.serviceTypeId);
     const veterinarian = veterinarians.find(v => v.id === appointmentForm.veterinarianId);
     const room = rooms.find(r => r.id === appointmentForm.roomId);
 
-    if (!animal || !serviceType) return;
+    if (!animal) return;
+
+    // Para múltiplos serviços, vamos usar o primeiro como principal
+    const mainService = appointmentServices[0];
 
     if (editingAppointment) {
       setAppointments(appointments.map(a => 
@@ -190,14 +297,14 @@ const AnimalHealth: React.FC = () => {
               animalId: appointmentForm.animalId,
               appointmentDate: new Date(appointmentForm.appointmentDate),
               appointmentTime: appointmentForm.appointmentTime,
-              serviceType,
-              serviceTypeId: appointmentForm.serviceTypeId,
+              serviceType: mainService.serviceType,
+              serviceTypeId: mainService.serviceTypeId,
               veterinarian,
               veterinarianId: appointmentForm.veterinarianId,
               room,
               roomId: appointmentForm.roomId,
               notes: appointmentForm.notes,
-              totalPrice: serviceType.price,
+              totalPrice: getTotalPrice(),
               updatedAt: new Date(),
             }
           : a
@@ -213,14 +320,14 @@ const AnimalHealth: React.FC = () => {
         animalId: appointmentForm.animalId,
         appointmentDate: new Date(appointmentForm.appointmentDate),
         appointmentTime: appointmentForm.appointmentTime,
-        serviceType,
-        serviceTypeId: appointmentForm.serviceTypeId,
+        serviceType: mainService.serviceType,
+        serviceTypeId: mainService.serviceTypeId,
         veterinarian,
         veterinarianId: appointmentForm.veterinarianId,
         room,
         roomId: appointmentForm.roomId,
         status: 'scheduled',
-        totalPrice: serviceType.price,
+        totalPrice: getTotalPrice(),
         notes: appointmentForm.notes,
         isActive: true,
         createdBy: '1',
@@ -230,7 +337,7 @@ const AnimalHealth: React.FC = () => {
       setAppointments([...appointments, newAppointment]);
       toast({
         title: "Agendamento criado",
-        description: "O agendamento foi criado com sucesso.",
+        description: `Agendamento criado com ${appointmentServices.length} serviço(s).`,
       });
     }
     handleCloseDialog();
@@ -239,6 +346,8 @@ const AnimalHealth: React.FC = () => {
   const handleCloseDialog = () => {
     setIsAddDialogOpen(false);
     setEditingAppointment(null);
+    setAppointmentServices([]);
+    setSelectedServiceId('');
     setAppointmentForm({
       animalId: '',
       appointmentDate: '',
@@ -252,6 +361,11 @@ const AnimalHealth: React.FC = () => {
 
   const handleEditAppointment = (appointment: Appointment) => {
     setEditingAppointment(appointment);
+    setAppointmentServices([{
+      serviceTypeId: appointment.serviceTypeId,
+      serviceType: appointment.serviceType,
+      price: appointment.serviceType.price,
+    }]);
     setAppointmentForm({
       animalId: appointment.animalId,
       appointmentDate: appointment.appointmentDate.toISOString().split('T')[0],
@@ -313,7 +427,7 @@ const AnimalHealth: React.FC = () => {
                   {t('addAppointment')}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
                     {editingAppointment ? t('editAppointment') : t('addAppointment')}
@@ -323,104 +437,150 @@ const AnimalHealth: React.FC = () => {
                   </DialogDescription>
                 </DialogHeader>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                  <div>
-                    <Label htmlFor="animal">{t('animal')}</Label>
-                    <Select
-                      value={appointmentForm.animalId}
-                      onValueChange={(value) => setAppointmentForm({...appointmentForm, animalId: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectAnimal')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {animals.map((animal) => (
-                          <SelectItem key={animal.id} value={animal.id}>
-                            {animal.name} - {animal.tutor.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="animal">{t('animal')}</Label>
+                      <Select
+                        value={appointmentForm.animalId}
+                        onValueChange={(value) => setAppointmentForm({...appointmentForm, animalId: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('selectAnimal')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {animals.map((animal) => (
+                            <SelectItem key={animal.id} value={animal.id}>
+                              {animal.name} - {animal.tutor.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="veterinarian">{t('veterinarian')}</Label>
+                      <Select
+                        value={appointmentForm.veterinarianId}
+                        onValueChange={(value) => setAppointmentForm({...appointmentForm, veterinarianId: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('selectVeterinarian')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {veterinarians.map((vet) => (
+                            <SelectItem key={vet.id} value={vet.id}>
+                              {vet.name} - CRMV {vet.crmv}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="date">{t('date')}</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={appointmentForm.appointmentDate}
+                        onChange={(e) => setAppointmentForm({...appointmentForm, appointmentDate: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="time">{t('time')}</Label>
+                      <Input
+                        id="time"
+                        type="time"
+                        value={appointmentForm.appointmentTime}
+                        onChange={(e) => setAppointmentForm({...appointmentForm, appointmentTime: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="room">{t('room')}</Label>
+                      <Select
+                        value={appointmentForm.roomId}
+                        onValueChange={(value) => setAppointmentForm({...appointmentForm, roomId: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('selectRoom')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {rooms.map((room) => (
+                            <SelectItem key={room.id} value={room.id}>
+                              {room.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Seção de Serviços */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Serviços</h3>
+                    
+                    <div className="flex gap-2">
+                      <Select
+                        value={selectedServiceId}
+                        onValueChange={setSelectedServiceId}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Selecionar serviço" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {veterinaryServiceTypes.map((service) => (
+                            <SelectItem key={service.id} value={service.id}>
+                              {service.name} - R$ {service.price}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button 
+                        type="button"
+                        onClick={addServiceToAppointment}
+                        disabled={!selectedServiceId}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {appointmentServices.length > 0 && (
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-medium mb-3">Serviços Selecionados</h4>
+                        <div className="space-y-2">
+                          {appointmentServices.map((service) => (
+                            <div key={service.serviceTypeId} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                              <div>
+                                <span className="font-medium">{service.serviceType.name}</span>
+                                <span className="text-sm text-gray-500 ml-2">
+                                  ({service.serviceType.duration} min)
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">R$ {service.price}</span>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => removeServiceFromAppointment(service.serviceTypeId)}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-3 pt-3 border-t flex justify-between items-center">
+                          <span className="font-semibold">Total:</span>
+                          <span className="font-semibold text-lg">R$ {getTotalPrice()}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div>
-                    <Label htmlFor="serviceType">{t('serviceType')}</Label>
-                    <Select
-                      value={appointmentForm.serviceTypeId}
-                      onValueChange={(value) => setAppointmentForm({...appointmentForm, serviceTypeId: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectServiceType')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {serviceTypes.map((service) => (
-                          <SelectItem key={service.id} value={service.id}>
-                            {service.name} - R$ {service.price}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="date">{t('date')}</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      value={appointmentForm.appointmentDate}
-                      onChange={(e) => setAppointmentForm({...appointmentForm, appointmentDate: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="time">{t('time')}</Label>
-                    <Input
-                      id="time"
-                      type="time"
-                      value={appointmentForm.appointmentTime}
-                      onChange={(e) => setAppointmentForm({...appointmentForm, appointmentTime: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="veterinarian">{t('veterinarian')}</Label>
-                    <Select
-                      value={appointmentForm.veterinarianId}
-                      onValueChange={(value) => setAppointmentForm({...appointmentForm, veterinarianId: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectVeterinarian')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {veterinarians.map((vet) => (
-                          <SelectItem key={vet.id} value={vet.id}>
-                            {vet.name} - CRMV {vet.crmv}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="room">{t('room')}</Label>
-                    <Select
-                      value={appointmentForm.roomId}
-                      onValueChange={(value) => setAppointmentForm({...appointmentForm, roomId: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectRoom')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {rooms.map((room) => (
-                          <SelectItem key={room.id} value={room.id}>
-                            {room.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="md:col-span-2">
                     <Label htmlFor="notes">{t('observationsNotes')}</Label>
                     <Textarea
                       id="notes"
@@ -477,6 +637,7 @@ const AnimalHealth: React.FC = () => {
                 <TableHead>{t('service')}</TableHead>
                 <TableHead>{t('dateTime')}</TableHead>
                 <TableHead>{t('veterinarian')}</TableHead>
+                <TableHead>Valor Total</TableHead>
                 <TableHead>{t('status')}</TableHead>
                 <TableHead>{t('actions')}</TableHead>
               </TableRow>
@@ -491,6 +652,7 @@ const AnimalHealth: React.FC = () => {
                     {appointment.appointmentDate.toLocaleDateString('pt-BR')} às {appointment.appointmentTime}
                   </TableCell>
                   <TableCell>{appointment.veterinarian?.name || '-'}</TableCell>
+                  <TableCell>R$ {appointment.totalPrice || appointment.serviceType.price}</TableCell>
                   <TableCell>{getStatusBadge(appointment.status)}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">

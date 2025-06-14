@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import Sidebar from '@/components/Sidebar';
@@ -25,6 +24,8 @@ import Profiles from '@/components/pages/Profiles';
 import VaccineCardLayout from '@/components/pages/VaccineCardLayout';
 import Reports from '@/components/pages/Reports';
 import Settings from '@/components/pages/Settings';
+import PointOfSale from '@/components/pages/PointOfSale';
+import Sales from '@/components/pages/Sales';
 
 // Mock user data
 const mockUser = {
