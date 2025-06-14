@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,31 +6,47 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Save, Undo, Palette, Type, Image, Layout } from 'lucide-react';
+import { Eye, Save, Undo, Palette, Type, Image, Layout, Upload } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const VaccineCardLayout: React.FC = () => {
-  const [layout, setLayout] = useState({
-    title: 'CARTEIRINHA DE VACINAÇÃO',
-    subtitle: 'Controle Sanitário Veterinário',
-    headerColor: '#0d9488',
-    backgroundColor: '#ffffff',
-    fontFamily: 'Arial',
-    fontSize: '14',
-    showLogo: true,
-    logoPosition: 'left',
-    showBorder: true,
-    borderColor: '#e5e7eb',
-    fields: {
-      animalName: true,
-      tutorName: true,
-      species: true,
-      breed: true,
-      birthDate: true,
-      weight: true,
-      microchip: false,
-      veterinarian: true,
-      clinicInfo: true,
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [layout, setLayout] = useState(() => {
+    try {
+      const stored = localStorage.getItem('vaccineCardLayout');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (error) {
+      console.error('Error loading layout:', error);
     }
+    
+    return {
+      title: 'CARTEIRINHA DE VACINAÇÃO',
+      subtitle: 'Controle Sanitário Veterinário',
+      headerColor: '#0d9488',
+      backgroundColor: '#ffffff',
+      fontFamily: 'Arial',
+      fontSize: '14',
+      showLogo: true,
+      logoPosition: 'left',
+      logoUrl: '',
+      showBorder: true,
+      borderColor: '#e5e7eb',
+      fields: {
+        animalName: true,
+        tutorName: true,
+        species: true,
+        breed: true,
+        birthDate: true,
+        weight: true,
+        microchip: false,
+        veterinarian: true,
+        clinicInfo: true,
+      }
+    };
   });
 
   const [previewMode, setPreviewMode] = useState(false);
@@ -46,6 +61,30 @@ const VaccineCardLayout: React.FC = () => {
     }));
   };
 
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        toast({
+          title: "Arquivo muito grande",
+          description: "A imagem deve ter no máximo 2MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setLayout(prev => ({
+          ...prev,
+          logoUrl: result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const resetToDefault = () => {
     setLayout({
       title: 'CARTEIRINHA DE VACINAÇÃO',
@@ -56,6 +95,7 @@ const VaccineCardLayout: React.FC = () => {
       fontSize: '14',
       showLogo: true,
       logoPosition: 'left',
+      logoUrl: '',
       showBorder: true,
       borderColor: '#e5e7eb',
       fields: {
@@ -73,13 +113,24 @@ const VaccineCardLayout: React.FC = () => {
   };
 
   const saveLayout = () => {
-    // Mock save functionality
-    alert('Layout salvo com sucesso!');
+    try {
+      localStorage.setItem('vaccineCardLayout', JSON.stringify(layout));
+      toast({
+        title: "Layout salvo",
+        description: "As configurações do layout foram salvas com sucesso!",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as configurações.",
+        variant: "destructive",
+      });
+    }
   };
 
   const PreviewCard = () => (
     <div 
-      className="w-full max-w-md mx-auto p-6 rounded-lg shadow-lg"
+      className="w-full max-w-md mx-auto p-6 rounded-lg shadow-lg relative"
       style={{ 
         backgroundColor: layout.backgroundColor,
         border: layout.showBorder ? `2px solid ${layout.borderColor}` : 'none',
@@ -89,24 +140,27 @@ const VaccineCardLayout: React.FC = () => {
     >
       {/* Header */}
       <div 
-        className="text-center p-4 rounded-t-lg mb-4"
+        className="text-center p-4 rounded-t-lg mb-4 relative"
         style={{ backgroundColor: layout.headerColor, color: 'white' }}
       >
-        <div className="flex items-center justify-center space-x-2">
-          {layout.showLogo && layout.logoPosition === 'left' && (
-            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-              <span className="text-xs" style={{ color: layout.headerColor }}>🐾</span>
-            </div>
-          )}
-          <div>
-            <h1 className="font-bold text-lg">{layout.title}</h1>
-            <p className="text-sm opacity-90">{layout.subtitle}</p>
+        {layout.showLogo && (
+          <div 
+            className={`absolute top-4 ${layout.logoPosition === 'left' ? 'left-4' : 'right-4'} w-12 h-12 bg-white rounded-full flex items-center justify-center overflow-hidden`}
+          >
+            {layout.logoUrl ? (
+              <img 
+                src={layout.logoUrl} 
+                alt="Logo" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-xl" style={{ color: layout.headerColor }}>🐾</span>
+            )}
           </div>
-          {layout.showLogo && layout.logoPosition === 'right' && (
-            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-              <span className="text-xs" style={{ color: layout.headerColor }}>🐾</span>
-            </div>
-          )}
+        )}
+        <div>
+          <h1 className="font-bold text-lg">{layout.title}</h1>
+          <p className="text-sm opacity-90">{layout.subtitle}</p>
         </div>
       </div>
 
@@ -139,8 +193,8 @@ const VaccineCardLayout: React.FC = () => {
         )}
         {layout.fields.birthDate && (
           <div className="flex justify-between">
-            <span className="font-medium">Nascimento:</span>
-            <span>15/03/2021</span>
+            <span className="font-medium">Idade:</span>
+            <span>3 anos</span>
           </div>
         )}
         {layout.fields.weight && (
@@ -256,6 +310,77 @@ const VaccineCardLayout: React.FC = () => {
                     onChange={(e) => setLayout(prev => ({ ...prev, headerColor: e.target.value }))}
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Logo Configuration */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Image className="w-5 h-5 mr-2" />
+                  Logo
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="showLogo"
+                    checked={layout.showLogo}
+                    onChange={(e) => setLayout(prev => ({ ...prev, showLogo: e.target.checked }))}
+                  />
+                  <Label htmlFor="showLogo">Mostrar Logo</Label>
+                </div>
+                
+                {layout.showLogo && (
+                  <>
+                    <div>
+                      <Label htmlFor="logoPosition">Posição do Logo</Label>
+                      <Select value={layout.logoPosition} onValueChange={(value: 'left' | 'right') => setLayout(prev => ({ ...prev, logoPosition: value }))}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="left">Esquerda</SelectItem>
+                          <SelectItem value="right">Direita</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label>Upload do Logo</Label>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Selecionar Arquivo
+                        </Button>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleLogoUpload}
+                          className="hidden"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Formatos: PNG, JPG, GIF (máx. 2MB)
+                      </p>
+                      {layout.logoUrl && (
+                        <div className="mt-2">
+                          <img 
+                            src={layout.logoUrl} 
+                            alt="Logo preview" 
+                            className="w-16 h-16 object-cover border rounded"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
 

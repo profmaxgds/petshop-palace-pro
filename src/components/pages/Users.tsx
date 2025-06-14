@@ -7,11 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Eye, EyeOff, Plus, Edit, Trash2, Shield, UserCog, Key } from 'lucide-react';
+import { Eye, EyeOff, Plus, Edit, Trash2, Shield, UserCog } from 'lucide-react';
 import { User, Profile } from '@/types';
 import { t } from '@/lib/i18n';
+import { useToast } from '@/hooks/use-toast';
 
 const Users = () => {
+  const { toast } = useToast();
+
   const mockProfiles: Profile[] = [
     {
       id: '1',
@@ -120,15 +123,15 @@ const Users = () => {
     isActive: true
   });
 
-  const [permissions, setPermissions] = useState({
-    tutors: [] as string[],
-    animals: [] as string[],
-    appointments: [] as string[],
-    vaccines: [] as string[],
-    products: [] as string[],
-    purchases: [] as string[],
-    financial: [] as string[],
-    system: [] as string[]
+  const [permissions, setPermissions] = useState<{ [key: string]: string[] }>({
+    tutors: [],
+    animals: [],
+    appointments: [],
+    vaccines: [],
+    products: [],
+    purchases: [],
+    financial: [],
+    system: []
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -148,8 +151,16 @@ const Users = () => {
 
     if (selectedUser) {
       setUsers(users.map(user => user.id === selectedUser.id ? newUser : user));
+      toast({
+        title: "Usuário atualizado",
+        description: "As informações do usuário foram atualizadas com sucesso.",
+      });
     } else {
       setUsers([...users, newUser]);
+      toast({
+        title: "Usuário criado",
+        description: "O novo usuário foi criado com sucesso.",
+      });
     }
 
     resetForm();
@@ -189,8 +200,18 @@ const Users = () => {
       isActive: user.isActive
     });
     
-    if (user.role !== 'admin' && typeof user.permissions === 'object') {
-      setPermissions(user.permissions as any);
+    if (user.role !== 'admin' && typeof user.permissions === 'object' && !user.permissions.all) {
+      const userPermissions = user.permissions as { [key: string]: string[] };
+      setPermissions({
+        tutors: userPermissions.tutors || [],
+        animals: userPermissions.animals || [],
+        appointments: userPermissions.appointments || [],
+        vaccines: userPermissions.vaccines || [],
+        products: userPermissions.products || [],
+        purchases: userPermissions.purchases || [],
+        financial: userPermissions.financial || [],
+        system: userPermissions.system || []
+      });
     }
     
     setIsDialogOpen(true);
@@ -199,6 +220,11 @@ const Users = () => {
   const handleDelete = (id: string) => {
     if (confirm('Tem certeza que deseja excluir este usuário?')) {
       setUsers(users.filter(user => user.id !== id));
+      toast({
+        title: "Usuário excluído",
+        description: "O usuário foi removido do sistema.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -208,12 +234,28 @@ const Users = () => {
         ? { ...user, isActive: !user.isActive, updatedAt: new Date() }
         : user
     ));
+    
+    const user = users.find(u => u.id === id);
+    toast({
+      title: user?.isActive ? "Usuário desativado" : "Usuário ativado",
+      description: `O usuário foi ${user?.isActive ? 'desativado' : 'ativado'} com sucesso.`,
+    });
   };
 
   const handlePermissionsEdit = (user: User) => {
     setSelectedUser(user);
     if (typeof user.permissions === 'object' && !user.permissions.all) {
-      setPermissions(user.permissions as any);
+      const userPermissions = user.permissions as { [key: string]: string[] };
+      setPermissions({
+        tutors: userPermissions.tutors || [],
+        animals: userPermissions.animals || [],
+        appointments: userPermissions.appointments || [],
+        vaccines: userPermissions.vaccines || [],
+        products: userPermissions.products || [],
+        purchases: userPermissions.purchases || [],
+        financial: userPermissions.financial || [],
+        system: userPermissions.system || []
+      });
     }
     setIsPermissionsDialogOpen(true);
   };
@@ -221,9 +263,9 @@ const Users = () => {
   const handlePermissionChange = (module: string, action: string) => {
     setPermissions(prev => ({
       ...prev,
-      [module]: prev[module as keyof typeof prev].includes(action)
-        ? prev[module as keyof typeof prev].filter(a => a !== action)
-        : [...prev[module as keyof typeof prev], action]
+      [module]: prev[module].includes(action)
+        ? prev[module].filter(a => a !== action)
+        : [...prev[module], action]
     }));
   };
 
@@ -234,6 +276,11 @@ const Users = () => {
           ? { ...user, permissions, updatedAt: new Date() }
           : user
       ));
+      
+      toast({
+        title: "Permissões atualizadas",
+        description: "As permissões do usuário foram atualizadas com sucesso.",
+      });
     }
     setIsPermissionsDialogOpen(false);
     setSelectedUser(null);
@@ -480,7 +527,7 @@ const Users = () => {
                     <label key={action} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={permissions[module as keyof typeof permissions].includes(action)}
+                        checked={permissions[module]?.includes(action) || false}
                         onChange={() => handlePermissionChange(module, action)}
                       />
                       <span className="text-sm">

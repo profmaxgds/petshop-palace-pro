@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -55,7 +54,8 @@ const Profiles: React.FC = () => {
         tutors: ['read', 'write'],
         animals: ['read', 'write'],
         appointments: ['read', 'write'],
-        grooming: ['read', 'write']
+        grooming: ['read', 'write'],
+        sales: ['read', 'write']
       },
       isActive: true,
       isSystemProfile: true,
@@ -76,7 +76,7 @@ const Profiles: React.FC = () => {
     isActive: true,
   });
 
-  // Available modules and their permissions
+  // Available modules and their permissions - UPDATED
   const availableModules = [
     {
       key: 'tutors',
@@ -114,9 +114,19 @@ const Profiles: React.FC = () => {
       permissions: ['read', 'write', 'delete']
     },
     {
+      key: 'sales',
+      name: 'PDV/Vendas',
+      permissions: ['read', 'write', 'delete']
+    },
+    {
       key: 'financial',
       name: 'Financeiro',
       permissions: ['read', 'write', 'delete']
+    },
+    {
+      key: 'reports',
+      name: 'Relatórios',
+      permissions: ['read', 'write']
     },
     {
       key: 'system',
