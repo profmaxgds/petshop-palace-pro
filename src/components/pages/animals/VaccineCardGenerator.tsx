@@ -168,10 +168,23 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
           .animal-info { 
             background: #f8f9fa; 
             padding: 20px; 
-            margin: 20px;
+            margin: 20px 20px 0 20px;
             border-radius: 8px;
           }
           .animal-info h2 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: #333;
+            border-bottom: 2px solid ${layout.headerColor};
+            padding-bottom: 8px;
+          }
+          .tutor-info {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+          }
+          .tutor-info h2 {
             margin: 0 0 15px 0;
             font-size: 18px;
             color: #333;
@@ -197,7 +210,7 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
             color: #333;
           }
           .vaccines-section {
-            margin: 20px;
+            margin: 0 20px 20px 20px;
           }
           .vaccines-section h2 {
             margin: 0 0 15px 0;
@@ -316,7 +329,7 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
                 </div>
               ` : ''}
               ${layout.fields.tutorName ? `
-                <div class="info-item">
+                <div class="info-item" style="grid-column: 1 / -1;">
                   <span class="info-label">${t('tutorName', 'Tutor')}:</span>
                   <span class="info-value">${animal.tutor?.name || 'N/A'}</span>
                 </div>
@@ -353,6 +366,40 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
                 <div class="info-item">
                   <span class="info-label">${t('microchip', 'Microchip')}:</span>
                   <span class="info-value">${animal.microchip}</span>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+
+          <div class="tutor-info">
+            <h2>${t('tutorDetails', 'Dados do Tutor')}</h2>
+            <div class="info-grid">
+              ${animal.tutor?.name ? `
+                <div class="info-item" style="grid-column: 1 / -1;">
+                  <span class="info-label">${t('tutorName', 'Tutor')}:</span>
+                  <span class="info-value">${animal.tutor.name}</span>
+                </div>
+              ` : ''}
+              ${animal.tutor?.cpf ? `
+                <div class="info-item">
+                  <span class="info-label">${t('cpf', 'CPF')}:</span>
+                  <span class="info-value">${animal.tutor.cpf}</span>
+                </div>
+              ` : ''}
+              ${animal.tutor?.phone ? `
+                <div class="info-item">
+                  <span class="info-label">${t('phone', 'Telefone')}:</span>
+                  <span class="info-value">${animal.tutor.phone}</span>
+                </div>
+              ` : ''}
+              ${animal.tutor?.address && (animal.tutor.address.street || animal.tutor.address.city) ? `
+                <div class="info-item" style="grid-column: 1 / -1; align-items: start;">
+                  <span class="info-label" style="margin-right: 8px;">${t('address', 'Endereço')}:</span>
+                  <span class="info-value" style="text-align: right;">
+                    ${[animal.tutor.address.street, animal.tutor.address.number, animal.tutor.address.neighborhood].filter(Boolean).join(', ')}<br>
+                    ${[animal.tutor.address.city, animal.tutor.address.state].filter(Boolean).join(' - ')}<br>
+                    CEP: ${animal.tutor.address.zipCode || ''}
+                  </span>
                 </div>
               ` : ''}
             </div>

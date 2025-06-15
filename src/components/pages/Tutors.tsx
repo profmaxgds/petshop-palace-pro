@@ -6,10 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Trash2, User, Phone, Mail, MapPin } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, User, Phone, Mail, MapPin, CalendarIcon } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import type { Tutor, Animal, Breed } from '@/types';
 import AnimalForm from './animals/AnimalForm';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const Tutors: React.FC = () => {
   const mockBreeds: Breed[] = [
@@ -81,7 +85,7 @@ const Tutors: React.FC = () => {
       species: 'dog',
       breedId: '1',
       breed: mockBreeds[0],
-      age: 3,
+      birthDate: new Date('2022-06-15'),
       sex: 'male',
       weight: 32.5,
       tutorId: '1',
@@ -97,7 +101,7 @@ const Tutors: React.FC = () => {
       species: 'cat',
       breedId: '2',
       breed: mockBreeds[1],
-      age: 2,
+      birthDate: new Date('2023-01-20'),
       sex: 'female',
       weight: 4.2,
       tutorId: '2',
@@ -113,7 +117,7 @@ const Tutors: React.FC = () => {
       species: 'dog',
       breedId: '1',
       breed: mockBreeds[0],
-      age: 5,
+      birthDate: new Date('2020-03-10'),
       sex: 'male',
       weight: 28.0,
       tutorId: '1',
@@ -133,6 +137,7 @@ const Tutors: React.FC = () => {
     cpf: '',
     phone: '',
     email: '',
+    birthDate: undefined as Date | undefined,
     address: {
       street: '',
       number: '',
@@ -150,7 +155,7 @@ const Tutors: React.FC = () => {
     name: '',
     species: 'dog' as 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other',
     breedId: '',
-    age: 0,
+    birthDate: undefined as Date | undefined,
     sex: 'male' as 'male' | 'female',
     weight: 0,
     tutorId: '',
@@ -195,6 +200,7 @@ const Tutors: React.FC = () => {
       cpf: '',
       phone: '',
       email: '',
+      birthDate: undefined,
       address: {
         street: '',
         number: '',
@@ -213,6 +219,7 @@ const Tutors: React.FC = () => {
       cpf: tutor.cpf || '',
       phone: tutor.phone || '',
       email: tutor.email || '',
+      birthDate: tutor.birthDate,
       address: {
         street: tutor.address?.street || '',
         number: tutor.address?.number || '',
@@ -233,6 +240,35 @@ const Tutors: React.FC = () => {
     return animals.filter(animal => animal.tutorId === tutorId);
   };
 
+  const handleZipCodeChange = async (zip: string) => {
+    const cleanedZip = zip.replace(/\D/g, '');
+    setFormData(prev => ({ ...prev, address: { ...prev.address, zipCode: cleanedZip } }));
+
+    if (cleanedZip.length === 8) {
+        try {
+            const response = await fetch(`https://viacep.com.br/ws/${cleanedZip}/json/`);
+            if (!response.ok) throw new Error('CEP não encontrado');
+            const data = await response.json();
+            if (data.erro) {
+                console.warn('CEP não encontrado');
+                return;
+            }
+            setFormData(prev => ({
+                ...prev,
+                address: {
+                    ...prev.address,
+                    street: data.logradouro,
+                    neighborhood: data.bairro,
+                    city: data.localidade,
+                    state: data.uf,
+                }
+            }));
+        } catch (error) {
+            console.error("Erro ao buscar CEP:", error);
+        }
+    }
+  };
+
   // Animal Handlers
   const handleAddNewAnimal = (tutorId: string) => {
     setEditingAnimal(null);
@@ -240,7 +276,7 @@ const Tutors: React.FC = () => {
       name: '',
       species: 'dog',
       breedId: '',
-      age: 0,
+      birthDate: undefined,
       sex: 'male',
       weight: 0,
       tutorId: tutorId,
@@ -254,7 +290,7 @@ const Tutors: React.FC = () => {
       name: animal.name,
       species: animal.species,
       breedId: animal.breedId || '',
-      age: animal.age || 0,
+      birthDate: animal.birthDate,
       sex: animal.sex,
       weight: animal.weight || 0,
       tutorId: animal.tutorId,
@@ -275,7 +311,7 @@ const Tutors: React.FC = () => {
       name: '',
       species: 'dog',
       breedId: '',
-      age: 0,
+      birthDate: undefined,
       sex: 'male',
       weight: 0,
       tutorId: '',
@@ -377,6 +413,33 @@ const Tutors: React.FC = () => {
                       placeholder="(00) 00000-0000"
                     />
                   </div>
+
+                  <div>
+                    <Label htmlFor="birthDate">{t('birthDate')}</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !formData.birthDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.birthDate ? format(formData.birthDate, "dd/MM/yyyy") : <span>Selecione a data</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={formData.birthDate}
+                          onSelect={(date) => setFormData({ ...formData, birthDate: date as Date | undefined})}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   
                   <div className="md:col-span-2">
                     <Label htmlFor="email">{t('email')}</Label>
@@ -392,7 +455,18 @@ const Tutors: React.FC = () => {
                   <div className="md:col-span-2">
                     <h3 className="text-lg font-semibold mb-2">Endereço</h3>
                   </div>
-                  
+
+                  <div>
+                    <Label htmlFor="zipCode">{t('zipCode')}</Label>
+                    <Input
+                      id="zipCode"
+                      value={formData.address.zipCode}
+                      onChange={(e) => handleZipCodeChange(e.target.value)}
+                      placeholder="00000-000"
+                      maxLength={9}
+                    />
+                  </div>
+
                   <div>
                     <Label htmlFor="street">{t('street')}</Label>
                     <Input
@@ -458,18 +532,6 @@ const Tutors: React.FC = () => {
                     />
                   </div>
                   
-                  <div>
-                    <Label htmlFor="zipCode">{t('zipCode')}</Label>
-                    <Input
-                      id="zipCode"
-                      value={formData.address.zipCode}
-                      onChange={(e) => setFormData({
-                        ...formData, 
-                        address: {...formData.address, zipCode: e.target.value}
-                      })}
-                      placeholder="00000-000"
-                    />
-                  </div>
                 </div>
                 
                 <DialogFooter>

@@ -20,6 +20,7 @@ export interface Tutor {
   cpf?: string;
   phone?: string;
   email?: string;
+  birthDate?: Date;
   address?: {
     street?: string;
     number?: string;
