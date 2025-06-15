@@ -80,8 +80,24 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
   ];
 
   const mockVeterinarians: Veterinarian[] = [
-    { id: '1', name: 'Dr. Carlos Silva', crmv: 'CRMV-SP 12345' },
-    { id: '2', name: 'Dra. Ana Costa', crmv: 'CRMV-SP 54321' },
+    { 
+      id: '1', 
+      name: 'Dr. Carlos Silva', 
+      crmv: 'CRMV-SP 12345',
+      status: 'active',
+      createdBy: 'system',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    { 
+      id: '2', 
+      name: 'Dra. Ana Costa', 
+      crmv: 'CRMV-SP 54321',
+      status: 'active',
+      createdBy: 'system',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
   ];
 
   const mockVaccines: Vaccine[] = [
