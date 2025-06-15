@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -157,10 +158,34 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
       id: '1',
       name: 'Consultório 1',
       type: 'consultation',
+      capacity: 4,
+      equipment: ['Mesa de exame', 'Estetoscópio', 'Balança'],
       isActive: true,
       createdBy: '1',
       createdAt: new Date(),
-      updatedAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: '2',
+      name: 'Sala Cirúrgica 1',
+      type: 'surgery',
+      capacity: 6,
+      equipment: ['Mesa cirúrgica', 'Aparelho de anestesia', 'Monitor cardíaco'],
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: '3',
+      name: 'Sala de Banho e Tosa',
+      type: 'grooming',
+      capacity: 2,
+      equipment: ['Banheira', 'Secador', 'Mesa de tosa'],
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ];
 
