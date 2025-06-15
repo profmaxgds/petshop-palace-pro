@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -9,27 +9,51 @@ import { useToast } from '@/hooks/use-toast';
 import { FileText } from 'lucide-react';
 import type { ClinicSettings as ClinicSettingsType } from '@/types';
 
+const CLINIC_SETTINGS_KEY = 'clinicSettings';
+
+const defaultSettings: Partial<ClinicSettingsType> = {
+  preventAnimalDoubleBooking: true,
+  preventVetDoubleBooking: true,
+  preventBookingOutsideWorkHours: true,
+  allowDoubleBookingForExamServices: true,
+};
+
 const ClinicSettings: React.FC = () => {
   const { toast } = useToast();
 
-  const [settings, setSettings] = useState<Partial<ClinicSettingsType>>({
-    preventAnimalDoubleBooking: true,
-    preventVetDoubleBooking: true,
-    preventBookingOutsideWorkHours: true,
-    allowDoubleBookingForExamServices: true,
-  });
+  const [settings, setSettings] = useState<Partial<ClinicSettingsType>>(defaultSettings);
+
+  useEffect(() => {
+    try {
+      const savedSettings = localStorage.getItem(CLINIC_SETTINGS_KEY);
+      if (savedSettings) {
+        setSettings(JSON.parse(savedSettings));
+      }
+    } catch (error) {
+      console.error("Failed to load clinic settings from localStorage", error);
+    }
+  }, []);
 
   const handleSettingChange = (key: keyof ClinicSettingsType, value: boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
   
   const handleSaveChanges = () => {
-    // In a real application, you would save these settings to your backend.
-    console.log('Saving clinic settings:', settings);
-    toast({
-      title: t('saveSuccess'),
-      description: t('clinicSettingsSaved'),
-    });
+    try {
+      localStorage.setItem(CLINIC_SETTINGS_KEY, JSON.stringify(settings));
+      console.log('Saving clinic settings:', settings);
+      toast({
+        title: t('saveSuccess'),
+        description: t('clinicSettingsSaved'),
+      });
+    } catch (error) {
+      console.error('Failed to save clinic settings to localStorage', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar as configurações.",
+        variant: 'destructive',
+      });
+    }
   };
 
   return (

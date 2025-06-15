@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -261,6 +261,18 @@ const Appointments: React.FC = () => {
     preventBookingOutsideWorkHours: true,
     allowDoubleBookingForExamServices: true,
   });
+
+  useEffect(() => {
+    const CLINIC_SETTINGS_KEY = 'clinicSettings';
+    try {
+      const savedSettings = localStorage.getItem(CLINIC_SETTINGS_KEY);
+      if (savedSettings) {
+        setClinicSettings(JSON.parse(savedSettings));
+      }
+    } catch (error) {
+      console.error("Failed to load clinic settings from localStorage", error);
+    }
+  }, []);
 
   const initialFormState = {
     animalId: '',
