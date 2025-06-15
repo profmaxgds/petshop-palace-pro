@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import Sidebar from '@/components/Sidebar';
@@ -27,6 +28,26 @@ import Settings from '@/components/pages/Settings';
 import PointOfSale from '@/components/pages/PointOfSale';
 import Sales from '@/components/pages/Sales';
 import { Sale, SaleItem } from '@/types/sales';
+import type { Animal, Tutor, Breed } from '@/types';
+import { useToast } from '@/hooks/use-toast';
+
+// MOCK DATA - In a real app, this would come from an API
+const mockBreeds: Breed[] = [
+    { id: '1', name: 'Golden Retriever', species: 'dog', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+    { id: '2', name: 'Persa', species: 'cat', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() }
+];
+
+const mockTutors: Tutor[] = [
+    { id: '1', name: 'João Silva', cpf: '123.456.789-00', phone: '(11) 99999-9999', email: 'joao@email.com', address: { street: 'Rua A', number: '1', neighborhood: 'Bairro', city: 'Cidade', state: 'SP', zipCode: '12345-678' }, isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+    { id: '2', name: 'Maria Santos', cpf: '987.654.321-00', phone: '(11) 99999-2222', email: 'maria@email.com', address: { street: 'Rua B', number: '2', neighborhood: 'Bairro', city: 'Cidade', state: 'SP', zipCode: '12345-678' }, isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() }
+];
+
+const mockAnimals: Animal[] = [
+    { id: '1', name: 'Rex', species: 'dog', breedId: '1', breed: mockBreeds[0], age: 3, sex: 'male', weight: 32.5, tutorId: '1', tutor: mockTutors[0], isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+    { id: '2', name: 'Luna', species: 'cat', breedId: '2', breed: mockBreeds[1], age: 2, sex: 'female', weight: 4.2, tutorId: '1', tutor: mockTutors[0], isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+    { id: '3', name: 'Thor', species: 'dog', breedId: '1', breed: mockBreeds[0], age: 5, sex: 'male', weight: 35, tutorId: '2', tutor: mockTutors[1], isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+];
+
 
 // Mock user data
 const mockUser = {
@@ -38,6 +59,7 @@ const mockUser = {
 };
 
 function App() {
+  const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [navigationState, setNavigationState] = useState<any>(null);
@@ -73,21 +95,100 @@ function App() {
       paymentMethod: 'Dinheiro',
       status: 'completed',
     },
+    {
+      id: '3',
+      date: new Date(Date.now() - 3600000),
+      customerName: 'João Silva',
+      customerPhone: '(11) 99999-9999',
+      animalId: '1',
+      animalName: 'Rex',
+      items: [
+        { id: 'serv-2', name: 'Banho e Tosa', type: 'service', quantity: 1, unitPrice: 45.00, total: 45.00 },
+      ],
+      subtotal: 45.00,
+      discount: 0,
+      total: 45.00,
+      paymentMethod: '',
+      status: 'pending',
+    },
   ]);
-  const [draftSaleItems, setDraftSaleItems] = useState<SaleItem[] | null>(null);
+
+  const addOrUpdatePendingSale = (itemToAdd: SaleItem, animal: Animal) => {
+    setSales(prevSales => {
+        const existingPendingSaleIndex = prevSales.findIndex(
+          s => s.animalId === animal.id && s.status === 'pending'
+        );
+
+        let newSales = [...prevSales];
+
+        if (existingPendingSaleIndex > -1) {
+          const saleToUpdate = { ...newSales[existingPendingSaleIndex] };
+          saleToUpdate.items = [...saleToUpdate.items]; 
+
+          const existingItemIndex = saleToUpdate.items.findIndex(i => i.id === itemToAdd.id);
+          if (existingItemIndex > -1) {
+              saleToUpdate.items[existingItemIndex].quantity += itemToAdd.quantity;
+              saleToUpdate.items[existingItemIndex].total = saleToUpdate.items[existingItemIndex].quantity * saleToUpdate.items[existingItemIndex].unitPrice;
+          } else {
+              saleToUpdate.items.push(itemToAdd);
+          }
+          
+          saleToUpdate.subtotal = saleToUpdate.items.reduce((sum, item) => sum + item.total, 0);
+          saleToUpdate.total = saleToUpdate.subtotal - saleToUpdate.discount;
+          newSales[existingPendingSaleIndex] = saleToUpdate;
+        } else {
+          const newSale: Sale = {
+            id: String(Date.now()),
+            date: new Date(),
+            customerName: animal.tutor.name,
+            customerPhone: animal.tutor.phone,
+            animalId: animal.id,
+            animalName: animal.name,
+            items: [itemToAdd],
+            subtotal: itemToAdd.total,
+            discount: 0,
+            total: itemToAdd.total,
+            paymentMethod: '',
+            status: 'pending',
+          };
+          newSales.unshift(newSale);
+        }
+        return newSales;
+    });
+    toast({ title: 'Item enviado para o PDV', description: `${itemToAdd.name} foi adicionado à lista de vendas pendentes.` });
+    setCurrentPage('point-of-sale');
+  };
 
   const handlePageChange = (page: string, state?: any) => {
-    setCurrentPage(page);
-    setNavigationState(state);
-    if (state?.draftSaleItems) {
-      setDraftSaleItems(state.draftSaleItems);
+    if (page === 'point-of-sale' && state?.draftSaleItems) {
+      const itemToAdd = state.draftSaleItems[0] as SaleItem;
+      
+      let animal: Animal | undefined;
+
+      if (itemToAdd.name.includes(' - ')) {
+        const animalName = itemToAdd.name.split(' - ')[1];
+        animal = mockAnimals.find(a => a.name === animalName);
+      }
+
+      if (animal) {
+         addOrUpdatePendingSale(itemToAdd, animal);
+      } else {
+         toast({ title: 'Animal não identificado', description: 'Não foi possível associar o serviço a um animal.', variant: 'destructive'});
+      }
+      setNavigationState(null);
+    } else {
+      setCurrentPage(page);
+      setNavigationState(state);
     }
   };
 
-  const handleClearDraftSaleItems = () => {
-    setDraftSaleItems(null);
+  const handleUpdateSale = (updatedSale: Sale) => {
+    setSales(prevSales =>
+      prevSales.map(s => (s.id === updatedSale.id ? updatedSale : s))
+    );
+    toast({ title: 'Venda Finalizada!', description: `Venda #${updatedSale.id} concluída com sucesso.` });
   };
-
+  
   const handleLogout = () => {
     alert('Logout realizado com sucesso!');
   };
@@ -156,9 +257,8 @@ function App() {
         return <Settings />;
       case 'point-of-sale':
         return <PointOfSale 
-          onSaleCompleted={(newSale) => setSales(prevSales => [newSale, ...prevSales])} 
-          initialCartItems={draftSaleItems}
-          onCartLoaded={handleClearDraftSaleItems}
+          sales={sales}
+          onUpdateSale={handleUpdateSale}
         />;
       case 'sales':
         return <Sales sales={sales} />;
