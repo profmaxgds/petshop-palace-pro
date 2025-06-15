@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,16 +7,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Trash2, Calendar, Syringe, AlertTriangle } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Calendar, Syringe, AlertTriangle, Receipt } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import type { Animal, Vaccine, Veterinarian, Breed, Tutor } from '@/types';
+import { SaleItem } from '@/types/sales';
 
 interface VaccinesProps {
   navigationState?: any;
+  onNavigate: (page: string, state?: any) => void;
 }
 
-const Vaccines: React.FC<VaccinesProps> = ({ navigationState }) => {
+const vaccinePrices: { [key: string]: number } = {
+  'V8': 35.00,
+  'V10': 40.00,
+  'V12': 45.00,
+  'Antirrábica': 30.00,
+  'Giárdia': 25.00,
+  'Gripe Canina': 25.00,
+  'Leishmaniose': 50.00,
+  'Tríplice Felina': 35.00,
+  'Quíntupla Felina': 45.00,
+  'FeLV': 55.00,
+};
+
+const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
   const { toast } = useToast();
   const selectedAnimalId = navigationState?.selectedAnimalId;
 
@@ -286,6 +300,38 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState }) => {
     });
   };
 
+  const handleSendToPOS = (vaccine: Vaccine) => {
+    const price = vaccinePrices[vaccine.vaccineType];
+    if (price === undefined) {
+      toast({
+        title: "Preço não encontrado",
+        description: `Não foi possível encontrar um preço para a vacina ${vaccine.vaccineType}.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!vaccine.animal) {
+      toast({
+        title: 'Dados incompletos',
+        description: 'Não é possível enviar para o PDV sem dados do animal.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const saleItem: SaleItem = {
+      id: vaccine.id,
+      name: `Vacina ${vaccine.vaccineType} - ${vaccine.animal.name}`,
+      type: 'service',
+      quantity: 1,
+      unitPrice: price,
+      total: price,
+    };
+
+    onNavigate('point-of-sale', { draftSaleItems: [saleItem] });
+  };
+
   const vaccineTypes = [
     'V8', 'V10', 'V12', 'Antirrábica', 'Giárdia', 'Gripe Canina', 
     'Leishmaniose', 'Tríplice Felina', 'Quíntupla Felina', 'FeLV'
@@ -518,6 +564,15 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState }) => {
                     <TableCell>{vaccine.veterinarian?.name}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSendToPOS(vaccine)}
+                          title="Enviar para o PDV"
+                          disabled={vaccinePrices[vaccine.vaccineType] === undefined}
+                        >
+                          <Receipt className="w-4 h-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"

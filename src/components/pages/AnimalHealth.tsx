@@ -8,10 +8,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Plus, Edit, Trash2, Search, X } from 'lucide-react';
+import { Calendar, Plus, Edit, Trash2, Search, X, Receipt } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { t } from '@/lib/i18n';
 import { Appointment, Animal, ServiceType, Veterinarian, Room } from '@/types';
+import { SaleItem } from '@/types/sales';
 
 interface AppointmentService {
   serviceTypeId: string;
@@ -19,7 +20,11 @@ interface AppointmentService {
   price: number;
 }
 
-const AnimalHealth: React.FC = () => {
+interface AnimalHealthProps {
+  onNavigate: (page: string, state?: any) => void;
+}
+
+const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
   const { toast } = useToast();
 
   // Mock data
@@ -388,6 +393,28 @@ const AnimalHealth: React.FC = () => {
     }
   };
 
+  const handleSendToPOS = (appointment: Appointment) => {
+    if (!appointment.animal || !appointment.serviceType) {
+      toast({
+        title: 'Dados incompletos',
+        description: 'Não é possível enviar para o PDV sem dados do animal e serviço.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const saleItem: SaleItem = {
+      id: appointment.id,
+      name: `${appointment.serviceType.name} - ${appointment.animal.name}`,
+      type: 'service',
+      quantity: 1,
+      unitPrice: appointment.totalPrice,
+      total: appointment.totalPrice,
+    };
+
+    onNavigate('point-of-sale', { draftSaleItems: [saleItem] });
+  };
+
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; variant: any }> = {
       'scheduled': { label: 'Agendado', variant: 'secondary' },
@@ -652,10 +679,18 @@ const AnimalHealth: React.FC = () => {
                     {appointment.appointmentDate.toLocaleDateString('pt-BR')} às {appointment.appointmentTime}
                   </TableCell>
                   <TableCell>{appointment.veterinarian?.name || '-'}</TableCell>
-                  <TableCell>R$ {appointment.totalPrice || appointment.serviceType.price}</TableCell>
+                  <TableCell>R$ {(appointment.totalPrice || appointment.serviceType.price).toFixed(2)}</TableCell>
                   <TableCell>{getStatusBadge(appointment.status)}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSendToPOS(appointment)}
+                        title="Enviar para o PDV"
+                      >
+                        <Receipt className="w-4 h-4" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"

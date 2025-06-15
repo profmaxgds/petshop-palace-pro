@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import Sidebar from '@/components/Sidebar';
@@ -117,11 +118,11 @@ function App() {
       case 'rooms':
         return <Rooms />;
       case 'animal-health':
-        return <AnimalHealth />;
+        return <AnimalHealth onNavigate={handlePageChange} />;
       case 'grooming':
-        return <Grooming />;
+        return <Grooming onNavigate={handlePageChange} />;
       case 'vaccines':
-        return <Vaccines navigationState={navigationState} />;
+        return <Vaccines navigationState={navigationState} onNavigate={handlePageChange} />;
       case 'accounts-payable':
         return <AccountsPayable />;
       case 'accounts-receivable':

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,11 +8,18 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar as CalendarIcon, Scissors, Plus, Edit, Trash2, Search, DollarSign, Clock } from 'lucide-react';
+import { Calendar as CalendarIcon, Scissors, Plus, Edit, Trash2, Search, DollarSign, Clock, Receipt } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { useToast } from '@/hooks/use-toast';
 import type { GroomingService, Animal, ServiceType } from '@/types';
+import { SaleItem } from '@/types/sales';
 
-const Grooming: React.FC = () => {
+interface GroomingProps {
+  onNavigate: (page: string, state?: any) => void;
+}
+
+const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
+  const { toast } = useToast();
   // Mock animals data
   const animals: Animal[] = [
     {
@@ -271,6 +277,28 @@ const Grooming: React.FC = () => {
     setGroomingServices(groomingServices.map(s => 
       s.id === serviceId ? { ...s, status: newStatus } : s
     ));
+  };
+
+  const handleSendToPOS = (service: GroomingService) => {
+    if (!service.animal || !service.serviceType) {
+      toast({
+        title: 'Dados incompletos',
+        description: 'Não é possível enviar para o PDV sem dados do animal e serviço.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const saleItem: SaleItem = {
+      id: service.id,
+      name: `${service.serviceType.name} - ${service.animal.name}`,
+      type: 'service',
+      quantity: 1,
+      unitPrice: service.price || 0,
+      total: service.price || 0,
+    };
+
+    onNavigate('point-of-sale', { draftSaleItems: [saleItem] });
   };
 
   const totalRevenue = groomingServices
@@ -540,6 +568,14 @@ const Grooming: React.FC = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleSendToPOS(service)}
+                            title="Enviar para o PDV"
+                          >
+                            <Receipt className="w-4 h-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
