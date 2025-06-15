@@ -61,7 +61,7 @@ interface ModuleItem {
 const modules: ModuleItem[] = [
   {
     key: 'cadastros',
-    label: 'Cadastros',
+    label: 'Entidades',
     icon: FolderOpen,
     items: [
       { key: 'tutors', icon: Users, label: 'tutors' },
@@ -69,6 +69,7 @@ const modules: ModuleItem[] = [
       { key: 'breeds', icon: PawPrint, label: 'breeds' },
       { key: 'species', icon: PawPrint, label: 'species' },
       { key: 'rooms', icon: Building, label: 'rooms' },
+      { key: 'veterinarians', icon: Stethoscope, label: 'veterinarians' },
     ]
   },
   {
@@ -111,7 +112,6 @@ const modules: ModuleItem[] = [
       { key: 'products', icon: Package, label: 'products' },
       { key: 'product-categories', icon: Tag, label: 'productCategories' },
       { key: 'service-types', icon: ClipboardList, label: 'serviceTypes' },
-      { key: 'veterinarians', icon: Stethoscope, label: 'veterinarians' },
     ]
   },
   {
