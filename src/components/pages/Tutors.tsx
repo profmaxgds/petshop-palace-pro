@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Edit, Trash2, User, Phone, Mail, MapPin } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import type { Tutor, Animal, Breed } from '@/types';
+import AnimalForm from './animals/AnimalForm';
 
 const Tutors: React.FC = () => {
   const mockBreeds: Breed[] = [
@@ -143,6 +143,19 @@ const Tutors: React.FC = () => {
     },
   });
 
+  // Animal Form State
+  const [isAnimalFormOpen, setIsAnimalFormOpen] = useState(false);
+  const [editingAnimal, setEditingAnimal] = useState<Animal | null>(null);
+  const [animalFormData, setAnimalFormData] = useState({
+    name: '',
+    species: 'dog' as 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other',
+    breedId: '',
+    age: 0,
+    sex: 'male' as 'male' | 'female',
+    weight: 0,
+    tutorId: '',
+  });
+
   const filteredTutors = tutors.filter(tutor =>
     tutor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tutor.cpf?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -218,6 +231,85 @@ const Tutors: React.FC = () => {
 
   const getTutorAnimals = (tutorId: string) => {
     return animals.filter(animal => animal.tutorId === tutorId);
+  };
+
+  // Animal Handlers
+  const handleAddNewAnimal = (tutorId: string) => {
+    setEditingAnimal(null);
+    setAnimalFormData({
+      name: '',
+      species: 'dog',
+      breedId: '',
+      age: 0,
+      sex: 'male',
+      weight: 0,
+      tutorId: tutorId,
+    });
+    setIsAnimalFormOpen(true);
+  };
+
+  const handleEditAnimal = (animal: Animal) => {
+    setEditingAnimal(animal);
+    setAnimalFormData({
+      name: animal.name,
+      species: animal.species,
+      breedId: animal.breedId || '',
+      age: animal.age || 0,
+      sex: animal.sex,
+      weight: animal.weight || 0,
+      tutorId: animal.tutorId,
+    });
+    setIsAnimalFormOpen(true);
+  };
+
+  const handleDeleteAnimal = (animalId: string) => {
+    if (window.confirm('Tem certeza que deseja excluir este animal?')) {
+      setAnimals(animals.filter(a => a.id !== animalId));
+    }
+  };
+
+  const handleCloseAnimalDialog = () => {
+    setIsAnimalFormOpen(false);
+    setEditingAnimal(null);
+    setAnimalFormData({
+      name: '',
+      species: 'dog',
+      breedId: '',
+      age: 0,
+      sex: 'male',
+      weight: 0,
+      tutorId: '',
+    });
+  };
+
+  const handleSaveAnimal = () => {
+    if (!animalFormData.species || !animalFormData.name || !animalFormData.tutorId) {
+      return;
+    }
+
+    const selectedTutor = tutors.find(t => t.id === animalFormData.tutorId);
+    const selectedBreed = mockBreeds.find(b => b.id === animalFormData.breedId);
+
+    if (editingAnimal) {
+      setAnimals(animals.map(a =>
+        a.id === editingAnimal.id
+          ? { ...editingAnimal, ...animalFormData, tutor: selectedTutor!, breed: selectedBreed, updatedAt: new Date() }
+          : a
+      ));
+    } else {
+      const newAnimal: Animal = {
+        id: Date.now().toString(),
+        ...animalFormData,
+        tutor: selectedTutor!,
+        breed: selectedBreed,
+        isActive: true,
+        createdBy: 'current-user',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      setAnimals([...animals, newAnimal]);
+    }
+    handleCloseAnimalDialog();
   };
 
   return (
@@ -448,15 +540,30 @@ const Tutors: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-col gap-2 items-start">
                           {tutorAnimals.map((animal) => (
-                            <Badge key={animal.id} variant="secondary" className="text-xs">
-                              {animal.name}
-                            </Badge>
+                            <div key={animal.id} className="flex items-center justify-between w-full text-sm p-1 rounded-md hover:bg-gray-50">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{animal.name}</span>
+                                <Badge variant="outline" className="text-xs">{t(animal.species)}</Badge>
+                              </div>
+                              <div className="flex gap-1">
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditAnimal(animal)}>
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600 hover:text-red-700" onClick={() => handleDeleteAnimal(animal.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
                           ))}
                           {tutorAnimals.length === 0 && (
-                            <span className="text-gray-400 text-sm">Nenhum animal</span>
+                            <span className="text-gray-400 text-sm px-1">Nenhum animal</span>
                           )}
+                           <Button variant="outline" size="sm" className="mt-2 w-full" onClick={() => handleAddNewAnimal(tutor.id)}>
+                              <Plus className="w-4 h-4 mr-2" />
+                              Adicionar Animal
+                            </Button>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -486,6 +593,17 @@ const Tutors: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      <AnimalForm
+        isOpen={isAnimalFormOpen}
+        onClose={handleCloseAnimalDialog}
+        onSave={handleSaveAnimal}
+        editingAnimal={editingAnimal}
+        formData={animalFormData}
+        setFormData={setAnimalFormData}
+        tutors={tutors}
+        breeds={mockBreeds}
+      />
     </div>
   );
 };
