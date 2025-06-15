@@ -330,11 +330,12 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
     };
     
     toast({
-      title: "Enviando para o PDV",
-      description: "A venda foi gerada e está sendo enviada para o Ponto de Venda.",
+      title: "Venda Pendente Criada",
+      description: "A venda foi enviada para o PDV e aguarda finalização.",
     });
     
-    onNavigate('point-of-sale', { newPendingSale: newSale });
+    // Send the new sale to the parent component without navigating away
+    onNavigate('vaccines', { newPendingSale: newSale });
   };
 
 
