@@ -31,7 +31,8 @@ import {
   PawPrint,
   FileText,
   BarChart3,
-  Shield
+  Shield,
+  ShoppingBag
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
@@ -78,6 +79,15 @@ const modules: ModuleItem[] = [
       { key: 'animal-health', icon: Stethoscope, label: 'animalHealth' },
       { key: 'grooming', icon: Scissors, label: 'grooming' },
       { key: 'vaccines', icon: Syringe, label: 'vaccines' },
+    ]
+  },
+  {
+    key: 'vendas',
+    label: 'Vendas',
+    icon: ShoppingCart,
+    items: [
+      { key: 'point-of-sale', icon: ShoppingCart, label: 'PDV' },
+      { key: 'sales', icon: ShoppingBag, label: 'Histórico' },
     ]
   },
   {
@@ -149,7 +159,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       'servicos': 'appointments',
       'financeiro': 'financial',
       'produtos-estoque': 'products',
-      'sistema': 'system'
+      'sistema': 'system',
+      'vendas': 'sales'
     };
 
     return hasPermission(modulePermissions[moduleKey]);
@@ -175,6 +186,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       'product-categories': { module: 'products', action: 'write' },
       'service-types': { module: 'system', action: 'write' },
       'veterinarians': { module: 'system', action: 'write' },
+      'point-of-sale': { module: 'sales' },
+      'sales': { module: 'sales' },
       'users': { module: 'system', action: 'write' },
       'profiles': { module: 'system', action: 'write' },
       'vaccine-card-layout': { module: 'system', action: 'write' },
