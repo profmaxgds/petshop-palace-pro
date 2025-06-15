@@ -13,13 +13,13 @@ const ClinicSettings: React.FC = () => {
   const { toast } = useToast();
 
   const [settings, setSettings] = useState<Partial<ClinicSettingsType>>({
-    allowAnimalDoubleBooking: true,
-    allowVetDoubleBooking: false,
-    blockBookingOutsideWorkHours: true,
+    preventAnimalDoubleBooking: true,
+    preventVetDoubleBooking: true,
+    preventBookingOutsideWorkHours: true,
     allowDoubleBookingForExamServices: true,
   });
 
-  const handleSettingChange = (key: keyof typeof settings, value: boolean) => {
+  const handleSettingChange = (key: keyof ClinicSettingsType, value: boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
   
@@ -50,32 +50,32 @@ const ClinicSettings: React.FC = () => {
         <CardContent className="space-y-4">
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="allowAnimalDoubleBooking" className="font-semibold text-base">{t('allowAnimalDoubleBooking')}</Label>
-              <p className="text-sm text-gray-500">{t('allowAnimalDoubleBookingDesc')}</p>
+              <Label htmlFor="preventAnimalDoubleBooking" className="font-semibold text-base">Impedir agendamento duplo para o mesmo animal</Label>
+              <p className="text-sm text-gray-500">Não permite que o mesmo animal tenha dois agendamentos (exceto exames) no mesmo horário.</p>
             </div>
             <Switch
-              id="allowAnimalDoubleBooking"
-              checked={settings.allowAnimalDoubleBooking}
-              onCheckedChange={(value) => handleSettingChange('allowAnimalDoubleBooking', value)}
+              id="preventAnimalDoubleBooking"
+              checked={settings.preventAnimalDoubleBooking}
+              onCheckedChange={(value) => handleSettingChange('preventAnimalDoubleBooking', value)}
             />
           </div>
           
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="allowVetDoubleBooking" className="font-semibold text-base">{t('allowVetDoubleBooking')}</Label>
-              <p className="text-sm text-gray-500">{t('allowVetDoubleBookingDesc')}</p>
+              <Label htmlFor="preventVetDoubleBooking" className="font-semibold text-base">Impedir agendamento duplo para o mesmo veterinário</Label>
+              <p className="text-sm text-gray-500">Não permite que o mesmo veterinário atenda dois animais (exceto em exames) no mesmo horário.</p>
             </div>
             <Switch
-              id="allowVetDoubleBooking"
-              checked={settings.allowVetDoubleBooking}
-              onCheckedChange={(value) => handleSettingChange('allowVetDoubleBooking', value)}
+              id="preventVetDoubleBooking"
+              checked={settings.preventVetDoubleBooking}
+              onCheckedChange={(value) => handleSettingChange('preventVetDoubleBooking', value)}
             />
           </div>
 
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="allowDoubleBookingForExamServices" className="font-semibold text-base">{t('allowDoubleBookingForExams')}</Label>
-              <p className="text-sm text-gray-500">{t('allowDoubleBookingForExamsDesc')}</p>
+              <Label htmlFor="allowDoubleBookingForExamServices" className="font-semibold text-base">Permitir agendamento duplo para exames</Label>
+              <p className="text-sm text-gray-500">Permite que múltiplos exames sejam agendados para o mesmo animal ou veterinário no mesmo horário.</p>
             </div>
             <Switch
               id="allowDoubleBookingForExamServices"
@@ -86,13 +86,13 @@ const ClinicSettings: React.FC = () => {
           
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="blockBookingOutsideWorkHours" className="font-semibold text-base">{t('blockBookingOutsideWorkHours')}</Label>
-              <p className="text-sm text-gray-500">{t('blockBookingOutsideWorkHoursDesc')}</p>
+              <Label htmlFor="preventBookingOutsideWorkHours" className="font-semibold text-base">Impedir agendamentos fora do expediente</Label>
+              <p className="text-sm text-gray-500">Só permite agendamentos dentro do horário de trabalho cadastrado para o veterinário.</p>
             </div>
             <Switch
-              id="blockBookingOutsideWorkHours"
-              checked={settings.blockBookingOutsideWorkHours}
-              onCheckedChange={(value) => handleSettingChange('blockBookingOutsideWorkHours', value)}
+              id="preventBookingOutsideWorkHours"
+              checked={settings.preventBookingOutsideWorkHours}
+              onCheckedChange={(value) => handleSettingChange('preventBookingOutsideWorkHours', value)}
             />
           </div>
           

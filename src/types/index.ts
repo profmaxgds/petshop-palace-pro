@@ -286,9 +286,9 @@ export interface CashTransaction {
 
 export interface ClinicSettings {
   id: string;
-  allowAnimalDoubleBooking: boolean;
-  allowVetDoubleBooking: boolean;
-  blockBookingOutsideWorkHours: boolean;
+  preventAnimalDoubleBooking: boolean;
+  preventVetDoubleBooking: boolean;
+  preventBookingOutsideWorkHours: boolean;
   allowDoubleBookingForExamServices: boolean;
   createdAt: Date;
   updatedAt: Date;

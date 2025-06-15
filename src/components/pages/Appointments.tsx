@@ -7,9 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Search, Stethoscope, Package, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Stethoscope, Package, X, Play } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Animal, Veterinarian, ServiceType, Appointment, Room, Breed, Tutor, Product, WorkSchedule } from '@/types';
+import type { Animal, Veterinarian, ServiceType, Appointment, Room, Breed, Tutor, Product, WorkSchedule, ClinicSettings as ClinicSettingsType } from '@/types';
 import { Textarea } from '@/components/ui/textarea';
 
 const Appointments: React.FC = () => {
@@ -251,6 +251,16 @@ const Appointments: React.FC = () => {
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [productSearch, setProductSearch] = useState('');
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [isExecuteDialogOpen, setIsExecuteDialogOpen] = useState(false);
+  const [executingAppointment, setExecutingAppointment] = useState<Appointment | null>(null);
+  const [productDialogContext, setProductDialogContext] = useState<'form' | 'execution'>('form');
+
+  const [clinicSettings, setClinicSettings] = useState<Partial<ClinicSettingsType>>({
+    preventAnimalDoubleBooking: true,
+    preventVetDoubleBooking: true,
+    preventBookingOutsideWorkHours: true,
+    allowDoubleBookingForExamServices: true,
+  });
 
   const initialFormState = {
     animalId: '',
@@ -301,7 +311,7 @@ const Appointments: React.FC = () => {
     const dayOfWeek = (['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as (keyof WorkSchedule)[])[dayIndex];
 
     // 1. Vet availability check
-    if (veterinarian && veterinarian.schedule) {
+    if (clinicSettings.preventBookingOutsideWorkHours && veterinarian && veterinarian.schedule) {
         const vetSchedule = veterinarian.schedule[dayOfWeek];
         if (!vetSchedule || !vetSchedule.active || appointmentTime < vetSchedule.start || appointmentTime > vetSchedule.end) {
             alert(t('vetUnavailable'));
@@ -309,30 +319,30 @@ const Appointments: React.FC = () => {
         }
     }
     
-    const isClashableService = serviceType.category !== 'exam';
+    const performClashCheck = !(serviceType.category === 'exam' && clinicSettings.allowDoubleBookingForExamServices);
 
-    if (isClashableService) {
+    if (performClashCheck) {
         // 2. Animal double-booking check
-        const animalHasClash = appointments.some(apt =>
-            apt.id !== editingAppointment?.id &&
-            apt.animalId === animalId &&
-            new Date(apt.appointmentDate).toDateString() === appointmentDate.toDateString() &&
-            apt.appointmentTime === appointmentTime &&
-            apt.serviceType.category !== 'exam'
-        );
-        if (animalHasClash) {
-            alert(t('animalDoubleBooked'));
-            return;
+        if (clinicSettings.preventAnimalDoubleBooking) {
+            const animalHasClash = appointments.some(apt =>
+                apt.id !== editingAppointment?.id &&
+                apt.animalId === animalId &&
+                new Date(apt.appointmentDate).toDateString() === appointmentDate.toDateString() &&
+                apt.appointmentTime === appointmentTime
+            );
+            if (animalHasClash) {
+                alert(t('animalDoubleBooked'));
+                return;
+            }
         }
 
         // 3. Vet double-booking check
-        if (veterinarian) {
+        if (clinicSettings.preventVetDoubleBooking && veterinarian) {
             const vetHasClash = appointments.some(apt => 
                 apt.id !== editingAppointment?.id &&
                 apt.veterinarianId === veterinarian.id &&
                 new Date(apt.appointmentDate).toDateString() === appointmentDate.toDateString() &&
-                apt.appointmentTime === appointmentTime &&
-                apt.serviceType.category !== 'exam'
+                apt.appointmentTime === appointmentTime
             );
             if (vetHasClash) {
                 alert(t('vetDoubleBooked'));
@@ -455,6 +465,59 @@ const Appointments: React.FC = () => {
       ...prev,
       products: prev.products.filter(p => p.productId !== productId)
     }));
+  }
+
+  const handleOpenExecuteDialog = (appointment: Appointment) => {
+    setExecutingAppointment({ ...appointment });
+    setIsExecuteDialogOpen(true);
+  };
+
+  const handleStartService = () => {
+    if (!executingAppointment) return;
+    
+    setAppointments(appointments.map(apt => 
+        apt.id === executingAppointment.id
+        ? { ...executingAppointment, status: 'in_progress', updatedAt: new Date() }
+        : apt
+    ));
+
+    setIsExecuteDialogOpen(false);
+    setExecutingAppointment(null);
+  };
+
+  const openProductDialog = (context: 'form' | 'execution') => {
+    setProductDialogContext(context);
+    setIsProductDialogOpen(true);
+  };
+
+  const handleSelectProduct = (product: Product, quantity: number) => {
+    if (quantity <= 0) return;
+
+    if (productDialogContext === 'execution' && executingAppointment) {
+      setExecutingAppointment(prev => {
+        if (!prev) return null;
+        const existingProducts = prev.products || [];
+        const newProduct = { product, productId: product.id, quantity };
+        return { ...prev, products: [...existingProducts, newProduct] };
+      });
+    } else {
+      setAppointmentForm(prev => ({
+        ...prev,
+        products: [...prev.products, { product, productId: product.id, quantity }]
+      }));
+    }
+    setIsProductDialogOpen(false);
+  };
+
+  const handleRemoveProductFromExecution = (productId: string) => {
+    if (!executingAppointment) return;
+    setExecutingAppointment(prev => {
+        if (!prev) return null;
+        return {
+            ...prev,
+            products: prev.products?.filter(p => p.productId !== productId) || []
+        }
+    });
   }
 
   const filteredProducts = mockProducts.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase()));
@@ -604,7 +667,7 @@ const Appointments: React.FC = () => {
                   <div className="md:col-span-2 border-t pt-4 mt-4">
                     <div className="flex justify-between items-center mb-2">
                         <Label className="text-base font-semibold">{t('products')}</Label>
-                        <Button variant="outline" size="sm" onClick={() => setIsProductDialogOpen(true)}>
+                        <Button variant="outline" size="sm" onClick={() => openProductDialog('form')}>
                             <Plus className="w-4 h-4 mr-2" />
                             {t('addProduct')}
                         </Button>
@@ -642,34 +705,93 @@ const Appointments: React.FC = () => {
               </DialogContent>
             </Dialog>
 
+            {/* Execute Appointment Dialog */}
+            <Dialog open={isExecuteDialogOpen} onOpenChange={setIsExecuteDialogOpen}>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Iniciar Atendimento</DialogTitle>
+                  <DialogDescription>
+                    Confirme os detalhes do agendamento e adicione produtos se necessário.
+                  </DialogDescription>
+                </DialogHeader>
+                {executingAppointment && (
+                  <div className="py-4 space-y-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm p-4 border rounded-lg bg-gray-50">
+                      <div><strong className="block text-gray-500">Animal:</strong> {executingAppointment.animal.name}</div>
+                      <div><strong className="block text-gray-500">Tutor:</strong> {executingAppointment.animal.tutor.name}</div>
+                      <div><strong className="block text-gray-500">Serviço:</strong> {executingAppointment.serviceType.name}</div>
+                      <div><strong className="block text-gray-500">Data/Hora:</strong> {executingAppointment.appointmentDate.toLocaleDateString('pt-BR')} às {executingAppointment.appointmentTime}</div>
+                      <div className="col-span-2"><strong className="block text-gray-500">Veterinário:</strong> {executingAppointment.veterinarian?.name || 'N/A'}</div>
+                    </div>
+                    <div className="border-t pt-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <Label className="text-base font-semibold">{t('products')}</Label>
+                        <Button variant="outline" size="sm" onClick={() => openProductDialog('execution')}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          {t('addProduct')}
+                        </Button>
+                      </div>
+                      <div className="space-y-2 max-h-40 overflow-y-auto p-1">
+                        {executingAppointment.products && executingAppointment.products.map(p => (
+                          <div key={p.productId} className="flex items-center justify-between p-2 border rounded-md">
+                            <div>
+                              <p className="font-medium">{p.product.name}</p>
+                              <p className="text-sm text-gray-500">R$ {p.product.salePrice?.toFixed(2)}</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <span>{t('quantity')}: {p.quantity}</span>
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveProductFromExecution(p.productId)}>
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                        {(!executingAppointment.products || executingAppointment.products.length === 0) && (
+                          <p className="text-sm text-gray-500 text-center py-2">{t('noProductsAdded')}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsExecuteDialogOpen(false)}>Cancelar</Button>
+                  <Button onClick={handleStartService} className="bg-green-600 hover:bg-green-700">
+                    <Play className="w-4 h-4 mr-2" />
+                    Iniciar Atendimento
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
             {/* Product Selection Dialog */}
             <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>{t('selectProduct')}</DialogTitle>
-                    </DialogHeader>
-                    <div className="py-4">
-                        <Input placeholder={t('searchProduct')} value={productSearch} onChange={e => setProductSearch(e.target.value)} />
-                        <div className="mt-4 max-h-60 overflow-y-auto space-y-2">
-                            {filteredProducts.map(p => {
-                                let tempQuantity = 1;
-                                return (
-                                <div key={p.id} className="flex items-center justify-between p-2 border rounded-md">
-                                    <div>
-                                        <p className="font-medium">{p.name}</p>
-                                        <p className="text-sm text-gray-500">R$ {p.salePrice?.toFixed(2)}</p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Input type="number" min="1" defaultValue="1" className="w-20" onChange={e => tempQuantity = parseInt(e.target.value) || 1} />
-                                        <Button size="sm" onClick={() => handleAddProduct(p, tempQuantity)}>
-                                            <Plus className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            )})}
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{t('selectProduct')}</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <Input placeholder={t('searchProduct')} value={productSearch} onChange={e => setProductSearch(e.target.value)} />
+                  <div className="mt-4 max-h-60 overflow-y-auto space-y-2">
+                    {filteredProducts.map(p => {
+                      let tempQuantity = 1;
+                      return (
+                        <div key={p.id} className="flex items-center justify-between p-2 border rounded-md">
+                          <div>
+                            <p className="font-medium">{p.name}</p>
+                            <p className="text-sm text-gray-500">R$ {p.salePrice?.toFixed(2)}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Input type="number" min="1" defaultValue="1" className="w-20" onChange={e => tempQuantity = parseInt(e.target.value) || 1} />
+                            <Button size="sm" onClick={() => handleSelectProduct(p, tempQuantity)}>
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                    </div>
-                </DialogContent>
+                      )
+                    })}
+                  </div>
+                </div>
+              </DialogContent>
             </Dialog>
           </div>
         </CardHeader>
@@ -733,19 +855,30 @@ const Appointments: React.FC = () => {
                     </TableCell>
                     <TableCell>{getStatusBadge(appointment.status)}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end space-x-2">
+                      <div className="flex items-center justify-end space-x-1">
+                        {['scheduled', 'confirmed'].includes(appointment.status) && (
+                           <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleOpenExecuteDialog(appointment)}
+                              className="text-green-600 hover:text-green-800 h-8 w-8"
+                            >
+                              <Play className="w-4 h-4" />
+                            </Button>
+                        )}
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
                           onClick={() => handleEditAppointment(appointment)}
+                          className="h-8 w-8"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
                           onClick={() => handleDeleteAppointment(appointment.id)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 hover:text-red-800 h-8 w-8"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
