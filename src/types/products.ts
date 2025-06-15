@@ -1,8 +1,16 @@
 
+export interface ProductCategory {
+  id: string;
+  name: string;
+  description?: string;
+  isVaccine?: boolean;
+  isActive: boolean;
+}
+
 export interface Product {
   id: string;
   name: string;
-  category: string;
+  categoryId: string;
   quantity: number;
   minQuantity: number;
   costPrice: number;
@@ -10,6 +18,12 @@ export interface Product {
   supplier: string;
   createdAt: Date;
   updatedAt: Date;
+  // Vaccine specific fields
+  batch?: string;
+  expirationDate?: string;
+  vaccineType?: string;
+  manufacturer?: string;
+  mapaRegistration?: string;
 }
 
 export interface PurchaseItem {
