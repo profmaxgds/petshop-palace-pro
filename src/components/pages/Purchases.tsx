@@ -34,7 +34,7 @@ const Purchases = () => {
     {
       id: '1',
       name: 'Ração Premium Cães Adultos',
-      category: 'Ração',
+      categoryId: 'cat1',
       quantity: 50,
       minQuantity: 10,
       costPrice: 45.00,
@@ -46,7 +46,7 @@ const Purchases = () => {
     {
       id: '2',
       name: 'Antipulgas Gatos',
-      category: 'Medicamentos',
+      categoryId: 'cat2',
       quantity: 25,
       minQuantity: 5,
       costPrice: 25.00,

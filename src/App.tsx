@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import Sidebar from '@/components/Sidebar';
@@ -63,9 +64,9 @@ const mockAnimals: Animal[] = [
 
 // Mock data for products and services
 const mockProducts: Product[] = [
-    { id: 'prod-1', name: 'Ração Premium 15kg', category: 'Alimentação', quantity: 50, minQuantity: 10, costPrice: 60.00, salePrice: 89.90, supplier: 'Fornecedor A', createdAt: new Date(), updatedAt: new Date() },
-    { id: 'prod-2', name: 'Brinquedo de Corda', category: 'Brinquedos', quantity: 100, minQuantity: 20, costPrice: 10.00, salePrice: 25.00, supplier: 'Fornecedor B', createdAt: new Date(), updatedAt: new Date() },
-    { id: 'prod-3', name: 'Shampoo Hipoalergênico', category: 'Higiene', quantity: 30, minQuantity: 5, costPrice: 25.00, salePrice: 45.00, supplier: 'Fornecedor A', createdAt: new Date(), updatedAt: new Date() },
+    { id: 'prod-1', name: 'Ração Premium 15kg', categoryId: 'cat1', quantity: 50, minQuantity: 10, costPrice: 60.00, salePrice: 89.90, supplier: 'Fornecedor A', createdAt: new Date(), updatedAt: new Date() },
+    { id: 'prod-2', name: 'Brinquedo de Corda', categoryId: 'cat3', quantity: 100, minQuantity: 20, costPrice: 10.00, salePrice: 25.00, supplier: 'Fornecedor B', createdAt: new Date(), updatedAt: new Date() },
+    { id: 'prod-3', name: 'Shampoo Hipoalergênico', categoryId: 'cat5', quantity: 30, minQuantity: 5, costPrice: 25.00, salePrice: 45.00, supplier: 'Fornecedor A', createdAt: new Date(), updatedAt: new Date() },
 ];
 
 const mockServices: Service[] = [

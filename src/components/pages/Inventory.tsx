@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,14 +7,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Package, Search, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Product } from '@/types/products';
+import { Product, ProductCategory } from '@/types/products';
 
 const Inventory = () => {
+  const [categories] = useState<ProductCategory[]>([
+    { id: 'cat1', name: 'Ração', isActive: true, isVaccine: false },
+    { id: 'cat2', name: 'Medicamentos', isActive: true, isVaccine: false },
+    { id: 'cat3', name: 'Brinquedos', isActive: true, isVaccine: false },
+    { id: 'cat4', name: 'Acessórios', isActive: true, isVaccine: false },
+    { id: 'cat5', name: 'Higiene', isActive: true, isVaccine: false },
+    { id: 'cat6', name: 'Petiscos', isActive: true, isVaccine: false },
+    { id: 'cat7', name: 'Vacinas', isActive: true, isVaccine: true },
+  ]);
+
   const [products, setProducts] = useState<Product[]>([
     {
       id: '1',
       name: 'Ração Premium Cães Adultos',
-      category: 'Ração',
+      categoryId: 'cat1',
       quantity: 50,
       minQuantity: 10,
       costPrice: 45.00,
@@ -27,7 +36,7 @@ const Inventory = () => {
     {
       id: '2',
       name: 'Antipulgas Gatos',
-      category: 'Medicamentos',
+      categoryId: 'cat2',
       quantity: 3,
       minQuantity: 5,
       costPrice: 25.00,
@@ -143,40 +152,43 @@ const Inventory = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map((product) => (
-                  <tr key={product.id} className="border-b hover:bg-gray-50">
-                    <td className="p-2">
-                      <div className="flex items-center space-x-2">
-                        <Package className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">{product.name}</span>
-                      </div>
-                    </td>
-                    <td className="p-2">
-                      <Badge variant="outline">{product.category}</Badge>
-                    </td>
-                    <td className="p-2">
-                      <span className="font-bold text-lg">{product.quantity}</span>
-                    </td>
-                    <td className="p-2">{product.minQuantity}</td>
-                    <td className="p-2">R$ {(product.quantity * product.costPrice).toFixed(2)}</td>
-                    <td className="p-2">
-                      {product.quantity <= product.minQuantity ? (
-                        <Badge variant="destructive">Baixo</Badge>
-                      ) : (
-                        <Badge className="bg-green-100 text-green-800">Normal</Badge>
-                      )}
-                    </td>
-                    <td className="p-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openAdjustmentDialog(product)}
-                      >
-                        Ajustar
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                {filteredProducts.map((product) => {
+                  const category = categories.find(c => c.id === product.categoryId);
+                  return (
+                    <tr key={product.id} className="border-b hover:bg-gray-50">
+                      <td className="p-2">
+                        <div className="flex items-center space-x-2">
+                          <Package className="w-4 h-4 text-gray-400" />
+                          <span className="font-medium">{product.name}</span>
+                        </div>
+                      </td>
+                      <td className="p-2">
+                        <Badge variant="outline">{category ? category.name : 'N/A'}</Badge>
+                      </td>
+                      <td className="p-2">
+                        <span className="font-bold text-lg">{product.quantity}</span>
+                      </td>
+                      <td className="p-2">{product.minQuantity}</td>
+                      <td className="p-2">R$ {(product.quantity * product.costPrice).toFixed(2)}</td>
+                      <td className="p-2">
+                        {product.quantity <= product.minQuantity ? (
+                          <Badge variant="destructive">Baixo</Badge>
+                        ) : (
+                          <Badge className="bg-green-100 text-green-800">Normal</Badge>
+                        )}
+                      </td>
+                      <td className="p-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openAdjustmentDialog(product)}
+                        >
+                          Ajustar
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
