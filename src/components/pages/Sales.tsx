@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -11,68 +10,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Search, Eye, FileText, Printer, Plus, Filter, ShoppingBag, Receipt } from 'lucide-react';
+import { Search, Eye, Receipt, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { t } from '@/lib/i18n';
+import { Sale, SaleItem } from '@/types/sales';
 
-interface SaleItem {
-  id: string;
-  name: string;
-  type: 'product' | 'service';
-  quantity: number;
-  unitPrice: number;
-  total: number;
-}
-
-interface Sale {
-  id: string;
-  date: Date;
-  customerName: string;
-  customerPhone?: string;
-  items: SaleItem[];
-  subtotal: number;
-  discount: number;
-  total: number;
-  paymentMethod: string;
-  status: 'completed' | 'pending' | 'cancelled';
-  notes?: string;
-}
-
-const Sales: React.FC = () => {
+const Sales: React.FC<{ sales: Sale[] }> = ({ sales }) => {
   const { toast } = useToast();
   
-  const [sales, setSales] = useState<Sale[]>([
-    {
-      id: '1',
-      date: new Date(),
-      customerName: 'João Silva',
-      customerPhone: '(11) 99999-1111',
-      items: [
-        { id: '1', name: 'Consulta Veterinária', type: 'service', quantity: 1, unitPrice: 120.00, total: 120.00 },
-        { id: '2', name: 'Ração Premium 15kg', type: 'product', quantity: 1, unitPrice: 89.90, total: 89.90 },
-      ],
-      subtotal: 209.90,
-      discount: 0,
-      total: 209.90,
-      paymentMethod: 'Cartão',
-      status: 'completed',
-    },
-    {
-      id: '2',
-      date: new Date(Date.now() - 86400000),
-      customerName: 'Maria Santos',
-      customerPhone: '(11) 99999-2222',
-      items: [
-        { id: '3', name: 'Banho e Tosa', type: 'service', quantity: 1, unitPrice: 45.00, total: 45.00 },
-      ],
-      subtotal: 45.00,
-      discount: 5.00,
-      total: 40.00,
-      paymentMethod: 'Dinheiro',
-      status: 'completed',
-    },
-  ]);
-
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');

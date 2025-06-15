@@ -1,5 +1,7 @@
 
 import React, { useState } from 'react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,17 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ShoppingCart, Plus, Minus, Trash2, Calculator, CreditCard, Banknote, Receipt } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Sale, SaleItem } from '@/types/sales';
 
-interface SaleItem {
-  id: string;
-  name: string;
-  type: 'product' | 'service';
-  price: number;
-  quantity: number;
-  total: number;
-}
-
-const PointOfSale: React.FC = () => {
+const PointOfSale: React.FC<{ onSaleCompleted: (sale: Sale) => void }> = ({ onSaleCompleted }) => {
   const { toast } = useToast();
   
   const [cartItems, setCartItems] = useState<SaleItem[]>([]);
@@ -52,7 +46,7 @@ const PointOfSale: React.FC = () => {
     if (existingItem) {
       setCartItems(cartItems.map(cartItem =>
         cartItem.id === item.id
-          ? { ...cartItem, quantity: cartItem.quantity + 1, total: (cartItem.quantity + 1) * cartItem.price }
+          ? { ...cartItem, quantity: cartItem.quantity + 1, total: (cartItem.quantity + 1) * cartItem.unitPrice }
           : cartItem
       ));
     } else {
@@ -60,7 +54,7 @@ const PointOfSale: React.FC = () => {
         id: item.id,
         name: item.name,
         type: item.type,
-        price: item.price,
+        unitPrice: item.price,
         quantity: 1,
         total: item.price
       }]);
@@ -75,7 +69,7 @@ const PointOfSale: React.FC = () => {
     
     setCartItems(cartItems.map(item =>
       item.id === id
-        ? { ...item, quantity: newQuantity, total: newQuantity * item.price }
+        ? { ...item, quantity: newQuantity, total: newQuantity * item.unitPrice }
         : item
     ));
   };
@@ -90,7 +84,61 @@ const PointOfSale: React.FC = () => {
 
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
-    return subtotal - (subtotal * discount / 100);
+    const discountAmount = subtotal * (discount / 100);
+    return subtotal - discountAmount;
+  };
+  
+  const getPaymentMethodName = (method: string) => {
+    switch (method) {
+      case 'cash': return 'Dinheiro';
+      case 'card': return 'Cartão';
+      case 'pix': return 'PIX';
+      case 'check': return 'Cheque';
+      default: return 'Outro';
+    }
+  };
+  
+  const generateInvoice = (sale: Sale) => {
+    const invoiceContent = `
+FATURA - PetShop System
+========================
+
+Venda: ${sale.id}
+Data: ${format(sale.date, 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+Cliente: ${sale.customerName}
+${sale.customerPhone ? `Telefone: ${sale.customerPhone}` : ''}
+
+ITENS:
+${sale.items.map(item => 
+  `${item.name} - Qtd: ${item.quantity} x R$ ${item.unitPrice.toFixed(2)} = R$ ${item.total.toFixed(2)}`
+).join('\n')}
+
+Subtotal: R$ ${sale.subtotal.toFixed(2)}
+${sale.discount > 0 ? `Desconto: R$ ${sale.discount.toFixed(2)}` : ''}
+TOTAL: R$ ${sale.total.toFixed(2)}
+
+Forma de Pagamento: ${sale.paymentMethod}
+`;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Fatura - ${sale.id}</title>
+            <style>
+              body { font-family: monospace; padding: 20px; }
+              pre { white-space: pre-wrap; }
+            </style>
+          </head>
+          <body>
+            <pre>${invoiceContent}</pre>
+            <script>window.print();</script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
   };
 
   const processSale = () => {
@@ -112,17 +160,38 @@ const PointOfSale: React.FC = () => {
       return;
     }
 
-    // Process sale logic here
+    const subtotal = calculateSubtotal();
+    const discountAmount = subtotal * (discount / 100);
+    const total = subtotal - discountAmount;
+    
+    const selectedCustomerData = customers.find(c => c.id === selectedCustomer);
+
+    const newSale: Sale = {
+      id: String(Date.now()),
+      date: new Date(),
+      customerName: selectedCustomerData ? selectedCustomerData.name : 'Cliente não identificado',
+      customerPhone: selectedCustomerData?.phone,
+      items: cartItems,
+      subtotal: subtotal,
+      discount: discountAmount,
+      total: total,
+      paymentMethod: getPaymentMethodName(paymentMethod),
+      status: 'completed',
+    };
+    
+    onSaleCompleted(newSale);
+    generateInvoice(newSale);
+
     toast({
       title: "Venda finalizada",
-      description: `Venda de R$ ${calculateTotal().toFixed(2)} processada com sucesso!`,
+      description: `Venda de R$ ${total.toFixed(2)} processada com sucesso!`,
     });
 
-    // Clear cart
     setCartItems([]);
     setSelectedCustomer('');
     setPaymentMethod('');
     setDiscount(0);
+    setSearchTerm('');
   };
 
   const clearCart = () => {

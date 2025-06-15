@@ -26,6 +26,7 @@ import Reports from '@/components/pages/Reports';
 import Settings from '@/components/pages/Settings';
 import PointOfSale from '@/components/pages/PointOfSale';
 import Sales from '@/components/pages/Sales';
+import { Sale } from '@/types/sales';
 
 // Mock user data
 const mockUser = {
@@ -40,6 +41,37 @@ function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [navigationState, setNavigationState] = useState<any>(null);
+  const [sales, setSales] = useState<Sale[]>([
+    {
+      id: '1',
+      date: new Date(),
+      customerName: 'João Silva',
+      customerPhone: '(11) 99999-1111',
+      items: [
+        { id: '1', name: 'Consulta Veterinária', type: 'service', quantity: 1, unitPrice: 120.00, total: 120.00 },
+        { id: '2', name: 'Ração Premium 15kg', type: 'product', quantity: 1, unitPrice: 89.90, total: 89.90 },
+      ],
+      subtotal: 209.90,
+      discount: 0,
+      total: 209.90,
+      paymentMethod: 'Cartão',
+      status: 'completed',
+    },
+    {
+      id: '2',
+      date: new Date(Date.now() - 86400000),
+      customerName: 'Maria Santos',
+      customerPhone: '(11) 99999-2222',
+      items: [
+        { id: '3', name: 'Banho e Tosa', type: 'service', quantity: 1, unitPrice: 45.00, total: 45.00 },
+      ],
+      subtotal: 45.00,
+      discount: 5.00,
+      total: 40.00,
+      paymentMethod: 'Dinheiro',
+      status: 'completed',
+    },
+  ]);
 
   const handlePageChange = (page: string, state?: any) => {
     setCurrentPage(page);
@@ -113,9 +145,9 @@ function App() {
       case 'settings':
         return <Settings />;
       case 'point-of-sale':
-        return <PointOfSale />;
+        return <PointOfSale onSaleCompleted={(newSale) => setSales(prevSales => [newSale, ...prevSales])} />;
       case 'sales':
-        return <Sales />;
+        return <Sales sales={sales} />;
       default:
         return <Dashboard />;
     }
