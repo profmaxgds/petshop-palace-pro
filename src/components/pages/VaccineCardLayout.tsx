@@ -220,28 +220,42 @@ const VaccineCardLayout: React.FC = () => {
               <span className="font-medium">V8</span>
               <span className="text-sm">15/01/2024</span>
             </div>
-            <div className="text-xs text-gray-600">Lote: AB123 | Próxima: 15/01/2025</div>
-            {layout.fields.veterinarian && (
-              <div className="mt-4 text-center text-xs text-gray-600">
-                <div className="w-48 mx-auto border-b border-gray-700 my-1"></div>
-                Dr. Carlos Silva<br/>
-                CRMV: CRMV-SP 12345
+            <div className="flex justify-between items-end mt-2">
+              <div className="text-xs text-gray-600 flex-grow">
+                <div><strong>Lote:</strong> AB123</div>
+                <div><strong>Próxima:</strong> 15/01/2025</div>
               </div>
-            )}
+              {layout.fields.veterinarian && (
+                <div className="border border-gray-300 p-2 ml-4 flex flex-col justify-end text-center" style={{ width: '150px', minHeight: '70px', flexShrink: 0 }}>
+                  <div className="w-full border-b border-gray-700 mb-1"></div>
+                  <div className="text-xs text-gray-600">
+                    Dr. Carlos Silva<br/>
+                    CRMV: CRMV-SP 12345
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <div className="bg-gray-50 p-2 rounded">
             <div className="flex justify-between items-center">
               <span className="font-medium">Antirrábica</span>
               <span className="text-sm">20/02/2024</span>
             </div>
-            <div className="text-xs text-gray-600">Lote: CD456 | Próxima: 20/02/2025</div>
-            {layout.fields.veterinarian && (
-               <div className="mt-4 text-center text-xs text-gray-600">
-                <div className="w-48 mx-auto border-b border-gray-700 my-1"></div>
-                Dra. Ana Costa<br/>
-                CRMV: CRMV-SP 54321
+            <div className="flex justify-between items-end mt-2">
+              <div className="text-xs text-gray-600 flex-grow">
+                <div><strong>Lote:</strong> CD456</div>
+                <div><strong>Próxima:</strong> 20/02/2025</div>
+              </div>
+              {layout.fields.veterinarian && (
+               <div className="border border-gray-300 p-2 ml-4 flex flex-col justify-end text-center" style={{ width: '150px', minHeight: '70px', flexShrink: 0 }}>
+                <div className="w-full border-b border-gray-700 mb-1"></div>
+                <div className="text-xs text-gray-600">
+                  Dra. Ana Costa<br/>
+                  CRMV: CRMV-SP 54321
+                </div>
               </div>
             )}
+            </div>
           </div>
         </div>
       </div>

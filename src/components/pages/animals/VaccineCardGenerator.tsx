@@ -1,4 +1,3 @@
-
 import type { Animal, Vaccine } from '@/types';
 import { t } from '@/lib/i18n';
 
@@ -235,26 +234,42 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
             border-radius: 4px;
             font-size: 12px;
           }
+          .vaccine-content-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 10px;
+          }
           .vaccine-details {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             font-size: 13px;
+            flex-grow: 1;
           }
           .vaccine-detail {
             color: #666;
           }
-          .vaccine-signature {
-            margin-top: 20px;
+          .vaccine-signature-box {
+            border: 1px solid #ccc;
+            padding: 8px;
+            width: 180px;
+            min-height: 80px;
             text-align: center;
+            margin-left: 15px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
           }
           .signature-line {
             border-bottom: 1px solid #333;
-            width: 250px;
+            width: 100%;
             margin: 0 auto 5px auto;
           }
           .signature-info {
-            font-size: 12px;
+            font-size: 11px;
+            line-height: 1.2;
             color: #333;
           }
           .footer {
@@ -352,20 +367,22 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
                   <span class="vaccine-name">${vaccine.vaccineType}</span>
                   <span class="vaccine-date">${dateString}${isScheduled ? ' (Agendada)' : ''}</span>
                 </div>
-                <div class="vaccine-details">
-                  ${vaccine.batch ? `<div class="vaccine-detail"><strong>Lote:</strong> ${vaccine.batch}</div>` : ''}
-                  ${nextDueDateString ? `<div class="vaccine-detail"><strong>Próxima Dose:</strong> ${nextDueDateString}</div>` : ''}
-                  ${vaccine.notes ? `<div class="vaccine-detail" style="grid-column: 1 / -1;"><strong>Observações:</strong> ${vaccine.notes}</div>` : ''}
-                </div>
-                ${!isScheduled && layout.fields.veterinarian && vaccine.veterinarian ? `
-                  <div class="vaccine-signature">
-                    <div class="signature-line"></div>
-                    <div class="signature-info">
-                      ${vaccine.veterinarian.name}<br>
-                      CRMV: ${vaccine.veterinarian.crmv}
-                    </div>
+                <div class="vaccine-content-wrapper">
+                  <div class="vaccine-details">
+                    ${vaccine.batch ? `<div class="vaccine-detail"><strong>Lote:</strong> ${vaccine.batch}</div>` : ''}
+                    ${nextDueDateString ? `<div class="vaccine-detail"><strong>Próxima Dose:</strong> ${nextDueDateString}</div>` : ''}
+                    ${vaccine.notes ? `<div class="vaccine-detail" style="grid-column: 1 / -1;"><strong>Observações:</strong> ${vaccine.notes}</div>` : ''}
                   </div>
-                ` : ''}
+                  ${!isScheduled && layout.fields.veterinarian && vaccine.veterinarian ? `
+                    <div class="vaccine-signature-box">
+                      <div class="signature-line"></div>
+                      <div class="signature-info">
+                        ${vaccine.veterinarian.name}<br>
+                        CRMV: ${vaccine.veterinarian.crmv}
+                      </div>
+                    </div>
+                  ` : ''}
+                </div>
               </div>
             `}).join('')}
           </div>
