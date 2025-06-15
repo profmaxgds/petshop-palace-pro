@@ -209,7 +209,7 @@ const Appointments: React.FC = () => {
       id: '1',
       animalId: '1',
       animal: mockAnimals[0],
-      appointmentDate: new Date('2024-12-15T00:00:00'),
+      appointmentDate: new Date(Date.UTC(2024, 11, 15)), // Using UTC for Dec 15
       appointmentTime: '09:00',
       serviceTypeId: '1',
       serviceType: mockServiceTypes[0],
@@ -228,7 +228,7 @@ const Appointments: React.FC = () => {
       id: '2',
       animalId: '2',
       animal: mockAnimals[1],
-      appointmentDate: new Date('2024-12-16T00:00:00'),
+      appointmentDate: new Date(Date.UTC(2024, 11, 16)), // Using UTC for Dec 16
       appointmentTime: '14:30',
       serviceTypeId: '2',
       serviceType: mockServiceTypes[1],
@@ -298,10 +298,10 @@ const Appointments: React.FC = () => {
   });
 
   const formatDate = (date: Date): string => {
-    // Garante que a data seja formatada de forma consistente com base no horário local, evitando problemas de fuso horário.
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    // Format date based on UTC to avoid timezone issues.
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
     return `${day}/${month}/${year}`;
   };
 
@@ -326,8 +326,12 @@ const Appointments: React.FC = () => {
     }
     
     const veterinarian = veterinarianId ? mockVeterinarians.find(v => v.id === veterinarianId) : undefined;
-    const appointmentDate = new Date(dateString + 'T00:00:00');
-    const dayIndex = appointmentDate.getDay();
+    
+    // Create a UTC date to avoid timezone problems.
+    const [year, month, day] = dateString.split('-').map(Number);
+    const appointmentDate = new Date(Date.UTC(year, month - 1, day));
+    
+    const dayIndex = appointmentDate.getUTCDay();
     const dayOfWeek = (['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as (keyof WorkSchedule)[])[dayIndex];
 
     // 1. Vet availability check
@@ -347,7 +351,7 @@ const Appointments: React.FC = () => {
             const animalHasClash = appointments.some(apt =>
                 apt.id !== editingAppointment?.id &&
                 apt.animalId === animalId &&
-                new Date(apt.appointmentDate).toDateString() === appointmentDate.toDateString() &&
+                apt.appointmentDate.getTime() === appointmentDate.getTime() &&
                 apt.appointmentTime === appointmentTime
             );
             if (animalHasClash) {
@@ -361,7 +365,7 @@ const Appointments: React.FC = () => {
             const vetHasClash = appointments.some(apt => 
                 apt.id !== editingAppointment?.id &&
                 apt.veterinarianId === veterinarian.id &&
-                new Date(apt.appointmentDate).toDateString() === appointmentDate.toDateString() &&
+                apt.appointmentDate.getTime() === appointmentDate.getTime() &&
                 apt.appointmentTime === appointmentTime
             );
             if (vetHasClash) {
@@ -438,11 +442,11 @@ const Appointments: React.FC = () => {
   const handleEditAppointment = (appointment: Appointment) => {
     setEditingAppointment(appointment);
 
-    // Correctly format the date to YYYY-MM-DD to avoid timezone issues
+    // Format the UTC date to YYYY-MM-DD for the input field
     const date = appointment.appointmentDate;
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
     
     setAppointmentForm({
