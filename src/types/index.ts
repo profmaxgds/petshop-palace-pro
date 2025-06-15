@@ -68,6 +68,22 @@ export interface Room {
   updatedAt: Date;
 }
 
+export interface DaySchedule {
+  active: boolean;
+  start: string; // "HH:mm"
+  end: string;   // "HH:mm"
+}
+
+export interface WorkSchedule {
+  sunday: DaySchedule;
+  monday: DaySchedule;
+  tuesday: DaySchedule;
+  wednesday: DaySchedule;
+  thursday: DaySchedule;
+  friday: DaySchedule;
+  saturday: DaySchedule;
+}
+
 export interface Veterinarian {
   id: string;
   name: string;
@@ -84,7 +100,7 @@ export interface Veterinarian {
   specialties?: string[];
   phone?: string;
   email?: string;
-  schedule?: any;
+  schedule?: WorkSchedule;
   consultationPrice?: number;
   status: 'active' | 'inactive' | 'vacation';
   createdBy: string;

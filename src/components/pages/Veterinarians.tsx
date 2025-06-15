@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Edit, Trash2, Phone, Mail, UserCheck, UserX, Stethoscope } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Veterinarian } from '@/types';
+import type { Veterinarian, WorkSchedule } from '@/types';
+import { Switch } from '@/components/ui/switch';
 
 const Veterinarians: React.FC = () => {
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([
@@ -53,6 +54,17 @@ const Veterinarians: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVet, setEditingVet] = useState<Veterinarian | null>(null);
+
+  const defaultSchedule: WorkSchedule = {
+    sunday: { active: false, start: '09:00', end: '18:00' },
+    monday: { active: true, start: '09:00', end: '18:00' },
+    tuesday: { active: true, start: '09:00', end: '18:00' },
+    wednesday: { active: true, start: '09:00', end: '18:00' },
+    thursday: { active: true, start: '09:00', end: '18:00' },
+    friday: { active: true, start: '09:00', end: '18:00' },
+    saturday: { active: false, start: '09:00', end: '18:00' },
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     crmv: '',
@@ -69,6 +81,7 @@ const Veterinarians: React.FC = () => {
     phone: '',
     email: '',
     status: 'active' as Veterinarian['status'],
+    schedule: defaultSchedule,
   });
 
   const specialtyOptions = [
@@ -76,6 +89,8 @@ const Veterinarians: React.FC = () => {
     'Oncologia', 'Neurologia', 'Ortopedia', 'Oftalmologia',
     'Endocrinologia', 'Anestesiologia'
   ];
+
+  const daysOfWeek: (keyof WorkSchedule)[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
   const filteredVeterinarians = veterinarians.filter(vet =>
     vet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -137,6 +152,7 @@ const Veterinarians: React.FC = () => {
       name: '', crmv: '', cpf: '',
       address: { street: '', number: '', neighborhood: '', city: '', state: '', zipCode: '' },
       specialties: [], phone: '', email: '', status: 'active',
+      schedule: defaultSchedule,
     });
   };
 
@@ -158,6 +174,7 @@ const Veterinarians: React.FC = () => {
       phone: vet.phone || '',
       email: vet.email || '',
       status: vet.status,
+      schedule: vet.schedule ? { ...defaultSchedule, ...vet.schedule } : defaultSchedule,
     });
     setIsDialogOpen(true);
   };
@@ -171,6 +188,19 @@ const Veterinarians: React.FC = () => {
       ? formData.specialties.filter(s => s !== specialty)
       : [...formData.specialties, specialty];
     setFormData({ ...formData, specialties: newSpecialties });
+  };
+  
+  const handleScheduleChange = (day: keyof WorkSchedule, field: 'active' | 'start' | 'end', value: boolean | string) => {
+    setFormData(prev => ({
+      ...prev,
+      schedule: {
+        ...prev.schedule,
+        [day]: {
+          ...prev.schedule[day],
+          [field]: value
+        }
+      }
+    }));
   };
 
   return (
@@ -191,7 +221,10 @@ const Veterinarians: React.FC = () => {
                 {filteredVeterinarians.length} {t('veterinariansRegistered')}
               </CardDescription>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
+              if (!isOpen) handleCloseDialog();
+              else setIsDialogOpen(true);
+            }}>
               <DialogTrigger asChild>
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="w-4 h-4 mr-2" />
@@ -285,6 +318,45 @@ const Veterinarians: React.FC = () => {
                           <label htmlFor={specialty} className="text-sm">{specialty}</label>
                         </div>
                       ))}
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2 border-t pt-4 mt-4">
+                    <Label className="text-base font-semibold">{t('workSchedule')}</Label>
+                    <div className="space-y-3 mt-2">
+                      {daysOfWeek.map((day) => {
+                        const daySchedule = formData.schedule[day];
+                        return (
+                          <div key={day} className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                            <div className="flex items-center gap-2 col-span-1 sm:col-span-2">
+                              <Switch
+                                id={`schedule-${day}`}
+                                checked={daySchedule.active}
+                                onCheckedChange={(checked) => handleScheduleChange(day, 'active', checked)}
+                              />
+                              <Label htmlFor={`schedule-${day}`} className="capitalize font-normal">{t(day)}</Label>
+                            </div>
+                            <div className="col-span-1">
+                              <Input
+                                type="time"
+                                value={daySchedule.start}
+                                onChange={(e) => handleScheduleChange(day, 'start', e.target.value)}
+                                disabled={!daySchedule.active}
+                                aria-label={`${t('startTime')} for ${t(day)}`}
+                              />
+                            </div>
+                            <div className="col-span-1">
+                              <Input
+                                type="time"
+                                value={daySchedule.end}
+                                onChange={(e) => handleScheduleChange(day, 'end', e.target.value)}
+                                disabled={!daySchedule.active}
+                                aria-label={`${t('endTime')} for ${t(day)}`}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                 </div>
