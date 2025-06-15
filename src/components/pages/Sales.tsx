@@ -69,6 +69,7 @@ Venda: ${sale.id}
 Data: ${format(sale.date, 'dd/MM/yyyy HH:mm', { locale: ptBR })}
 Cliente: ${sale.customerName}
 ${sale.customerPhone ? `Telefone: ${sale.customerPhone}` : ''}
+Animal: ${sale.animalName}
 
 ITENS:
 ${sale.items.map(item => 
@@ -226,7 +227,7 @@ Forma de Pagamento: ${sale.paymentMethod}
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead>Data/Hora</TableHead>
-                <TableHead>Cliente</TableHead>
+                <TableHead>Cliente/Animal</TableHead>
                 <TableHead>Itens</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Pagamento</TableHead>
@@ -244,6 +245,9 @@ Forma de Pagamento: ${sale.paymentMethod}
                   <TableCell>
                     <div>
                       <div className="font-medium">{sale.customerName}</div>
+                      {sale.animalName && (
+                        <div className="text-sm text-gray-500">Animal: {sale.animalName}</div>
+                      )}
                       {sale.customerPhone && (
                         <div className="text-sm text-gray-500">{sale.customerPhone}</div>
                       )}
@@ -306,6 +310,7 @@ Forma de Pagamento: ${sale.paymentMethod}
                   <Label className="text-sm font-medium">Cliente</Label>
                   <p>{selectedSale.customerName}</p>
                   {selectedSale.customerPhone && <p className="text-sm text-gray-500">{selectedSale.customerPhone}</p>}
+                  {selectedSale.animalName && <p className="text-sm text-gray-500">Animal: {selectedSale.animalName}</p>}
                 </div>
               </div>
               

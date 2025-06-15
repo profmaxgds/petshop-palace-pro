@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import Sidebar from '@/components/Sidebar';
@@ -48,6 +47,8 @@ function App() {
       date: new Date(),
       customerName: 'João Silva',
       customerPhone: '(11) 99999-1111',
+      animalId: '1',
+      animalName: 'Rex',
       items: [
         { id: '1', name: 'Consulta Veterinária', type: 'service', quantity: 1, unitPrice: 120.00, total: 120.00 },
         { id: '2', name: 'Ração Premium 15kg', type: 'product', quantity: 1, unitPrice: 89.90, total: 89.90 },

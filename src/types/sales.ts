@@ -13,6 +13,8 @@ export interface Sale {
   date: Date;
   customerName: string;
   customerPhone?: string;
+  animalId?: string;
+  animalName?: string;
   items: SaleItem[];
   subtotal: number;
   discount: number;
