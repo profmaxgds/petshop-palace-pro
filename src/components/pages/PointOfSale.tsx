@@ -306,7 +306,7 @@ Forma de Pagamento: ${sale.paymentMethod}
                     <div key={item.id} className="flex items-center justify-between p-3 border rounded">
                       <div className="flex-1">
                         <h4 className="font-medium text-sm">{item.name}</h4>
-                        <p className="text-teal-600 font-bold">R$ {item.price.toFixed(2)}</p>
+                        <p className="text-teal-600 font-bold">R$ {item.unitPrice.toFixed(2)}</p>
                       </div>
                       
                       <div className="flex items-center space-x-2">
