@@ -23,3 +23,5 @@ export interface Sale {
   status: 'completed' | 'pending' | 'cancelled';
   notes?: string;
 }
+
+export type NewSale = Omit<Sale, 'id' | 'date'> & { id?: string, date?: Date };
