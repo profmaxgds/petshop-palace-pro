@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import Sidebar from '@/components/Sidebar';
@@ -30,6 +29,8 @@ import Sales from '@/components/pages/Sales';
 import { Sale, SaleItem } from '@/types/sales';
 import type { Animal, Tutor, Breed } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { Product } from '@/types/products';
+import { Service } from '@/types/services';
 
 // MOCK DATA - In a real app, this would come from an API
 const mockBreeds: Breed[] = [
@@ -48,6 +49,18 @@ const mockAnimals: Animal[] = [
     { id: '3', name: 'Thor', species: 'dog', breedId: '1', breed: mockBreeds[0], age: 5, sex: 'male', weight: 35, tutorId: '2', tutor: mockTutors[1], isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
 ];
 
+// Mock data for products and services
+const mockProducts: Product[] = [
+    { id: 'prod-1', name: 'Ração Premium 15kg', category: 'Alimentação', quantity: 50, minQuantity: 10, costPrice: 60.00, salePrice: 89.90, supplier: 'Fornecedor A', createdAt: new Date(), updatedAt: new Date() },
+    { id: 'prod-2', name: 'Brinquedo de Corda', category: 'Brinquedos', quantity: 100, minQuantity: 20, costPrice: 10.00, salePrice: 25.00, supplier: 'Fornecedor B', createdAt: new Date(), updatedAt: new Date() },
+    { id: 'prod-3', name: 'Shampoo Hipoalergênico', category: 'Higiene', quantity: 30, minQuantity: 5, costPrice: 25.00, salePrice: 45.00, supplier: 'Fornecedor A', createdAt: new Date(), updatedAt: new Date() },
+];
+
+const mockServices: Service[] = [
+    { id: 'serv-1', name: 'Consulta Veterinária', price: 120.00 },
+    { id: 'serv-2', name: 'Banho e Tosa', price: 75.00 },
+    { id: 'serv-3', name: 'Aplicação de Vacina', price: 50.00 },
+];
 
 // Mock user data
 const mockUser = {
@@ -186,7 +199,7 @@ function App() {
     setSales(prevSales =>
       prevSales.map(s => (s.id === updatedSale.id ? updatedSale : s))
     );
-    toast({ title: 'Venda Finalizada!', description: `Venda #${updatedSale.id} concluída com sucesso.` });
+    toast({ title: 'Venda Finalizada!', description: `Venda #${updatedSale.id.slice(-6)} concluída com sucesso.` });
   };
   
   const handleLogout = () => {
@@ -259,6 +272,10 @@ function App() {
         return <PointOfSale 
           sales={sales}
           onUpdateSale={handleUpdateSale}
+          tutors={mockTutors}
+          animals={mockAnimals}
+          products={mockProducts}
+          services={mockServices}
         />;
       case 'sales':
         return <Sales sales={sales} />;

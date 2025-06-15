@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -8,15 +7,23 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Receipt, Calculator } from 'lucide-react';
+import { Search, Receipt, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Sale, SaleItem } from '@/types/sales';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import type { Tutor, Animal } from '@/types';
+import type { Product } from '@/types/products';
+import type { Service } from '@/types/services';
+import NewSaleDialog from './pos/NewSaleDialog';
 
 interface PointOfSaleProps {
   sales: Sale[];
   onUpdateSale: (sale: Sale) => void;
+  tutors: Tutor[];
+  animals: Animal[];
+  products: Product[];
+  services: Service[];
 }
 
 const CheckoutForm = ({ sale, onConfirm, onClose }: { sale: Sale, onConfirm: (paymentMethod: string, discount: number) => void, onClose: () => void }) => {
@@ -98,11 +105,12 @@ const CheckoutForm = ({ sale, onConfirm, onClose }: { sale: Sale, onConfirm: (pa
     );
 }
 
-const PointOfSale: React.FC<PointOfSaleProps> = ({ sales, onUpdateSale }) => {
+const PointOfSale: React.FC<PointOfSaleProps> = ({ sales, onUpdateSale, tutors, animals, products, services }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('all');
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isNewSaleDialogOpen, setIsNewSaleDialogOpen] = useState(false);
 
   const pendingSales = useMemo(() => sales.filter(s => s.status === 'pending'), [sales]);
 
@@ -130,6 +138,12 @@ const PointOfSale: React.FC<PointOfSaleProps> = ({ sales, onUpdateSale }) => {
     setSelectedSale(sale);
     setIsCheckoutOpen(true);
   };
+  
+  const handleStartManualSale = (sale: Sale) => {
+    setSelectedSale(sale);
+    setIsNewSaleDialogOpen(false);
+    setIsCheckoutOpen(true);
+  };
 
   const handleProcessSale = (paymentMethod: string, discount: number) => {
     if (!selectedSale) return;
@@ -155,8 +169,16 @@ const PointOfSale: React.FC<PointOfSaleProps> = ({ sales, onUpdateSale }) => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900">PDV - Vendas Pendentes</h1>
-      <p className="text-gray-600">Gerencie e finalize as vendas enviadas pelos setores de serviço.</p>
+       <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">PDV - Ponto de Venda</h1>
+          <p className="text-gray-600">Gerencie vendas pendentes ou inicie uma nova venda.</p>
+        </div>
+        <Button onClick={() => setIsNewSaleDialogOpen(true)}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Nova Venda Manual
+        </Button>
+      </div>
 
       <Card>
         <CardHeader>
@@ -236,6 +258,16 @@ const PointOfSale: React.FC<PointOfSaleProps> = ({ sales, onUpdateSale }) => {
             {selectedSale && <CheckoutForm sale={selectedSale} onConfirm={handleProcessSale} onClose={() => setIsCheckoutOpen(false)} />}
         </DialogContent>
       </Dialog>
+      
+      <NewSaleDialog 
+        open={isNewSaleDialogOpen}
+        onOpenChange={setIsNewSaleDialogOpen}
+        tutors={tutors}
+        animals={animals}
+        products={products}
+        services={services}
+        onStartSale={handleStartManualSale}
+      />
     </div>
   );
 };
