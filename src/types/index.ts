@@ -232,6 +232,7 @@ export interface Product {
   isActive: boolean;
   createdBy: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ProductCategory {
@@ -255,6 +256,7 @@ export interface BankAccount {
   isActive: boolean;
   createdBy: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AccountReceivable {
