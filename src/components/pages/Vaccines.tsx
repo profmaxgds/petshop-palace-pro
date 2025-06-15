@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Animal, Veterinarian, Breed, Tutor } from '@/types';
 import type { Sale, NewSale, SaleItem } from '@/types/sales';
 import { Product } from '@/types/products';
-import { addDays, format } from 'date-fns';
+import { addDays, format, isToday } from 'date-fns';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -277,9 +277,17 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
     return matchesSearch && matchesAnimal;
   });
 
-  const canDeleteVaccine = (vaccine: Vaccine): boolean => {
-    const daysDifference = Math.floor((new Date().getTime() - vaccine.createdAt.getTime()) / (1000 * 3600 * 24));
-    return daysDifference <= 2;
+  const canCancelVaccine = (vaccine: ExtendedVaccine): boolean => {
+    if (vaccine.status === 'canceled') {
+      return false;
+    }
+    if (vaccine.status === 'scheduled') {
+      return true;
+    }
+    if (vaccine.status === 'applied') {
+      return isToday(vaccine.applicationDate);
+    }
+    return false;
   };
 
   const createPendingSaleFromVaccine = (vaccine: ExtendedVaccine) => {
@@ -463,10 +471,10 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
   };
   
   const openCancelDialog = (vaccine: ExtendedVaccine) => {
-    if (vaccine.status === 'applied' || vaccine.status === 'canceled') {
+    if (!canCancelVaccine(vaccine)) {
       toast({
         title: 'Ação não permitida',
-        description: 'Não é possível cancelar uma vacina que já foi aplicada ou previamente cancelada.',
+        description: 'Só é possível cancelar vacinas agendadas ou que foram aplicadas hoje.',
         variant: 'destructive',
       });
       return;
@@ -495,7 +503,7 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
     
     toast({
       title: 'Vacina Cancelada',
-      description: 'O agendamento da vacina foi cancelado com sucesso.'
+      description: 'A vacina foi cancelada com sucesso.'
     });
 
     setIsCancelDialogOpen(false);
@@ -860,8 +868,8 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                           size="sm"
                           onClick={() => openCancelDialog(vaccine)}
                           className="text-red-600 hover:text-red-800 disabled:text-gray-400 disabled:cursor-not-allowed"
-                          disabled={vaccine.status === 'applied' || vaccine.status === 'canceled'}
-                          title="Cancelar Agendamento"
+                          disabled={!canCancelVaccine(vaccine)}
+                          title={canCancelVaccine(vaccine) ? "Cancelar Vacina" : "Apenas vacinas agendadas ou aplicadas hoje podem ser canceladas."}
                         >
                           <Ban className="w-4 h-4" />
                         </Button>
