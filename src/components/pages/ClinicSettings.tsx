@@ -49,8 +49,8 @@ const ClinicSettings: React.FC = () => {
     } catch (error) {
       console.error('Failed to save clinic settings to localStorage', error);
       toast({
-        title: "Erro",
-        description: "Não foi possível salvar as configurações.",
+        title: t('error'),
+        description: t('clinicSettingsSaveError'),
         variant: 'destructive',
       });
     }
@@ -74,8 +74,8 @@ const ClinicSettings: React.FC = () => {
         <CardContent className="space-y-4">
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="preventAnimalDoubleBooking" className="font-semibold text-base">Impedir agendamento duplo para o mesmo animal no mesmo horário</Label>
-              <p className="text-sm text-gray-500">Não permite que um animal tenha múltiplos serviços (ex: consulta e banho) agendados simultaneamente.</p>
+              <Label htmlFor="preventAnimalDoubleBooking" className="font-semibold text-base">{t('preventAnimalDoubleBooking')}</Label>
+              <p className="text-sm text-gray-500">{t('preventAnimalDoubleBookingDesc')}</p>
             </div>
             <Switch
               id="preventAnimalDoubleBooking"
@@ -86,8 +86,8 @@ const ClinicSettings: React.FC = () => {
           
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="preventVetDoubleBooking" className="font-semibold text-base">Impedir agendamento duplo para o mesmo veterinário no mesmo horário</Label>
-              <p className="text-sm text-gray-500">Não permite que um veterinário atenda múltiplos animais ou realize múltiplos serviços simultaneamente.</p>
+              <Label htmlFor="preventVetDoubleBooking" className="font-semibold text-base">{t('preventVetDoubleBooking')}</Label>
+              <p className="text-sm text-gray-500">{t('preventVetDoubleBookingDesc')}</p>
             </div>
             <Switch
               id="preventVetDoubleBooking"
@@ -98,8 +98,8 @@ const ClinicSettings: React.FC = () => {
 
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="allowDoubleBookingForExamServices" className="font-semibold text-base">Permitir agendamento simultâneo de exames</Label>
-              <p className="text-sm text-gray-500">Permite que múltiplos exames sejam agendados ao mesmo tempo para o mesmo animal ou veterinário, ignorando as regras de bloqueio.</p>
+              <Label htmlFor="allowDoubleBookingForExamServices" className="font-semibold text-base">{t('allowDoubleBookingForExamServices')}</Label>
+              <p className="text-sm text-gray-500">{t('allowDoubleBookingForExamServicesDesc')}</p>
             </div>
             <Switch
               id="allowDoubleBookingForExamServices"
@@ -110,8 +110,8 @@ const ClinicSettings: React.FC = () => {
           
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="preventBookingOutsideWorkHours" className="font-semibold text-base">Validar horário de trabalho do veterinário</Label>
-              <p className="text-sm text-gray-500">Permitir agendamentos apenas dentro dos dias e horários de trabalho definidos para o veterinário.</p>
+              <Label htmlFor="preventBookingOutsideWorkHours" className="font-semibold text-base">{t('validateVetWorkHours')}</Label>
+              <p className="text-sm text-gray-500">{t('validateVetWorkHoursDesc')}</p>
             </div>
             <Switch
               id="preventBookingOutsideWorkHours"

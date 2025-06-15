@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -302,7 +303,7 @@ const Appointments: React.FC = () => {
     const { animalId, appointmentDate: dateString, appointmentTime, serviceTypeId, veterinarianId, notes, products } = appointmentForm;
 
     if (!animalId || !dateString || !appointmentTime || !serviceTypeId) {
-      alert('Por favor, preencha os campos de animal, tipo de serviço, data e hora.');
+      alert(t('fillRequiredFields'));
       return;
     }
 
@@ -443,23 +444,23 @@ const Appointments: React.FC = () => {
   };
 
   const handleDeleteAppointment = (appointmentId: string) => {
-    if (confirm('Tem certeza que deseja excluir este agendamento?')) {
+    if (window.confirm(t('confirmAppointmentDelete'))) {
       setAppointments(appointments.filter(a => a.id !== appointmentId));
     }
   };
 
   const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; variant: any }> = {
-      'scheduled': { label: 'Agendado', variant: 'secondary' },
-      'confirmed': { label: 'Confirmado', variant: 'default' },
-      'in_progress': { label: 'Em Andamento', variant: 'default' },
-      'completed': { label: 'Concluído', variant: 'default' },
-      'cancelled': { label: 'Cancelado', variant: 'destructive' },
-      'no_show': { label: 'Não Compareceu', variant: 'outline' },
+    const statusMap: Record<string, { labelKey: string; variant: any }> = {
+      'scheduled': { labelKey: 'scheduled', variant: 'secondary' },
+      'confirmed': { labelKey: 'confirmed', variant: 'default' },
+      'in_progress': { labelKey: 'inProgress', variant: 'default' },
+      'completed': { labelKey: 'completed', variant: 'default' },
+      'cancelled': { labelKey: 'cancelled', variant: 'destructive' },
+      'no_show': { labelKey: 'noShow', variant: 'outline' },
     };
     
-    const statusInfo = statusMap[status] || { label: status, variant: 'outline' };
-    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
+    const statusInfo = statusMap[status] || { labelKey: status, variant: 'outline' };
+    return <Badge variant={statusInfo.variant}>{t(statusInfo.labelKey)}</Badge>;
   };
 
   const handleAddProduct = (product: Product, quantity: number) => {
@@ -721,19 +722,19 @@ const Appointments: React.FC = () => {
             <Dialog open={isExecuteDialogOpen} onOpenChange={setIsExecuteDialogOpen}>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Iniciar Atendimento</DialogTitle>
+                  <DialogTitle>{t('executeAppointment')}</DialogTitle>
                   <DialogDescription>
-                    Confirme os detalhes do agendamento e adicione produtos se necessário.
+                    {t('confirmAppointmentAndAddProducts')}
                   </DialogDescription>
                 </DialogHeader>
                 {executingAppointment && (
                   <div className="py-4 space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-sm p-4 border rounded-lg bg-gray-50">
-                      <div><strong className="block text-gray-500">Animal:</strong> {executingAppointment.animal.name}</div>
-                      <div><strong className="block text-gray-500">Tutor:</strong> {executingAppointment.animal.tutor.name}</div>
-                      <div><strong className="block text-gray-500">Serviço:</strong> {executingAppointment.serviceType.name}</div>
-                      <div><strong className="block text-gray-500">Data/Hora:</strong> {executingAppointment.appointmentDate.toLocaleDateString('pt-BR')} às {executingAppointment.appointmentTime}</div>
-                      <div className="col-span-2"><strong className="block text-gray-500">Veterinário:</strong> {executingAppointment.veterinarian?.name || 'N/A'}</div>
+                      <div><strong className="block text-gray-500">{t('animal')}:</strong> {executingAppointment.animal.name}</div>
+                      <div><strong className="block text-gray-500">{t('tutor')}:</strong> {executingAppointment.animal.tutor.name}</div>
+                      <div><strong className="block text-gray-500">{t('service')}:</strong> {executingAppointment.serviceType.name}</div>
+                      <div><strong className="block text-gray-500">{t('dateTime')}:</strong> {executingAppointment.appointmentDate.toLocaleDateString('pt-BR')} às {executingAppointment.appointmentTime}</div>
+                      <div className="col-span-2"><strong className="block text-gray-500">{t('veterinarian')}:</strong> {executingAppointment.veterinarian?.name || 'N/A'}</div>
                     </div>
                     <div className="border-t pt-4">
                       <div className="flex justify-between items-center mb-2">
@@ -766,10 +767,10 @@ const Appointments: React.FC = () => {
                   </div>
                 )}
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsExecuteDialogOpen(false)}>Cancelar</Button>
+                  <Button variant="outline" onClick={() => setIsExecuteDialogOpen(false)}>{t('cancel')}</Button>
                   <Button onClick={handleStartService} className="bg-green-600 hover:bg-green-700">
                     <Play className="w-4 h-4 mr-2" />
-                    Iniciar Atendimento
+                    {t('startAppointment')}
                   </Button>
                 </DialogFooter>
               </DialogContent>

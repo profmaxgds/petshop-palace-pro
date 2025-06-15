@@ -34,6 +34,7 @@ import type { Animal, Tutor, Breed } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types/products';
 import { Service } from '@/types/services';
+import { t } from '@/lib/i18n';
 
 // Interface for Species Data
 interface SpeciesData {
@@ -160,17 +161,17 @@ function App() {
       updatedAt: new Date(),
     };
     setSpeciesList(prev => [...prev, newSpecies]);
-    toast({ title: 'Sucesso', description: 'Espécie cadastrada com sucesso!' });
+    toast({ title: t('saveSuccess'), description: t('speciesSuccessAdded') });
   };
 
   const handleUpdateSpecies = (species: SpeciesData) => {
     setSpeciesList(prev => prev.map(s => s.id === species.id ? { ...s, ...species, updatedAt: new Date() } : s));
-    toast({ title: 'Sucesso', description: 'Espécie atualizada com sucesso!' });
+    toast({ title: t('saveSuccess'), description: t('speciesSuccessUpdated') });
   };
   
   const handleDeleteSpecies = (id: string) => {
     setSpeciesList(prev => prev.filter(s => s.id !== id));
-    toast({ title: 'Sucesso', description: 'Espécie excluída com sucesso!' });
+    toast({ title: t('saveSuccess'), description: t('speciesSuccessDeleted') });
   };
 
   const addOrUpdatePendingSale = (itemToAdd: SaleItem, animal: Animal) => {
@@ -215,7 +216,7 @@ function App() {
         }
         return newSales;
     });
-    toast({ title: 'Item enviado para o PDV', description: `${itemToAdd.name} foi adicionado à lista de vendas pendentes.` });
+    toast({ title: t('itemSentToPOS'), description: t('itemAddedToPending', { itemName: itemToAdd.name }) });
     setCurrentPage('point-of-sale');
   };
 
@@ -233,7 +234,7 @@ function App() {
       if (animal) {
          addOrUpdatePendingSale(itemToAdd, animal);
       } else {
-         toast({ title: 'Animal não identificado', description: 'Não foi possível associar o serviço a um animal.', variant: 'destructive'});
+         toast({ title: t('animalNotFound'), description: t('animalNotAssociated'), variant: 'destructive'});
       }
       setNavigationState(null);
     } else {
@@ -246,11 +247,11 @@ function App() {
     setSales(prevSales =>
       prevSales.map(s => (s.id === updatedSale.id ? updatedSale : s))
     );
-    toast({ title: 'Venda Finalizada!', description: `Venda #${updatedSale.id.slice(-6)} concluída com sucesso.` });
+    toast({ title: t('saleFinalized'), description: t('saleCompleted', { saleId: updatedSale.id.slice(-6) }) });
   };
   
   const handleLogout = () => {
-    alert('Logout realizado com sucesso!');
+    alert(t('logoutSuccess'));
   };
 
   // Mock permission checker
