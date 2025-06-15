@@ -276,62 +276,80 @@ const Appointments: React.FC = () => {
   });
 
   const handleSaveAppointment = () => {
-    if (!appointmentForm.animalId || !appointmentForm.appointmentDate || !appointmentForm.serviceTypeId) {
-      alert('Preencha todos os campos obrigatórios.');
+    // --- Validation Logic ---
+    const { animalId, appointmentDate: dateString, appointmentTime, serviceTypeId, veterinarianId, notes, products } = appointmentForm;
+
+    if (!animalId || !dateString || !appointmentTime || !serviceTypeId) {
+      alert('Por favor, preencha os campos de animal, tipo de serviço, data e hora.');
       return;
     }
 
-    const animal = mockAnimals.find(a => a.id === appointmentForm.animalId);
-    const serviceType = mockServiceTypes.find(s => s.id === appointmentForm.serviceTypeId);
-    const veterinarian = mockVeterinarians.find(v => v.id === appointmentForm.veterinarianId);
-    const room = mockRooms.find(r => r.id === appointmentForm.roomId);
-
-    if (!animal || !serviceType) return;
-
-    // --- Validation Logic ---
-    const appointmentDate = new Date(appointmentForm.appointmentDate + 'T00:00:00');
-    const appointmentTime = appointmentForm.appointmentTime;
+    const serviceType = mockServiceTypes.find(s => s.id === serviceTypeId);
+    if (!serviceType) {
+        console.error("Invalid service type selected.");
+        return;
+    }
+    
+    if (serviceType.requiresVeterinarian && !veterinarianId) {
+        alert(t('vetRequired'));
+        return;
+    }
+    
+    const veterinarian = veterinarianId ? mockVeterinarians.find(v => v.id === veterinarianId) : undefined;
+    const appointmentDate = new Date(dateString + 'T00:00:00');
     const dayIndex = appointmentDate.getDay();
     const dayOfWeek = (['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as (keyof WorkSchedule)[])[dayIndex];
-    
+
     // 1. Vet availability check
     if (veterinarian && veterinarian.schedule) {
-      const vetSchedule = veterinarian.schedule[dayOfWeek];
-      if (!vetSchedule || !vetSchedule.active || appointmentTime < vetSchedule.start || appointmentTime > vetSchedule.end) {
-        alert(t('vetUnavailable'));
-        return;
-      }
+        const vetSchedule = veterinarian.schedule[dayOfWeek];
+        if (!vetSchedule || !vetSchedule.active || appointmentTime < vetSchedule.start || appointmentTime > vetSchedule.end) {
+            alert(t('vetUnavailable'));
+            return;
+        }
     }
     
-    // 2. Animal double-booking check
-    const animalHasClash = appointments.some(apt =>
-        apt.id !== editingAppointment?.id &&
-        apt.animalId === appointmentForm.animalId &&
-        new Date(apt.appointmentDate).toDateString() === appointmentDate.toDateString() &&
-        apt.appointmentTime === appointmentTime &&
-        apt.serviceType.category !== 'exam' && serviceType.category !== 'exam'
-    );
-    if (animalHasClash) {
-      alert(t('animalDoubleBooked'));
-      return;
-    }
-    
-    // 3. Vet double-booking check
-    if (veterinarian) {
-      const vetHasClash = appointments.some(apt => 
-        apt.id !== editingAppointment?.id &&
-        apt.veterinarianId === veterinarian.id &&
-        new Date(apt.appointmentDate).toDateString() === appointmentDate.toDateString() &&
-        apt.appointmentTime === appointmentTime &&
-        apt.serviceType.category !== 'exam' && serviceType.category !== 'exam'
-      );
-      if (vetHasClash) {
-        alert(t('vetDoubleBooked'));
-        return;
-      }
+    const isClashableService = serviceType.category !== 'exam';
+
+    if (isClashableService) {
+        // 2. Animal double-booking check
+        const animalHasClash = appointments.some(apt =>
+            apt.id !== editingAppointment?.id &&
+            apt.animalId === animalId &&
+            new Date(apt.appointmentDate).toDateString() === appointmentDate.toDateString() &&
+            apt.appointmentTime === appointmentTime &&
+            apt.serviceType.category !== 'exam'
+        );
+        if (animalHasClash) {
+            alert(t('animalDoubleBooked'));
+            return;
+        }
+
+        // 3. Vet double-booking check
+        if (veterinarian) {
+            const vetHasClash = appointments.some(apt => 
+                apt.id !== editingAppointment?.id &&
+                apt.veterinarianId === veterinarian.id &&
+                new Date(apt.appointmentDate).toDateString() === appointmentDate.toDateString() &&
+                apt.appointmentTime === appointmentTime &&
+                apt.serviceType.category !== 'exam'
+            );
+            if (vetHasClash) {
+                alert(t('vetDoubleBooked'));
+                return;
+            }
+        }
     }
 
     // --- Save Logic ---
+    const animal = mockAnimals.find(a => a.id === appointmentForm.animalId);
+    const room = mockRooms.find(r => r.id === appointmentForm.roomId);
+
+    if (!animal) {
+        console.error("Invalid animal selected.");
+        return;
+    }
+
     if (editingAppointment) {
       setAppointments(appointments.map(a =>
         a.id === editingAppointment.id
@@ -596,7 +614,7 @@ const Appointments: React.FC = () => {
                             <div key={p.productId} className="flex items-center justify-between p-2 border rounded-md">
                                 <div>
                                     <p className="font-medium">{p.product.name}</p>
-                                    <p className="text-sm text-gray-500">R$ {p.salePrice?.toFixed(2)}</p>
+                                    <p className="text-sm text-gray-500">R$ {p.product.salePrice?.toFixed(2)}</p>
                                 </div>
                                 <div className="flex items-center gap-4">
                                   <span>{t('quantity')}: {p.quantity}</span>
