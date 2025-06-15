@@ -90,6 +90,20 @@ i18n
           "price": "Preço",
           "category": "Categoria",
           "status": "Status",
+          "saveSuccess": "Salvo com sucesso",
+          "clinicSettingsSaved": "As configurações da clínica foram salvas.",
+          "clinicSettings": "Configurações da Clínica",
+          "manageClinicRules": "Gerencie as regras de agendamento da clínica",
+          "appointmentRules": "Regras de Agendamento",
+          "configureAppointmentRules": "Configure as regras para criação e validação de agendamentos.",
+          "allowAnimalDoubleBooking": "Permitir múltiplos agendamentos para o mesmo animal no mesmo horário",
+          "allowAnimalDoubleBookingDesc": "Se ativado, permite que um animal tenha mais de um agendamento no mesmo horário.",
+          "allowVetDoubleBooking": "Permitir múltiplos agendamentos para o mesmo veterinário no mesmo horário",
+          "allowVetDoubleBookingDesc": "Se ativado, permite que um veterinário tenha mais de um agendamento no mesmo horário.",
+          "allowDoubleBookingForExams": "Permitir agendamentos múltiplos apenas para serviços do tipo 'Exame'",
+          "allowDoubleBookingForExamsDesc": "Permite múltiplos agendamentos no mesmo horário, se o serviço for um exame.",
+          "blockBookingOutsideWorkHours": "Bloquear agendamentos fora do horário de trabalho do veterinário",
+          "blockBookingOutsideWorkHoursDesc": "Impede que agendamentos sejam feitos fora do horário de trabalho definido para o veterinário."
         }
       },
       "en": {
@@ -172,6 +186,20 @@ i18n
           "price": "Price",
           "category": "Category",
           "status": "Status",
+          "saveSuccess": "Saved successfully",
+          "clinicSettingsSaved": "The clinic settings have been saved.",
+          "clinicSettings": "Clinic Settings",
+          "manageClinicRules": "Manage the clinic's appointment rules",
+          "appointmentRules": "Appointment Rules",
+          "configureAppointmentRules": "Set the rules for creating and validating appointments.",
+          "allowAnimalDoubleBooking": "Allow multiple appointments for the same animal at the same time",
+          "allowAnimalDoubleBookingDesc": "If enabled, allows an animal to have more than one appointment at the same time.",
+          "allowVetDoubleBooking": "Allow multiple appointments for the same veterinarian at the same time",
+          "allowVetDoubleBookingDesc": "If enabled, allows a veterinarian to have more than one appointment at the same time.",
+          "allowDoubleBookingForExams": "Allow multiple bookings only for 'Exam' type services",
+          "allowDoubleBookingForExamsDesc": "Allows multiple appointments at the same time if the service is an exam.",
+          "blockBookingOutsideWorkHours": "Block appointments outside of veterinarian's work hours",
+          "blockBookingOutsideWorkHoursDesc": "Prevents appointments from being made outside the veterinarian's defined working hours."
         }
       },
       "es": {
@@ -254,6 +282,20 @@ i18n
           "price": "Precio",
           "category": "Categoría",
           "status": "Estado",
+          "saveSuccess": "Guardado con éxito",
+          "clinicSettingsSaved": "La configuración de la clínica ha sido guardada.",
+          "clinicSettings": "Configuración de la Clínica",
+          "manageClinicRules": "Gestionar las reglas de citas de la clínica",
+          "appointmentRules": "Reglas de Citas",
+          "configureAppointmentRules": "Establezca las reglas para crear y validar citas.",
+          "allowAnimalDoubleBooking": "Permitir múltiples citas para el mismo animal a la misma hora",
+          "allowAnimalDoubleBookingDesc": "Si está habilitado, permite que un animal tenga más de una cita a la misma hora.",
+          "allowVetDoubleBooking": "Permitir múltiples citas para el mismo veterinario a la misma hora",
+          "allowVetDoubleBookingDesc": "Si está habilitado, permite que un veterinario tenga más de una cita a la misma hora.",
+          "allowDoubleBookingForExams": "Permitir múltiples reservas solo para servicios de tipo 'Examen'",
+          "allowDoubleBookingForExamsDesc": "Permite múltiples citas a la misma hora si el servicio es un examen.",
+          "blockBookingOutsideWorkHours": "Bloquear citas fuera del horario laboral del veterinario",
+          "blockBookingOutsideWorkHoursDesc": "Impide que se programen citas fuera del horario laboral definido para el veterinario."
         }
       }
     },

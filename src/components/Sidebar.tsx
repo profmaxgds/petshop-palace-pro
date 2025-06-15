@@ -123,6 +123,7 @@ const modules: ModuleItem[] = [
       { key: 'profiles', icon: Shield, label: 'profiles' },
       { key: 'rooms', icon: Building, label: 'rooms' },
       { key: 'room-types', icon: Tag, label: 'roomTypes' },
+      { key: 'clinic-settings', icon: FileText, label: 'clinicSettings' },
       { key: 'vaccine-card-layout', icon: FileText, label: 'vaccineCardLayout' },
       { key: 'reports', icon: BarChart3, label: 'reports' },
       { key: 'settings', icon: Settings, label: 'settings' },
@@ -194,6 +195,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       'sales': { module: 'sales' },
       'users': { module: 'system', action: 'write' },
       'profiles': { module: 'system', action: 'write' },
+      'clinic-settings': { module: 'system', action: 'write' },
       'vaccine-card-layout': { module: 'system', action: 'write' },
       'reports': { module: 'system' },
       'settings': { module: 'system' }

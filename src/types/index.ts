@@ -232,7 +232,6 @@ export interface Product {
   isActive: boolean;
   createdBy: string;
   createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface ProductCategory {
@@ -256,7 +255,6 @@ export interface BankAccount {
   isActive: boolean;
   createdBy: string;
   createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface AccountReceivable {
@@ -282,4 +280,14 @@ export interface CashTransaction {
   accountId?: string;
   createdBy: string;
   createdAt: Date;
+}
+
+export interface ClinicSettings {
+  id: string;
+  allowAnimalDoubleBooking: boolean;
+  allowVetDoubleBooking: boolean;
+  blockBookingOutsideWorkHours: boolean;
+  allowDoubleBookingForExamServices: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
