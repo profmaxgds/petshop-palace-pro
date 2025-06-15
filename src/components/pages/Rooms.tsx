@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +40,18 @@ const Rooms = () => {
     },
     {
       id: '3',
-      name: 'Sala de Banho e Tosa',
+      name: 'Sala de Banho e Tosa 1',
+      type: 'grooming',
+      capacity: 2,
+      equipment: ['Banheira', 'Secador', 'Mesa de tosa'],
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: '4',
+      name: 'Sala de Banho e Tosa 2',
       type: 'grooming',
       capacity: 2,
       equipment: ['Banheira', 'Secador', 'Mesa de tosa'],
