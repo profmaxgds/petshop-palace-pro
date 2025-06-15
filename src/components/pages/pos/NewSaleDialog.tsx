@@ -1,18 +1,18 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { X, Plus } from 'lucide-react';
+import { X, ShoppingBag, Stethoscope } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Sale, SaleItem } from '@/types/sales';
 import { Tutor, Animal } from '@/types';
 import { Product } from '@/types/products';
 import { Service } from '@/types/services';
 import { Separator } from '@/components/ui/separator';
+import AddProductDialog from './AddProductDialog';
+import AddServiceDialog from './AddServiceDialog';
 
 interface NewSaleDialogProps {
     open: boolean;
@@ -29,19 +29,13 @@ const NewSaleDialog: React.FC<NewSaleDialogProps> = ({ open, onOpenChange, tutor
     const [selectedTutorId, setSelectedTutorId] = useState<string>('');
     const [selectedAnimalId, setSelectedAnimalId] = useState<string>('');
     const [items, setItems] = useState<SaleItem[]>([]);
-    const [itemToAdd, setItemToAdd] = useState<{ id: string, type: 'product' | 'service' } | null>(null);
-    const [quantity, setQuantity] = useState(1);
+    const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
+    const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
     
     const availableAnimals = useMemo(() => {
         if (!selectedTutorId) return [];
         return animals.filter(a => a.tutorId === selectedTutorId);
     }, [selectedTutorId, animals]);
-
-    const combinedItems = useMemo(() => {
-        const productItems = products.map(p => ({ id: p.id, name: `${p.name} (Produto)`, type: 'product' as const, price: p.salePrice }));
-        const serviceItems = services.map(s => ({ id: s.id, name: `${s.name} (Serviço)`, type: 'service' as const, price: s.price }));
-        return [...productItems, ...serviceItems].sort((a, b) => a.name.localeCompare(b.name));
-    }, [products, services]);
 
     const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.total, 0), [items]);
 
@@ -50,8 +44,8 @@ const NewSaleDialog: React.FC<NewSaleDialogProps> = ({ open, onOpenChange, tutor
             setSelectedTutorId('');
             setSelectedAnimalId('');
             setItems([]);
-            setItemToAdd(null);
-            setQuantity(1);
+            setIsProductDialogOpen(false);
+            setIsServiceDialogOpen(false);
         }
     }, [open]);
 
@@ -59,33 +53,22 @@ const NewSaleDialog: React.FC<NewSaleDialogProps> = ({ open, onOpenChange, tutor
         setSelectedAnimalId('');
     }, [selectedTutorId]);
 
-    const handleAddItem = () => {
-        if (!itemToAdd || quantity <= 0) {
-            toast({ title: "Item inválido", description: "Selecione um item e informe uma quantidade válida.", variant: "destructive" });
-            return;
-        }
-
-        const existingCartItem = items.find(i => i.id === itemToAdd.id);
-        const sourceItem = combinedItems.find(i => i.id === itemToAdd.id);
-
-        if (!sourceItem) return;
+    const handleAddOrUpdateItem = (itemToAdd: Omit<SaleItem, 'total'>) => {
+        const existingCartItem = items.find(i => i.id === itemToAdd.id && i.type === itemToAdd.type);
 
         if (existingCartItem) {
-            setItems(items.map(i => i.id === itemToAdd.id ? { ...i, quantity: i.quantity + quantity, total: (i.quantity + quantity) * i.unitPrice } : i));
+            setItems(items.map(i => i.id === itemToAdd.id && i.type === itemToAdd.type
+                ? { ...i, quantity: i.quantity + itemToAdd.quantity, total: (i.quantity + itemToAdd.quantity) * i.unitPrice }
+                : i
+            ));
         } else {
             const newSaleItem: SaleItem = {
-                id: sourceItem.id,
-                name: sourceItem.name.replace(/ \((Produto|Serviço)\)/, ''),
-                type: sourceItem.type,
-                quantity: quantity,
-                unitPrice: sourceItem.price,
-                total: sourceItem.price * quantity,
+                ...itemToAdd,
+                total: itemToAdd.unitPrice * itemToAdd.quantity,
             };
             setItems([...items, newSaleItem]);
         }
-        
-        setItemToAdd(null);
-        setQuantity(1);
+        toast({ title: "Item Adicionado", description: `${itemToAdd.name} foi adicionado à venda.` });
     };
 
     const handleRemoveItem = (itemId: string) => {
@@ -165,29 +148,22 @@ const NewSaleDialog: React.FC<NewSaleDialogProps> = ({ open, onOpenChange, tutor
 
                     <div className="space-y-4">
                         <h3 className="text-lg font-medium">2. Adicionar Itens</h3>
-                         <div className="space-y-2">
-                             <Label>Produto ou Serviço</Label>
-                             <Select onValueChange={(val) => {
-                                 const [type, id] = val.split(':');
-                                 setItemToAdd({ id, type: type as 'product' | 'service' });
-                             }}>
-                                 <SelectTrigger><SelectValue placeholder="Selecione um item..." /></SelectTrigger>
-                                 <SelectContent>
-                                     {combinedItems.map(item => (
-                                         <SelectItem key={`${item.type}:${item.id}`} value={`${item.type}:${item.id}`}>{item.name}</SelectItem>
-                                     ))}
-                                 </SelectContent>
-                             </Select>
-                         </div>
-                         <div className="flex items-end gap-2">
-                            <div className="flex-1">
-                                <Label>Quantidade</Label>
-                                <Input type="number" value={quantity} onChange={e => setQuantity(Math.max(1, Number(e.target.value)))} min="1" />
-                            </div>
-                            <Button onClick={handleAddItem} disabled={!itemToAdd}>
-                                <Plus className="mr-2 h-4 w-4" /> Adicionar
+                         <div className="flex flex-col sm:flex-row gap-4">
+                            <Button variant="outline" className="w-full justify-start text-left h-auto py-3" onClick={() => setIsProductDialogOpen(true)}>
+                                <ShoppingBag className="mr-4 h-6 w-6 text-primary" />
+                                <div>
+                                    <p className="font-semibold">Adicionar Produto</p>
+                                    <p className="text-sm text-muted-foreground">Rações, brinquedos, etc.</p>
+                                </div>
                             </Button>
-                         </div>
+                            <Button variant="outline" className="w-full justify-start text-left h-auto py-3" onClick={() => setIsServiceDialogOpen(true)}>
+                                <Stethoscope className="mr-4 h-6 w-6 text-primary" />
+                                <div>
+                                    <p className="font-semibold">Adicionar Serviço</p>
+                                    <p className="text-sm text-muted-foreground">Consultas, banho e tosa, etc.</p>
+                                </div>
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
@@ -213,7 +189,7 @@ const NewSaleDialog: React.FC<NewSaleDialogProps> = ({ open, onOpenChange, tutor
                                     </TableRow>
                                 ) : (
                                     items.map(item => (
-                                        <TableRow key={item.id}>
+                                        <TableRow key={`${item.type}-${item.id}`}>
                                             <TableCell>{item.name}</TableCell>
                                             <TableCell>{item.quantity}</TableCell>
                                             <TableCell>R$ {item.unitPrice.toFixed(2)}</TableCell>
@@ -238,6 +214,19 @@ const NewSaleDialog: React.FC<NewSaleDialogProps> = ({ open, onOpenChange, tutor
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
                     <Button onClick={handleProceedToCheckout} disabled={items.length === 0}>Prosseguir para Pagamento</Button>
                 </DialogFooter>
+
+                <AddProductDialog
+                    open={isProductDialogOpen}
+                    onOpenChange={setIsProductDialogOpen}
+                    products={products}
+                    onAddItem={handleAddOrUpdateItem}
+                />
+                <AddServiceDialog
+                    open={isServiceDialogOpen}
+                    onOpenChange={setIsServiceDialogOpen}
+                    services={services}
+                    onAddItem={handleAddOrUpdateItem}
+                />
             </DialogContent>
         </Dialog>
     );
