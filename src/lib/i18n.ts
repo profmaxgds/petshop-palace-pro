@@ -1,4 +1,3 @@
-
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -118,13 +117,20 @@ i18n
           "clinicSettingsSaveError": "Não foi possível salvar as configurações.",
           "fillRequiredFields": "Por favor, preencha todos os campos obrigatórios.",
           "confirmAppointmentDelete": "Tem certeza que deseja excluir este agendamento?",
-          "executeAppointment": "Iniciar Atendimento",
+          "executeAppointment": "Executar Agendamento",
           "confirmAppointmentAndAddProducts": "Confirme os detalhes do agendamento e adicione produtos se necessário.",
           "startAppointment": "Iniciar Atendimento",
           "noProductsAdded": "Nenhum produto adicionado.",
           "inProgress": "Em Andamento",
           "confirmed": "Confirmado",
-          "noShow": "Não Compareceu"
+          "noShow": "Não Compareceu",
+          "confirmPayment": "Confirmar Pagamento",
+          "sendToPOS": "Enviar para PDV",
+          "paymentConfirmed": "Pagamento Confirmado",
+          "appointmentSentToPOS": "Agendamento enviado para o Ponto de Venda.",
+          "removeProduct": "Remover Produto",
+          "total": "Total",
+          "subtotal": "Subtotal"
         }
       },
       "en": {
@@ -358,7 +364,14 @@ i18n
           "noProductsAdded": "No se han añadido productos.",
           "inProgress": "En Progreso",
           "confirmed": "Confirmado",
-          "noShow": "No se presentó"
+          "noShow": "No se presentó",
+          "confirmPayment": "Confirmar Pagamento",
+          "sendToPOS": "Enviar para PDV",
+          "paymentConfirmed": "Pagamento Confirmado",
+          "appointmentSentToPOS": "Agendamento enviado para el Punto de Venta.",
+          "removeProduct": "Remover Producto",
+          "total": "Total",
+          "subtotal": "Subtotal"
         }
       }
     },

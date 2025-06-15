@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { formatInTimeZone, toDate } from 'date-fns-tz';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Search, Stethoscope, Package, X, Play } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Package, Play } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Animal, Veterinarian, ServiceType, Appointment, Room, Breed, Tutor, Product, WorkSchedule, ClinicSettings as ClinicSettingsType, Sale, SaleItem } from '@/types';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
+import type { Animal, Veterinarian, ServiceType, Appointment, Room, Breed, Tutor, Product, WorkSchedule, ClinicSettings as ClinicSettingsType } from '@/types';
+import { useToast } from '@/hooks/use-toast';
+import AppointmentForm from './appointments/AppointmentForm';
+import ExecuteAppointmentDialog from './appointments/ExecuteAppointmentDialog';
 
 const Appointments: React.FC = () => {
   // Mock data with proper typing
@@ -25,6 +24,7 @@ const Appointments: React.FC = () => {
     friday: { active: true, start: '09:00', end: '18:00' },
     saturday: { active: false, start: '09:00', end: '18:00' },
   };
+
   const mockVeterinarians: Veterinarian[] = [
     {
       id: '1',
@@ -211,7 +211,7 @@ const Appointments: React.FC = () => {
       id: '1',
       animalId: '1',
       animal: mockAnimals[0],
-      appointmentDate: toDate('2024-12-15T00:00:00.000Z'),
+      appointmentDate: new Date('2024-12-15'),
       appointmentTime: '09:00',
       serviceTypeId: '1',
       serviceType: mockServiceTypes[0],
@@ -230,7 +230,7 @@ const Appointments: React.FC = () => {
       id: '2',
       animalId: '2',
       animal: mockAnimals[1],
-      appointmentDate: toDate('2024-12-16T00:00:00.000Z'),
+      appointmentDate: new Date('2024-12-16'),
       appointmentTime: '14:30',
       serviceTypeId: '2',
       serviceType: mockServiceTypes[1],
@@ -285,7 +285,7 @@ const Appointments: React.FC = () => {
     veterinarianId: '',
     roomId: '',
     notes: '',
-    products: [] as { product: Product, productId: string, quantity: number }[],
+    products: [] as { product: Product; productId: string; quantity: number }[],
   };
 
   const [appointmentForm, setAppointmentForm] = useState(initialFormState);
@@ -301,8 +301,25 @@ const Appointments: React.FC = () => {
   });
 
   const formatDate = (date: Date): string => {
-    // Format date based on UTC to avoid timezone issues, using a robust library.
-    return formatInTimeZone(date, 'UTC', 'dd/MM/yyyy');
+    // Usar formatação simples e consistente
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatDateForInput = (date: Date): string => {
+    // Formatar data para input[type="date"] (YYYY-MM-DD)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseDateFromInput = (dateString: string): Date => {
+    // Criar data simples sem considerar timezone
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
   };
 
   const handleSaveAppointment = () => {
@@ -327,8 +344,7 @@ const Appointments: React.FC = () => {
     
     const veterinarian = veterinarianId ? mockVeterinarians.find(v => v.id === veterinarianId) : undefined;
     
-    // Create a UTC date from the 'YYYY-MM-DD' string to avoid timezone issues.
-    const appointmentDate = toDate(`${dateString}T00:00:00.000Z`);
+    const appointmentDate = parseDateFromInput(appointmentForm.appointmentDate);
     
     const dayIndex = appointmentDate.getUTCDay();
     const dayOfWeek = (['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as (keyof WorkSchedule)[])[dayIndex];
@@ -440,13 +456,10 @@ const Appointments: React.FC = () => {
 
   const handleEditAppointment = (appointment: Appointment) => {
     setEditingAppointment(appointment);
-
-    // Format the UTC date to YYYY-MM-DD for the input[type="date"] field.
-    const formattedDate = formatInTimeZone(appointment.appointmentDate, 'UTC', 'yyyy-MM-dd');
     
     setAppointmentForm({
       animalId: appointment.animalId,
-      appointmentDate: formattedDate,
+      appointmentDate: formatDateForInput(appointment.appointmentDate),
       appointmentTime: appointment.appointmentTime,
       serviceTypeId: appointment.serviceTypeId,
       veterinarianId: appointment.veterinarianId || '',
@@ -499,73 +512,19 @@ const Appointments: React.FC = () => {
     setIsExecuteDialogOpen(true);
   };
 
-  const handleStartService = () => {
-    if (!executingAppointment) return;
-
-    // --- Send to POS Logic ---
-    const serviceItem: SaleItem = {
-      id: executingAppointment.serviceType.id,
-      name: executingAppointment.serviceType.name,
-      quantity: 1,
-      unitPrice: executingAppointment.serviceType.price,
-      total: executingAppointment.serviceType.price,
-      type: 'service',
-    };
-
-    const productItems: SaleItem[] = (executingAppointment.products || []).map(p => ({
-      id: p.productId,
-      name: p.product.name,
-      quantity: p.quantity,
-      unitPrice: p.product.salePrice || 0,
-      total: (p.product.salePrice || 0) * p.quantity,
-      type: 'product',
-    }));
-
-    const items = [serviceItem, ...productItems];
-    const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-
-    const newSale: Sale = {
-      id: `apt-${executingAppointment.id}`,
-      date: new Date(),
-      customerName: executingAppointment.animal.tutor.name,
-      customerPhone: executingAppointment.animal.tutor.phone,
-      animalId: executingAppointment.animal.id,
-      animalName: executingAppointment.animal.name,
-      items: items,
-      subtotal: subtotal,
-      discount: 0,
-      total: subtotal,
-      paymentMethod: '',
-      status: 'pending',
-    };
-
-    try {
-      const existingSalesJSON = localStorage.getItem('pos_sales');
-      const existingSales: Sale[] = existingSalesJSON ? JSON.parse(existingSalesJSON) : [];
-      localStorage.setItem('pos_sales', JSON.stringify([...existingSales, newSale]));
-      
-      toast({
-        title: "Sucesso",
-        description: "Agendamento enviado para o Ponto de Venda.",
-      });
-
-    } catch (error) {
-      console.error("Failed to save sale to localStorage", error);
-      toast({
-        title: "Erro",
-        description: "Falha ao enviar agendamento para o Ponto de Venda.",
-        variant: 'destructive',
-      });
-    }
-    
-    // --- Update Appointment Status ---
+  const handleStartService = (appointment: Appointment) => {
+    // Atualizar status para em andamento
     setAppointments(appointments.map(apt => 
-        apt.id === executingAppointment.id
-        ? { ...executingAppointment, status: 'in_progress', updatedAt: new Date() }
+      apt.id === appointment.id
+        ? { ...appointment, status: 'in_progress', updatedAt: new Date() }
         : apt
     ));
+  };
 
-    setIsExecuteDialogOpen(false);
+  const handleUpdateAppointment = (updatedAppointment: Appointment) => {
+    setAppointments(appointments.map(apt => 
+      apt.id === updatedAppointment.id ? updatedAppointment : apt
+    ));
     setExecutingAppointment(null);
   };
 
@@ -641,142 +600,16 @@ const Appointments: React.FC = () => {
                   </DialogDescription>
                 </DialogHeader>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                  <div>
-                    <Label htmlFor="animal">{t('animal')}</Label>
-                    <Select
-                      value={appointmentForm.animalId}
-                      onValueChange={(value) => setAppointmentForm({...appointmentForm, animalId: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectAnimal')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockAnimals.map((animal) => (
-                          <SelectItem key={animal.id} value={animal.id}>
-                            {animal.name} - {animal.tutor.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="serviceType">{t('serviceType')}</Label>
-                    <Select
-                      value={appointmentForm.serviceTypeId}
-                      onValueChange={(value) => setAppointmentForm({...appointmentForm, serviceTypeId: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectService')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockServiceTypes.map((service) => (
-                          <SelectItem key={service.id} value={service.id}>
-                            {service.name} - R$ {service.price}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="date">{t('date')}</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      value={appointmentForm.appointmentDate}
-                      onChange={(e) => setAppointmentForm({...appointmentForm, appointmentDate: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="time">{t('time')}</Label>
-                    <Input
-                      id="time"
-                      type="time"
-                      value={appointmentForm.appointmentTime}
-                      onChange={(e) => setAppointmentForm({...appointmentForm, appointmentTime: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="veterinarian">{t('veterinarian')}</Label>
-                    <Select
-                      value={appointmentForm.veterinarianId}
-                      onValueChange={(value) => setAppointmentForm({...appointmentForm, veterinarianId: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectVeterinarian')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockVeterinarians.map((vet) => (
-                          <SelectItem key={vet.id} value={vet.id}>
-                            {vet.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="room">{t('room')}</Label>
-                    <Select
-                      value={appointmentForm.roomId}
-                      onValueChange={(value) => setAppointmentForm({...appointmentForm, roomId: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('selectRoom')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockRooms.map((room) => (
-                          <SelectItem key={room.id} value={room.id}>
-                            {room.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <Label htmlFor="notes">{t('notes')}</Label>
-                    <Textarea
-                      id="notes"
-                      value={appointmentForm.notes}
-                      onChange={(e) => setAppointmentForm({...appointmentForm, notes: e.target.value})}
-                      placeholder={t('notes')}
-                    />
-                  </div>
-                  
-                  <div className="md:col-span-2 border-t pt-4 mt-4">
-                    <div className="flex justify-between items-center mb-2">
-                        <Label className="text-base font-semibold">{t('products')}</Label>
-                        <Button variant="outline" size="sm" onClick={() => openProductDialog('form')}>
-                            <Plus className="w-4 h-4 mr-2" />
-                            {t('addProduct')}
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        {appointmentForm.products.map(p => (
-                            <div key={p.productId} className="flex items-center justify-between p-2 border rounded-md">
-                                <div>
-                                    <p className="font-medium">{p.product.name}</p>
-                                    <p className="text-sm text-gray-500">R$ {p.product.salePrice?.toFixed(2)}</p>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                  <span>{t('quantity')}: {p.quantity}</span>
-                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveProduct(p.productId)}>
-                                    <X className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                            </div>
-                        ))}
-                         {appointmentForm.products.length === 0 && (
-                            <p className="text-sm text-gray-500 text-center py-2">{t('noProductsAdded')}</p>
-                         )}
-                    </div>
-                  </div>
-                </div>
+                <AppointmentForm
+                  appointmentForm={appointmentForm}
+                  setAppointmentForm={setAppointmentForm}
+                  animals={mockAnimals}
+                  serviceTypes={mockServiceTypes}
+                  veterinarians={mockVeterinarians}
+                  rooms={mockRooms}
+                  onAddProduct={() => openProductDialog('form')}
+                  onRemoveProduct={handleRemoveProduct}
+                />
                 
                 <DialogFooter>
                   <Button variant="outline" onClick={handleCloseDialog}>
@@ -789,63 +622,15 @@ const Appointments: React.FC = () => {
               </DialogContent>
             </Dialog>
 
-            {/* Execute Appointment Dialog */}
-            <Dialog open={isExecuteDialogOpen} onOpenChange={setIsExecuteDialogOpen}>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>{t('executeAppointment')}</DialogTitle>
-                  <DialogDescription>
-                    {t('confirmAppointmentAndAddProducts')}
-                  </DialogDescription>
-                </DialogHeader>
-                {executingAppointment && (
-                  <div className="py-4 space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm p-4 border rounded-lg bg-gray-50">
-                      <div><strong className="block text-gray-500">{t('animal')}:</strong> {executingAppointment.animal.name}</div>
-                      <div><strong className="block text-gray-500">{t('tutor')}:</strong> {executingAppointment.animal.tutor.name}</div>
-                      <div><strong className="block text-gray-500">{t('service')}:</strong> {executingAppointment.serviceType.name}</div>
-                      <div><strong className="block text-gray-500">{t('dateTime')}:</strong> {formatDate(executingAppointment.appointmentDate)} às {executingAppointment.appointmentTime}</div>
-                      <div className="col-span-2"><strong className="block text-gray-500">{t('veterinarian')}:</strong> {executingAppointment.veterinarian?.name || 'N/A'}</div>
-                    </div>
-                    <div className="border-t pt-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <Label className="text-base font-semibold">{t('products')}</Label>
-                        <Button variant="outline" size="sm" onClick={() => openProductDialog('execution')}>
-                          <Plus className="w-4 h-4 mr-2" />
-                          {t('addProduct')}
-                        </Button>
-                      </div>
-                      <div className="space-y-2 max-h-40 overflow-y-auto p-1">
-                        {executingAppointment.products && executingAppointment.products.map(p => (
-                          <div key={p.productId} className="flex items-center justify-between p-2 border rounded-md">
-                            <div>
-                              <p className="font-medium">{p.product.name}</p>
-                              <p className="text-sm text-gray-500">R$ {p.product.salePrice?.toFixed(2)}</p>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <span>{t('quantity')}: {p.quantity}</span>
-                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveProductFromExecution(p.productId)}>
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                        {(!executingAppointment.products || executingAppointment.products.length === 0) && (
-                          <p className="text-sm text-gray-500 text-center py-2">{t('noProductsAdded')}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsExecuteDialogOpen(false)}>{t('cancel')}</Button>
-                  <Button onClick={handleStartService} className="bg-green-600 hover:bg-green-700">
-                    <Play className="w-4 h-4 mr-2" />
-                    {t('startAppointment')}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <ExecuteAppointmentDialog
+              open={isExecuteDialogOpen}
+              onOpenChange={setIsExecuteDialogOpen}
+              appointment={executingAppointment}
+              onStartService={handleStartService}
+              onAddProduct={() => openProductDialog('execution')}
+              onRemoveProduct={handleRemoveProductFromExecution}
+              onUpdateAppointment={handleUpdateAppointment}
+            />
 
             {/* Product Selection Dialog */}
             <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
