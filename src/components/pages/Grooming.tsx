@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar as CalendarIcon, Scissors, Plus, Edit, Trash2, Search, DollarSign, Clock, Receipt } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
-import type { GroomingService, Animal, ServiceType } from '@/types';
+import type { GroomingService, Animal, ServiceType, Room } from '@/types';
 import { SaleItem } from '@/types/sales';
 
 interface GroomingProps {
@@ -128,17 +128,39 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
     },
   ];
 
+  // Mock rooms data
+  const rooms: Room[] = [
+    {
+      id: '1', name: 'Consultório 1', type: 'consultation',
+      isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date()
+    },
+    {
+      id: '2', name: 'Sala Cirúrgica 1', type: 'surgery',
+      isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date()
+    },
+    {
+      id: '3', name: 'Sala de Banho e Tosa 1', type: 'grooming',
+      isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date()
+    },
+    {
+      id: '4', name: 'Sala de Banho e Tosa 2', type: 'grooming',
+      isActive: true, createdBy: 'admin', createdAt: new Date(), updatedAt: new Date()
+    }
+  ];
+
   // Filtrar apenas serviços de grooming ativos
   const groomingServiceTypes = serviceTypes.filter(service => 
     service.category === 'grooming' && service.isActive
   );
+
+  const groomingRooms = rooms.filter(room => room.type === 'grooming' && room.isActive);
 
   const [groomingServices, setGroomingServices] = useState<GroomingService[]>([
     {
       id: '1',
       animalId: '1',
       animal: animals[0],
-      serviceDate: new Date('2024-12-10'),
+      serviceDate: new Date('2024-12-10T10:00'),
       serviceTypeId: '3',
       serviceType: serviceTypes.find(s => s.id === '3'),
       status: 'scheduled',
@@ -146,12 +168,14 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
       price: 35.00,
       createdBy: 'admin',
       createdAt: new Date(),
+      roomId: '3',
+      room: rooms.find(r => r.id === '3'),
     },
     {
       id: '2',
       animalId: '2',
       animal: animals[1],
-      serviceDate: new Date('2024-12-11'),
+      serviceDate: new Date('2024-12-11T14:00'),
       serviceTypeId: '3',
       serviceType: serviceTypes.find(s => s.id === '3'),
       status: 'in_progress',
@@ -159,12 +183,14 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
       price: 35.00,
       createdBy: 'admin',
       createdAt: new Date(),
+      roomId: '3',
+      room: rooms.find(r => r.id === '3'),
     },
     {
       id: '3',
       animalId: '1',
       animal: animals[0],
-      serviceDate: new Date('2024-12-08'),
+      serviceDate: new Date('2024-12-08T16:00'),
       serviceTypeId: '3',
       serviceType: serviceTypes.find(s => s.id === '3'),
       status: 'completed',
@@ -172,6 +198,8 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
       price: 35.00,
       createdBy: 'admin',
       createdAt: new Date(),
+      roomId: '4',
+      room: rooms.find(r => r.id === '4'),
     },
   ]);
 
@@ -184,6 +212,7 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
     date: '',
     serviceTypeId: '',
     notes: '',
+    roomId: '',
   });
 
   const filteredServices = groomingServices.filter(service => {
@@ -212,6 +241,7 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
   const handleSave = () => {
     const selectedAnimal = animals.find(a => a.id === formData.animalId);
     const selectedService = groomingServiceTypes.find(s => s.id === formData.serviceTypeId);
+    const selectedRoom = rooms.find(r => r.id === formData.roomId);
     
     if (editingService) {
       setGroomingServices(groomingServices.map(s => 
@@ -225,6 +255,8 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
               serviceType: selectedService,
               price: selectedService?.price || 0,
               notes: formData.notes,
+              roomId: formData.roomId,
+              room: selectedRoom,
             }
           : s
       ));
@@ -241,6 +273,8 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
         notes: formData.notes,
         createdBy: 'admin',
         createdAt: new Date(),
+        roomId: formData.roomId,
+        room: selectedRoom,
       };
       setGroomingServices([...groomingServices, newService]);
     }
@@ -255,16 +289,27 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
       date: '',
       serviceTypeId: '',
       notes: '',
+      roomId: '',
     });
   };
 
   const handleEdit = (service: GroomingService) => {
     setEditingService(service);
+
+    const d = service.serviceDate;
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+
     setFormData({
       animalId: service.animalId,
-      date: service.serviceDate.toISOString().split('T')[0],
+      date: formattedDate,
       serviceTypeId: service.serviceTypeId,
       notes: service.notes || '',
+      roomId: service.roomId || '',
     });
     setIsDialogOpen(true);
   };
@@ -438,7 +483,26 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
                     </Select>
                   </div>
                   
-                  <div className="md:col-span-2">
+                  <div>
+                    <Label htmlFor="roomId">Sala</Label>
+                    <Select
+                      value={formData.roomId}
+                      onValueChange={(value) => setFormData({ ...formData, roomId: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a sala" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {groomingRooms.map((room) => (
+                          <SelectItem key={room.id} value={room.id}>
+                            {room.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
                     <Label htmlFor="date">Data e Hora</Label>
                     <Input
                       id="date"
@@ -505,6 +569,7 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
                   <TableHead>Animal</TableHead>
                   <TableHead>Serviço</TableHead>
                   <TableHead>Data</TableHead>
+                  <TableHead>Sala</TableHead>
                   <TableHead>Preço</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">{t('actions')}</TableHead>
@@ -544,6 +609,7 @@ const Grooming: React.FC<GroomingProps> = ({ onNavigate }) => {
                           })}
                         </div>
                       </TableCell>
+                      <TableCell>{service.room?.name || '-'}</TableCell>
                       <TableCell>
                         <div className="font-medium text-green-600">
                           R$ {(service.price || 0).toFixed(2)}
