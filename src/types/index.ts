@@ -1,4 +1,3 @@
-
 // Core types for the PetShop system
 
 export type Species = 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other';
@@ -73,6 +72,15 @@ export interface Veterinarian {
   id: string;
   name: string;
   crmv: string;
+  cpf?: string;
+  address?: {
+    street?: string;
+    number?: string;
+    neighborhood?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+  };
   specialties?: string[];
   phone?: string;
   email?: string;

@@ -100,6 +100,9 @@ i18next
           weight: 'Weight',
           breed: 'Breed',
           microchip: 'Microchip',
+          name: 'Name',
+          fullName: 'Full Name',
+          number: 'Number',
 
           // Species
           dog: 'Dog',
@@ -170,6 +173,17 @@ i18next
           pendingPayments: 'Pending Payments',
           todayRevenue: 'Today\'s Revenue',
           overdueVaccines: 'Overdue Vaccines',
+
+          // Veterinarian related
+          manageVeterinarians: 'Manage clinic veterinarians',
+          veterinariansList: 'Veterinarians List',
+          veterinariansRegistered: 'veterinarians registered',
+          newVeterinarian: 'New Veterinarian',
+          editVeterinarian: 'Edit Veterinarian',
+          fillVeterinarianData: 'Fill in veterinarian details',
+          searchByCrmvCpfOrSpecialty: 'Search by name, CRMV, CPF or specialty...',
+          contact: 'Contact',
+          specialties: 'Specialties',
         }
       },
       pt: {
@@ -291,6 +305,19 @@ i18next
           pendingPayments: 'Pagamentos Pendentes',
           todayRevenue: 'Receita de Hoje',
           overdueVaccines: 'Vacinas Atrasadas',
+          name: 'Nome',
+          fullName: 'Nome Completo',
+          number: 'Número',
+
+          manageVeterinarians: 'Gerencie os veterinários da clínica',
+          veterinariansList: 'Lista de Veterinários',
+          veterinariansRegistered: 'veterinários cadastrados',
+          newVeterinarian: 'Novo Veterinário',
+          editVeterinarian: 'Editar Veterinário',
+          fillVeterinarianData: 'Preencha os dados do veterinário',
+          searchByCrmvCpfOrSpecialty: 'Buscar por nome, CRMV, CPF ou especialidade...',
+          contact: 'Contato',
+          specialties: 'Especialidades',
         }
       },
       es: {
@@ -412,6 +439,19 @@ i18next
           pendingPayments: 'Pagos Pendientes',
           todayRevenue: 'Ingresos de Hoy',
           overdueVaccines: 'Vacinas Vencidas',
+          name: 'Nombre',
+          fullName: 'Nombre Completo',
+          number: 'Número',
+
+          manageVeterinarians: 'Gestionar los veterinarios de la clínica',
+          veterinariansList: 'Lista de Veterinarios',
+          veterinariansRegistered: 'veterinarios registrados',
+          newVeterinarian: 'Nuevo Veterinario',
+          editVeterinarian: 'Editar Veterinario',
+          fillVeterinarianData: 'Complete los datos del veterinario',
+          searchByCrmvCpfOrSpecialty: 'Buscar por nombre, CRMV, CPF o especialidad...',
+          contact: 'Contacto',
+          specialties: 'Especialidades',
         }
       }
     },
