@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { 
@@ -68,6 +67,7 @@ const modules: ModuleItem[] = [
       { key: 'tutors', icon: Users, label: 'tutors' },
       { key: 'animals', icon: Heart, label: 'animals' },
       { key: 'breeds', icon: PawPrint, label: 'breeds' },
+      { key: 'species', icon: PawPrint, label: 'species' },
       { key: 'rooms', icon: Building, label: 'rooms' },
     ]
   },
@@ -172,6 +172,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       'tutors': { module: 'tutors' },
       'animals': { module: 'animals' },
       'breeds': { module: 'animals' },
+      'species': { module: 'animals' },
       'rooms': { module: 'system', action: 'write' },
       'animal-health': { module: 'appointments' },
       'grooming': { module: 'appointments' },

@@ -17,19 +17,18 @@ interface SpeciesData {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+  systemName: string;
 }
 
-const Species = () => {
-  const { toast } = useToast();
-  const [speciesList, setSpeciesList] = useState<SpeciesData[]>([
-    { id: '1', name: 'Cão', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
-    { id: '2', name: 'Gato', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
-    { id: '3', name: 'Ave', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
-    { id: '4', name: 'Coelho', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
-    { id: '5', name: 'Hamster', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
-    { id: '6', name: 'Outro', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
-  ]);
+interface SpeciesProps {
+  speciesList: SpeciesData[];
+  onAdd: (species: Pick<SpeciesData, 'name' | 'isActive'>) => void;
+  onUpdate: (species: SpeciesData) => void;
+  onDelete: (id: string) => void;
+}
 
+const Species: React.FC<SpeciesProps> = ({ speciesList, onAdd, onUpdate, onDelete }) => {
+  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedSpecies, setSelectedSpecies] = useState<SpeciesData | null>(null);
   const [formData, setFormData] = useState({ name: '', isActive: true });
@@ -42,21 +41,14 @@ const Species = () => {
       return;
     }
 
-    const newSpecies: SpeciesData = {
-      id: selectedSpecies?.id || Date.now().toString(),
-      name: formData.name,
-      isActive: formData.isActive,
-      createdBy: selectedSpecies?.createdBy || 'current_user',
-      createdAt: selectedSpecies?.createdAt || new Date(),
-      updatedAt: new Date()
-    };
-
     if (selectedSpecies) {
-      setSpeciesList(speciesList.map(s => s.id === selectedSpecies.id ? newSpecies : s));
-      toast({ title: t('success'), description: 'Espécie atualizada com sucesso!' });
+      onUpdate({
+        ...selectedSpecies,
+        name: formData.name,
+        isActive: formData.isActive,
+      } as SpeciesData);
     } else {
-      setSpeciesList([...speciesList, newSpecies]);
-      toast({ title: t('success'), description: 'Espécie cadastrada com sucesso!' });
+      onAdd(formData);
     }
 
     resetForm();
@@ -76,8 +68,7 @@ const Species = () => {
 
   const handleDelete = (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir esta espécie? Raças associadas a ela podem ser afetadas.')) {
-      setSpeciesList(speciesList.filter(s => s.id !== id));
-      toast({ title: t('success'), description: 'Espécie excluída com sucesso!' });
+      onDelete(id);
     }
   };
 
@@ -85,9 +76,15 @@ const Species = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">{t('species')}</h1>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
+          setIsDialogOpen(isOpen);
+          if (!isOpen) resetForm();
+        }}>
           <DialogTrigger asChild>
-            <Button onClick={resetForm}>
+            <Button onClick={() => {
+              resetForm();
+              setIsDialogOpen(true);
+            }}>
               <Plus className="w-4 h-4 mr-2" />
               Nova Espécie
             </Button>

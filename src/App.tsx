@@ -5,6 +5,7 @@ import Dashboard from '@/components/pages/Dashboard';
 import Tutors from '@/components/pages/Tutors';
 import Animals from '@/components/pages/Animals';
 import Breeds from '@/components/pages/Breeds';
+import Species from '@/components/pages/Species';
 import Rooms from '@/components/pages/Rooms';
 import AnimalHealth from '@/components/pages/AnimalHealth';
 import Grooming from '@/components/pages/Grooming';
@@ -31,6 +32,17 @@ import type { Animal, Tutor, Breed } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types/products';
 import { Service } from '@/types/services';
+
+// Interface for Species Data
+interface SpeciesData {
+  id: string;
+  name: string;
+  systemName: string;
+  isActive: boolean;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // MOCK DATA - In a real app, this would come from an API
 const mockBreeds: Breed[] = [
@@ -76,6 +88,16 @@ function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [navigationState, setNavigationState] = useState<any>(null);
+
+  const [speciesList, setSpeciesList] = useState<SpeciesData[]>([
+    { id: '1', name: 'Cão', systemName: 'dog', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+    { id: '2', name: 'Gato', systemName: 'cat', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+    { id: '3', name: 'Ave', systemName: 'bird', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+    { id: '4', name: 'Coelho', systemName: 'rabbit', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+    { id: '5', name: 'Hamster', systemName: 'hamster', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+    { id: '6', name: 'Outro', systemName: 'other', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
+  ]);
+
   const [sales, setSales] = useState<Sale[]>([
     {
       id: '1',
@@ -125,6 +147,29 @@ function App() {
       status: 'pending',
     },
   ]);
+
+  const handleAddSpecies = (species: Pick<SpeciesData, 'name' | 'isActive'>) => {
+    const newSpecies: SpeciesData = {
+      ...species,
+      id: Date.now().toString(),
+      systemName: 'other', // User-created species are categorized as 'other' for type-safety
+      createdBy: 'current_user',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    setSpeciesList(prev => [...prev, newSpecies]);
+    toast({ title: 'Sucesso', description: 'Espécie cadastrada com sucesso!' });
+  };
+
+  const handleUpdateSpecies = (species: SpeciesData) => {
+    setSpeciesList(prev => prev.map(s => s.id === species.id ? { ...s, ...species, updatedAt: new Date() } : s));
+    toast({ title: 'Sucesso', description: 'Espécie atualizada com sucesso!' });
+  };
+  
+  const handleDeleteSpecies = (id: string) => {
+    setSpeciesList(prev => prev.filter(s => s.id !== id));
+    toast({ title: 'Sucesso', description: 'Espécie excluída com sucesso!' });
+  };
 
   const addOrUpdatePendingSale = (itemToAdd: SaleItem, animal: Animal) => {
     setSales(prevSales => {
@@ -229,7 +274,14 @@ function App() {
       case 'animals':
         return <Animals onNavigate={handlePageChange} />;
       case 'breeds':
-        return <Breeds />;
+        return <Breeds speciesList={speciesList} />;
+      case 'species':
+        return <Species 
+          speciesList={speciesList}
+          onAdd={handleAddSpecies}
+          onUpdate={handleUpdateSpecies}
+          onDelete={handleDeleteSpecies}
+        />;
       case 'rooms':
         return <Rooms />;
       case 'animal-health':

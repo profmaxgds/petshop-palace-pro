@@ -11,19 +11,18 @@ import { Breed } from '@/types';
 import { t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 
-// Em uma aplicação real, estes dados viriam da nova tela de Espécies.
-// Adicionei 'Lagarto' como exemplo de uma espécie customizada.
-const managedSpecies = [
-    { name: 'dog', label: 'Cão' },
-    { name: 'cat', label: 'Gato' },
-    { name: 'bird', label: 'Ave' },
-    { name: 'rabbit', label: 'Coelho' },
-    { name: 'hamster', label: 'Hamster' },
-    { name: 'other', label: 'Outro' },
-    { name: 'lizard', label: 'Lagarto' },
-];
+interface SpeciesData {
+  id: string;
+  name: string;
+  systemName: string;
+  isActive: boolean;
+}
 
-const Breeds = () => {
+interface BreedsProps {
+  speciesList: SpeciesData[];
+}
+
+const Breeds: React.FC<BreedsProps> = ({ speciesList }) => {
   const { toast } = useToast();
   const [breeds, setBreeds] = useState<Breed[]>([
     {
@@ -65,7 +64,7 @@ const Breeds = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    species: 'dog' as Breed['species'],
+    species: speciesList.find(s => s.isActive)?.id || '',
     characteristics: '',
     isActive: true
   });
@@ -73,9 +72,14 @@ const Breeds = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const selectedSpeciesData = speciesList.find(s => s.id === formData.species);
+
     const newBreed: Breed = {
       id: selectedBreed?.id || Date.now().toString(),
-      ...formData,
+      name: formData.name,
+      species: (selectedSpeciesData?.systemName || 'other') as Breed['species'],
+      characteristics: formData.characteristics,
+      isActive: formData.isActive,
       createdBy: selectedBreed?.createdBy || '1',
       createdAt: selectedBreed?.createdAt || new Date(),
       updatedAt: new Date()
@@ -102,7 +106,7 @@ const Breeds = () => {
   const resetForm = () => {
     setFormData({
       name: '',
-      species: 'dog',
+      species: speciesList.find(s => s.isActive)?.id || '',
       characteristics: '',
       isActive: true
     });
@@ -111,9 +115,10 @@ const Breeds = () => {
 
   const handleEdit = (breed: Breed) => {
     setSelectedBreed(breed);
+    const speciesEntry = speciesList.find(s => s.systemName === breed.species);
     setFormData({
       name: breed.name,
-      species: breed.species,
+      species: speciesEntry ? speciesEntry.id : (speciesList.find(s => s.isActive)?.id || ''),
       characteristics: breed.characteristics || '',
       isActive: breed.isActive
     });
@@ -130,8 +135,8 @@ const Breeds = () => {
     }
   };
 
-  const getSpeciesLabel = (species: string) => {
-    return managedSpecies.find(s => s.name === species)?.label || species;
+  const getSpeciesLabel = (speciesSystemName: string) => {
+    return speciesList.find(s => s.systemName === speciesSystemName)?.name || speciesSystemName;
   };
 
   const filteredBreeds = breeds.filter(breed => {
@@ -170,13 +175,13 @@ const Breeds = () => {
               
               <div>
                 <Label htmlFor="species">{t('species')}</Label>
-                <Select value={formData.species} onValueChange={(value) => setFormData({ ...formData, species: value as Breed['species'] })}>
+                <Select value={formData.species} onValueChange={(value) => setFormData({ ...formData, species: value })}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Selecione uma espécie" />
                   </SelectTrigger>
                   <SelectContent>
-                    {managedSpecies.map((s) => (
-                      <SelectItem key={s.name} value={s.name}>{s.label}</SelectItem>
+                    {speciesList.filter(s => s.isActive).map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -232,8 +237,8 @@ const Breeds = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas as espécies</SelectItem>
-                  {managedSpecies.map((s) => (
-                      <SelectItem key={s.name} value={s.name}>{s.label}s</SelectItem>
+                  {speciesList.map((s) => (
+                      <SelectItem key={s.id} value={s.systemName}>{s.name}s</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
