@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -90,6 +91,19 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
       nextDueDate: new Date('2025-11-15'),
       veterinarianId: '1',
       notes: 'Primeira dose da V8',
+      createdBy: 'system',
+      createdAt: new Date(),
+    },
+    {
+      id: '3',
+      animal: {} as Animal,
+      animalId: '1',
+      vaccineType: 'Antirrábica',
+      batch: '',
+      applicationDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+      nextDueDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate() + 30)),
+      veterinarianId: '2',
+      notes: 'Agendamento da vacina antirrábica anual',
       createdBy: 'system',
       createdAt: new Date(),
     },

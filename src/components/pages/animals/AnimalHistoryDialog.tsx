@@ -30,6 +30,16 @@ const AnimalHistoryDialog: React.FC<AnimalHistoryDialogProps> = ({
 }) => {
   if (!animal) return null;
 
+  const animalVaccines = vaccines
+    .filter(v => v.animalId === animal.id)
+    .sort((a, b) => {
+      if (a.vaccineType.toLowerCase() < b.vaccineType.toLowerCase()) return -1;
+      if (a.vaccineType.toLowerCase() > b.vaccineType.toLowerCase()) return 1;
+      const dateA = a.applicationDate instanceof Date ? a.applicationDate : new Date(a.applicationDate);
+      const dateB = b.applicationDate instanceof Date ? b.applicationDate : new Date(b.applicationDate);
+      return dateA.getTime() - dateB.getTime();
+    });
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -67,19 +77,44 @@ const AnimalHistoryDialog: React.FC<AnimalHistoryDialogProps> = ({
                   <TableRow>
                     <TableHead>Vacina</TableHead>
                     <TableHead>Lote</TableHead>
-                    <TableHead>Aplicação</TableHead>
+                    <TableHead>Data</TableHead>
                     <TableHead>Próxima Dose</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {vaccines.filter(v => v.animalId === animal.id).map((vaccine) => (
-                    <TableRow key={vaccine.id}>
-                      <TableCell>{vaccine.vaccineType}</TableCell>
-                      <TableCell>{vaccine.batch}</TableCell>
-                      <TableCell>{vaccine.applicationDate.toLocaleDateString('pt-BR')}</TableCell>
-                      <TableCell>{vaccine.nextDueDate?.toLocaleDateString('pt-BR')}</TableCell>
+                  {animalVaccines.map((vaccine) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const appDate = vaccine.applicationDate instanceof Date ? vaccine.applicationDate : new Date(vaccine.applicationDate);
+                    appDate.setHours(0, 0, 0, 0);
+
+                    const isScheduled = appDate > today;
+                    const nextDueDateString = vaccine.nextDueDate 
+                      ? (vaccine.nextDueDate instanceof Date ? vaccine.nextDueDate.toLocaleDateString('pt-BR') : new Date(vaccine.nextDueDate).toLocaleDateString('pt-BR')) 
+                      : '-';
+
+                    return (
+                      <TableRow key={vaccine.id}>
+                        <TableCell>{vaccine.vaccineType}</TableCell>
+                        <TableCell>{vaccine.batch || '-'}</TableCell>
+                        <TableCell>{appDate.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>{nextDueDateString}</TableCell>
+                        <TableCell>
+                          {isScheduled ? (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">Agendada</Badge>
+                          ) : (
+                            <Badge variant="default" className="bg-green-100 text-green-800">Aplicada</Badge>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {animalVaccines.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center">Nenhuma vacina registrada.</TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </div>

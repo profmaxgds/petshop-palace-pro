@@ -1,4 +1,3 @@
-
 import type { Animal, Vaccine } from '@/types';
 import { t } from '@/lib/i18n';
 
@@ -65,7 +64,17 @@ const getStoredLayout = (): VaccineCardLayout => {
 
 export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
   const layout = getStoredLayout();
-  const animalVaccines = vaccines.filter(v => v.animalId === animal.id);
+  const animalVaccines = vaccines
+    .filter(v => v.animalId === animal.id)
+    .sort((a, b) => {
+      if (a.vaccineType.toLowerCase() < b.vaccineType.toLowerCase()) return -1;
+      if (a.vaccineType.toLowerCase() > b.vaccineType.toLowerCase()) return 1;
+      
+      const dateA = a.applicationDate instanceof Date ? a.applicationDate : new Date(a.applicationDate);
+      const dateB = b.applicationDate instanceof Date ? b.applicationDate : new Date(b.applicationDate);
+
+      return dateA.getTime() - dateB.getTime();
+    });
   
   const logoHtml = layout.showLogo ? `
     <div class="logo" style="
@@ -170,6 +179,21 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
             margin-bottom: 15px; 
             border-radius: 6px;
             background: white;
+            transition: background-color 0.3s;
+          }
+          .vaccine-record.scheduled {
+            background-color: #f8fafc; /* slate-50 */
+            border-color: #e2e8f0; /* slate-200 */
+          }
+          .vaccine-record.scheduled .vaccine-name {
+            color: #64748b; /* slate-500 */
+          }
+          .vaccine-record.scheduled .vaccine-date {
+            background-color: #e2e8f0; /* slate-200 */
+            color: #475569; /* slate-600 */
+          }
+          .vaccine-record.scheduled .vaccine-detail {
+            color: #94a3b8; /* slate-400 */
           }
           .vaccine-header {
             display: flex;
@@ -274,20 +298,33 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
               <p style="text-align: center; padding: 20px; color: #666;">
                 Nenhuma vacina registrada para este animal.
               </p>
-            ` : animalVaccines.map(vaccine => `
-              <div class="vaccine-record">
+            ` : animalVaccines.map(vaccine => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const appDate = vaccine.applicationDate instanceof Date ? vaccine.applicationDate : new Date(vaccine.applicationDate);
+                appDate.setHours(0, 0, 0, 0);
+
+                const isScheduled = appDate > today;
+                const dateString = appDate.toLocaleDateString('pt-BR');
+                const nextDueDateString = vaccine.nextDueDate 
+                  ? (vaccine.nextDueDate instanceof Date ? vaccine.nextDueDate.toLocaleDateString('pt-BR') : new Date(vaccine.nextDueDate).toLocaleDateString('pt-BR')) 
+                  : '';
+
+                return `
+              <div class="vaccine-record ${isScheduled ? 'scheduled' : ''}">
                 <div class="vaccine-header">
                   <span class="vaccine-name">${vaccine.vaccineType}</span>
-                  <span class="vaccine-date">${vaccine.applicationDate.toLocaleDateString('pt-BR')}</span>
+                  <span class="vaccine-date">${dateString}${isScheduled ? ' (Agendada)' : ''}</span>
                 </div>
                 <div class="vaccine-details">
                   ${vaccine.batch ? `<div class="vaccine-detail"><strong>Lote:</strong> ${vaccine.batch}</div>` : ''}
-                  ${vaccine.nextDueDate ? `<div class="vaccine-detail"><strong>Próxima Dose:</strong> ${vaccine.nextDueDate.toLocaleDateString('pt-BR')}</div>` : ''}
+                  ${nextDueDateString ? `<div class="vaccine-detail"><strong>Próxima Dose:</strong> ${nextDueDateString}</div>` : ''}
                   ${layout.fields.veterinarian && vaccine.veterinarian ? `<div class="vaccine-detail"><strong>Veterinário:</strong> ${vaccine.veterinarian.name}</div>` : ''}
                   ${vaccine.notes ? `<div class="vaccine-detail" style="grid-column: 1 / -1;"><strong>Observações:</strong> ${vaccine.notes}</div>` : ''}
                 </div>
               </div>
-            `).join('')}
+            `}).join('')}
           </div>
 
           ${layout.fields.clinicInfo ? `
