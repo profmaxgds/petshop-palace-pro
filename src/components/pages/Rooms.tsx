@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,6 +54,13 @@ const Rooms = () => {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
+
+  const roomTypes = [
+    { id: 'consultation', name: 'Consultório' },
+    { id: 'surgery', name: 'Sala Cirúrgica' },
+    { id: 'grooming', name: 'Banho e Tosa' },
+    { id: 'other', name: 'Outro' },
+  ];
 
   const [formData, setFormData] = useState({
     name: '',
@@ -130,14 +136,9 @@ const Rooms = () => {
     }
   };
 
-  const getTypeLabel = (type: string) => {
-    const labels = {
-      consultation: 'Consultório',
-      surgery: 'Sala Cirúrgica',
-      grooming: 'Banho e Tosa',
-      other: 'Outro'
-    };
-    return labels[type as keyof typeof labels] || type;
+  const getTypeLabel = (typeKey: string) => {
+    const type = roomTypes.find(t => t.id === typeKey);
+    return type ? type.name : typeKey;
   };
 
   const getTypeBadgeVariant = (type: string) => {
@@ -191,10 +192,9 @@ const Rooms = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="consultation">Consultório</SelectItem>
-                    <SelectItem value="surgery">Sala Cirúrgica</SelectItem>
-                    <SelectItem value="grooming">Banho e Tosa</SelectItem>
-                    <SelectItem value="other">Outro</SelectItem>
+                    {roomTypes.map(type => (
+                      <SelectItem key={type.id} value={type.id}>{type.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -261,10 +261,9 @@ const Rooms = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os tipos</SelectItem>
-                  <SelectItem value="consultation">Consultório</SelectItem>
-                  <SelectItem value="surgery">Sala Cirúrgica</SelectItem>
-                  <SelectItem value="grooming">Banho e Tosa</SelectItem>
-                  <SelectItem value="other">Outro</SelectItem>
+                  {roomTypes.map(type => (
+                    <SelectItem key={type.id} value={type.id}>{type.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

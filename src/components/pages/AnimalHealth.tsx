@@ -433,7 +433,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('animalHealth')}</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('clinic')}</h1>
           <p className="text-gray-600">{t('manageAppointments')}</p>
         </div>
       </div>
@@ -534,7 +534,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
                           <SelectValue placeholder={t('selectRoom')} />
                         </SelectTrigger>
                         <SelectContent>
-                          {rooms.map((room) => (
+                          {rooms.filter(room => room.type !== 'grooming').map((room) => (
                             <SelectItem key={room.id} value={room.id}>
                               {room.name}
                             </SelectItem>

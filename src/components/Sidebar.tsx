@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { 
@@ -68,7 +69,6 @@ const modules: ModuleItem[] = [
       { key: 'animals', icon: Heart, label: 'animals' },
       { key: 'breeds', icon: PawPrint, label: 'breeds' },
       { key: 'species', icon: PawPrint, label: 'species' },
-      { key: 'rooms', icon: Building, label: 'rooms' },
       { key: 'veterinarians', icon: Stethoscope, label: 'veterinarians' },
     ]
   },
@@ -77,7 +77,7 @@ const modules: ModuleItem[] = [
     label: 'Serviços',
     icon: ClipboardList,
     items: [
-      { key: 'animal-health', icon: Stethoscope, label: 'animalHealth' },
+      { key: 'animal-health', icon: Stethoscope, label: 'clinic' },
       { key: 'grooming', icon: Scissors, label: 'grooming' },
       { key: 'vaccines', icon: Syringe, label: 'vaccines' },
     ]
@@ -121,6 +121,8 @@ const modules: ModuleItem[] = [
     items: [
       { key: 'users', icon: UserCog, label: 'users' },
       { key: 'profiles', icon: Shield, label: 'profiles' },
+      { key: 'rooms', icon: Building, label: 'rooms' },
+      { key: 'room-types', icon: Tag, label: 'roomTypes' },
       { key: 'vaccine-card-layout', icon: FileText, label: 'vaccineCardLayout' },
       { key: 'reports', icon: BarChart3, label: 'reports' },
       { key: 'settings', icon: Settings, label: 'settings' },
@@ -174,6 +176,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       'breeds': { module: 'animals' },
       'species': { module: 'animals' },
       'rooms': { module: 'system', action: 'write' },
+      'room-types': { module: 'system', action: 'write' },
       'animal-health': { module: 'appointments' },
       'grooming': { module: 'appointments' },
       'vaccines': { module: 'vaccines' },
