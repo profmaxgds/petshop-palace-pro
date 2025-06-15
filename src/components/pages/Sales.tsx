@@ -1,4 +1,7 @@
+
 import React, { useState } from 'react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Search, Eye, FileText, Printer, Plus, Filter } from 'lucide-react';
+import { Search, Eye, FileText, Printer, Plus, Filter, ShoppingBag, Receipt } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { t } from '@/lib/i18n';
 
