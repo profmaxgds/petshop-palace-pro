@@ -7,11 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Edit, Trash2, Calendar, Syringe, AlertTriangle, Receipt } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Calendar, Syringe, AlertTriangle, Receipt, Ban, Clock, CheckCircle } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import type { Animal, Vaccine, Veterinarian, Breed, Tutor } from '@/types';
 import { SaleItem } from '@/types/sales';
+import { Product } from '@/types/products';
+import { addDays } from 'date-fns';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 
 interface VaccinesProps {
   navigationState?: any;
@@ -30,6 +34,15 @@ const vaccinePrices: { [key: string]: number } = {
   'Quíntupla Felina': 45.00,
   'FeLV': 55.00,
 };
+
+type VaccineStatus = 'applied' | 'scheduled' | 'canceled';
+
+interface ExtendedVaccine extends Vaccine {
+  status: VaccineStatus;
+  cancellationReason?: string;
+  productId?: string;
+  product?: Product;
+}
 
 const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
   const { toast } = useToast();
@@ -141,50 +154,98 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
     }
   ];
 
-  const [vaccines, setVaccines] = useState<Vaccine[]>([
+  const mockVaccineProducts: Product[] = [
+    {
+      id: 'prod-vac-v10',
+      name: 'Vacina V10 Importada',
+      categoryId: 'cat7',
+      quantity: 15,
+      minQuantity: 5,
+      costPrice: 30.00,
+      salePrice: 55.00,
+      supplier: 'Vet Supply',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      batch: 'V10-2025-01',
+      expirationDate: '2025-12-31',
+      vaccineType: 'Polivalente',
+      manufacturer: 'Major Vet',
+      mapaRegistration: 'MAPA SP 0001-1',
+    },
+    {
+      id: 'prod-vac-ar',
+      name: 'Vacina Antirrábica',
+      categoryId: 'cat7',
+      quantity: 20,
+      minQuantity: 10,
+      costPrice: 15.00,
+      salePrice: 30.00,
+      supplier: 'Vet Supply',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      batch: 'AR-2025-01',
+      expirationDate: '2026-01-31',
+      vaccineType: 'Antirrábica',
+      manufacturer: 'Vet Nacional',
+      mapaRegistration: 'MAPA SP 0005-4',
+    }
+  ];
+
+  const [vaccines, setVaccines] = useState<ExtendedVaccine[]>([
     {
       id: '1',
       animalId: '1',
       animal: mockAnimals[0],
-      vaccineType: 'V8',
+      vaccineType: 'Vacina V10 Importada',
+      productId: 'prod-vac-v10',
+      product: mockVaccineProducts[0],
       batch: '12345',
       applicationDate: new Date('2024-11-15'),
       nextDueDate: new Date('2025-11-15'),
       veterinarianId: '1',
       veterinarian: mockVeterinarians[0],
-      notes: 'Primeira dose da V8',
+      notes: 'Primeira dose da V10',
       createdBy: 'system',
       createdAt: new Date('2024-11-15'),
+      status: 'applied',
     },
     {
       id: '2',
       animalId: '2',
       animal: mockAnimals[1],
-      vaccineType: 'Antirrábica',
+      vaccineType: 'Vacina Antirrábica',
+      productId: 'prod-vac-ar',
+      product: mockVaccineProducts[1],
       batch: '67890',
-      applicationDate: new Date('2024-12-01'),
-      nextDueDate: new Date('2025-12-01'),
+      applicationDate: new Date('2025-07-01'),
+      nextDueDate: new Date('2026-07-01'),
       veterinarianId: '2',
       veterinarian: mockVeterinarians[1],
       notes: 'Vacina antirrábica anual',
       createdBy: 'system',
-      createdAt: new Date('2024-12-01'),
+      createdAt: new Date(),
+      status: 'scheduled',
     }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [animalFilter, setAnimalFilter] = useState<string>(selectedAnimalId || 'all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingVaccine, setEditingVaccine] = useState<Vaccine | null>(null);
+  const [editingVaccine, setEditingVaccine] = useState<ExtendedVaccine | null>(null);
   const [formData, setFormData] = useState({
     animalId: selectedAnimalId || '',
-    vaccineType: '',
+    productId: '',
     batch: '',
-    applicationDate: '',
-    nextDueDate: '',
+    applicationDate: new Date().toISOString().split('T')[0],
     veterinarianId: '',
     notes: '',
+    numberOfDoses: 1,
+    intervalInDays: 30,
+    scheduleFutureDoses: false,
   });
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [cancellingVaccine, setCancellingVaccine] = useState<ExtendedVaccine | null>(null);
+  const [cancellationReason, setCancellationReason] = useState('');
 
   useEffect(() => {
     if (selectedAnimalId) {
@@ -208,23 +269,35 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
   };
 
   const handleSave = () => {
-    if (!formData.animalId || !formData.vaccineType || !formData.applicationDate || !formData.veterinarianId) {
+    if (!formData.animalId || !formData.productId || !formData.applicationDate || !formData.veterinarianId) {
+      toast({ title: "Campos obrigatórios", description: "Preencha todos os campos obrigatórios.", variant: "destructive" });
       return;
     }
 
     const selectedAnimal = mockAnimals.find(a => a.id === formData.animalId);
     const selectedVeterinarian = mockVeterinarians.find(v => v.id === formData.veterinarianId);
+    const selectedProduct = mockVaccineProducts.find(p => p.id === formData.productId);
+
+    if (!selectedProduct) {
+      toast({ title: "Produto não encontrado", description: "A vacina selecionada não foi encontrada.", variant: "destructive" });
+      return;
+    }
 
     if (editingVaccine) {
       setVaccines(vaccines.map(v => 
         v.id === editingVaccine.id 
           ? { 
               ...editingVaccine, 
-              ...formData,
+              animalId: formData.animalId,
+              productId: formData.productId,
+              product: selectedProduct,
+              vaccineType: selectedProduct.name,
+              batch: formData.batch,
+              applicationDate: new Date(formData.applicationDate + 'T12:00:00Z'),
+              veterinarianId: formData.veterinarianId,
+              notes: formData.notes,
               animal: selectedAnimal,
               veterinarian: selectedVeterinarian,
-              applicationDate: new Date(formData.applicationDate),
-              nextDueDate: formData.nextDueDate ? new Date(formData.nextDueDate) : undefined,
             }
           : v
       ));
@@ -233,20 +306,52 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
         description: "A vacina foi atualizada com sucesso.",
       });
     } else {
-      const newVaccine: Vaccine = {
+      const allNewVaccines: ExtendedVaccine[] = [];
+      const firstApplicationDate = new Date(formData.applicationDate + 'T12:00:00Z');
+
+      // Primeira dose (ou única)
+      const firstVaccine: ExtendedVaccine = {
         id: Date.now().toString(),
-        ...formData,
-        animal: selectedAnimal,
-        veterinarian: selectedVeterinarian,
-        applicationDate: new Date(formData.applicationDate),
-        nextDueDate: formData.nextDueDate ? new Date(formData.nextDueDate) : undefined,
+        animalId: formData.animalId,
+        productId: formData.productId,
+        vaccineType: selectedProduct.name,
+        batch: formData.batch || selectedProduct.batch || '',
+        applicationDate: firstApplicationDate,
+        nextDueDate: addDays(firstApplicationDate, formData.intervalInDays),
+        veterinarianId: formData.veterinarianId,
+        notes: formData.notes,
         createdBy: 'current-user',
         createdAt: new Date(),
+        animal: selectedAnimal,
+        veterinarian: selectedVeterinarian,
+        product: selectedProduct,
+        status: 'applied',
       };
-      setVaccines([...vaccines, newVaccine]);
+      allNewVaccines.push(firstVaccine);
+
+      // Doses futuras
+      if (formData.numberOfDoses > 1 && formData.scheduleFutureDoses) {
+        let lastDate = firstApplicationDate;
+        for (let i = 1; i < formData.numberOfDoses; i++) {
+          const nextDate = addDays(lastDate, formData.intervalInDays);
+          const futureVaccine: ExtendedVaccine = {
+            ...firstVaccine,
+            id: `${Date.now().toString()}-${i}`,
+            applicationDate: nextDate,
+            nextDueDate: addDays(nextDate, formData.intervalInDays),
+            status: 'scheduled',
+            notes: `Dose ${i + 1} de ${formData.numberOfDoses}. ${formData.notes}`,
+            createdAt: new Date(),
+          };
+          allNewVaccines.push(futureVaccine);
+          lastDate = nextDate;
+        }
+      }
+      
+      setVaccines([...vaccines, ...allNewVaccines]);
       toast({
-        title: "Vacina cadastrada",
-        description: "A vacina foi cadastrada com sucesso.",
+        title: "Vacina(s) registrada(s)",
+        description: `${allNewVaccines.length} registro(s) de vacina foram criados com sucesso.`,
       });
     }
     handleCloseDialog();
@@ -257,47 +362,71 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
     setEditingVaccine(null);
     setFormData({
       animalId: selectedAnimalId || '',
-      vaccineType: '',
+      productId: '',
       batch: '',
-      applicationDate: '',
-      nextDueDate: '',
+      applicationDate: new Date().toISOString().split('T')[0],
       veterinarianId: '',
       notes: '',
+      numberOfDoses: 1,
+      intervalInDays: 30,
+      scheduleFutureDoses: false,
     });
   };
 
-  const handleEdit = (vaccine: Vaccine) => {
+  const handleEdit = (vaccine: ExtendedVaccine) => {
     setEditingVaccine(vaccine);
     setFormData({
       animalId: vaccine.animalId,
-      vaccineType: vaccine.vaccineType,
+      productId: vaccine.productId || '',
       batch: vaccine.batch || '',
       applicationDate: vaccine.applicationDate.toISOString().split('T')[0],
-      nextDueDate: vaccine.nextDueDate?.toISOString().split('T')[0] || '',
       veterinarianId: vaccine.veterinarianId || '',
       notes: vaccine.notes || '',
+      numberOfDoses: 1, // Don't allow changing recurrence on edit for simplicity
+      intervalInDays: 30,
+      scheduleFutureDoses: false,
     });
     setIsAddDialogOpen(true);
   };
-
-  const handleDelete = (vaccineId: string) => {
-    const vaccine = vaccines.find(v => v.id === vaccineId);
-    if (!vaccine) return;
-
-    if (!canDeleteVaccine(vaccine)) {
+  
+  const openCancelDialog = (vaccine: ExtendedVaccine) => {
+    if (vaccine.status === 'applied' || vaccine.status === 'canceled') {
       toast({
-        title: "Não é possível excluir",
-        description: "Vacinas não podem ser excluídas após 2 dias de seu lançamento.",
-        variant: "destructive",
+        title: 'Ação não permitida',
+        description: 'Não é possível cancelar uma vacina que já foi aplicada ou previamente cancelada.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setCancellingVaccine(vaccine);
+    setCancellationReason('');
+    setIsCancelDialogOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    if (!cancellingVaccine) return;
+    if (!cancellationReason) {
+      toast({
+        title: 'Motivo obrigatório',
+        description: 'Por favor, informe o motivo do cancelamento.',
+        variant: 'destructive',
       });
       return;
     }
 
-    setVaccines(vaccines.filter(v => v.id !== vaccineId));
+    setVaccines(vaccines.map(v => 
+      v.id === cancellingVaccine.id 
+        ? { ...v, status: 'canceled', cancellationReason } 
+        : v
+    ));
+    
     toast({
-      title: "Vacina excluída",
-      description: "A vacina foi excluída com sucesso.",
+      title: 'Vacina Cancelada',
+      description: 'O agendamento da vacina foi cancelado com sucesso.'
     });
+
+    setIsCancelDialogOpen(false);
+    setCancellingVaccine(null);
   };
 
   const handleSendToPOS = (vaccine: Vaccine) => {
@@ -360,9 +489,9 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                 )}
               </CardDescription>
             </div>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <Dialog open={isAddDialogOpen} onOpenChange={(isOpen) => { if (!isOpen) handleCloseDialog(); else setIsAddDialogOpen(true); }}>
               <DialogTrigger asChild>
-                <Button className="bg-teal-600 hover:bg-teal-700">
+                <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => setIsAddDialogOpen(true)}>
                   <Plus className="w-4 h-4 mr-2" />
                   {t('addVaccine')}
                 </Button>
@@ -377,12 +506,13 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                   </DialogDescription>
                 </DialogHeader>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
                   <div>
                     <Label htmlFor="animalId">{t('animal')}</Label>
                     <Select
                       value={formData.animalId}
                       onValueChange={(value) => setFormData({...formData, animalId: value})}
+                      disabled={!!editingVaccine}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder={t('selectAnimal')} />
@@ -396,20 +526,27 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div>
-                    <Label htmlFor="vaccineType">{t('vaccineType')}</Label>
+                    <Label htmlFor="productId">Vacina (Produto)</Label>
                     <Select
-                      value={formData.vaccineType}
-                      onValueChange={(value) => setFormData({...formData, vaccineType: value})}
+                      value={formData.productId}
+                      onValueChange={(value) => {
+                        const product = mockVaccineProducts.find(p => p.id === value);
+                        setFormData({
+                          ...formData, 
+                          productId: value,
+                          batch: product?.batch || '',
+                        });
+                      }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder={t('selectVaccineType')} />
+                        <SelectValue placeholder="Selecione a vacina" />
                       </SelectTrigger>
                       <SelectContent>
-                        {vaccineTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
+                        {mockVaccineProducts.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            {product.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -427,7 +564,7 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="applicationDate">{t('applicationDate')}</Label>
+                    <Label htmlFor="applicationDate">Data da 1ª Aplicação</Label>
                     <Input
                       id="applicationDate"
                       type="date"
@@ -435,16 +572,45 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                       onChange={(e) => setFormData({...formData, applicationDate: e.target.value})}
                     />
                   </div>
-                  
-                  <div>
-                    <Label htmlFor="nextDueDate">{t('nextDueDate')}</Label>
-                    <Input
-                      id="nextDueDate"
-                      type="date"
-                      value={formData.nextDueDate}
-                      onChange={(e) => setFormData({...formData, nextDueDate: e.target.value})}
-                    />
-                  </div>
+
+                  {!editingVaccine && (
+                    <>
+                      <div className="md:col-span-2 grid grid-cols-2 gap-4 border-t pt-4">
+                        <div>
+                          <Label htmlFor="numberOfDoses">Número de Doses</Label>
+                          <Input
+                            id="numberOfDoses"
+                            type="number"
+                            min="1"
+                            value={formData.numberOfDoses}
+                            onChange={(e) => setFormData({...formData, numberOfDoses: parseInt(e.target.value) || 1})}
+                          />
+                        </div>
+                        {formData.numberOfDoses > 1 && (
+                          <div>
+                            <Label htmlFor="intervalInDays">Intervalo (dias)</Label>
+                            <Input
+                              id="intervalInDays"
+                              type="number"
+                              min="1"
+                              value={formData.intervalInDays}
+                              onChange={(e) => setFormData({...formData, intervalInDays: parseInt(e.target.value) || 30})}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      {formData.numberOfDoses > 1 && (
+                        <div className="md:col-span-2 flex items-center space-x-2">
+                          <Switch
+                            id="scheduleFutureDoses"
+                            checked={formData.scheduleFutureDoses}
+                            onCheckedChange={(checked) => setFormData({...formData, scheduleFutureDoses: checked})}
+                          />
+                          <Label htmlFor="scheduleFutureDoses">Agendar doses futuras automaticamente</Label>
+                        </div>
+                      )}
+                    </>
+                  )}
                   
                   <div>
                     <Label htmlFor="veterinarianId">{t('veterinarian')}</Label>
@@ -522,9 +688,8 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                 <TableRow>
                   <TableHead>Animal</TableHead>
                   <TableHead>Vacina</TableHead>
-                  <TableHead>Lote</TableHead>
                   <TableHead>Aplicação</TableHead>
-                  <TableHead>Próxima Dose</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Veterinário</TableHead>
                   <TableHead className="text-right">{t('actions')}</TableHead>
                 </TableRow>
@@ -541,10 +706,12 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Syringe className="w-4 h-4 text-green-600" />
-                        {vaccine.vaccineType}
+                        <div>
+                          <div>{vaccine.vaccineType}</div>
+                          <div className="text-xs text-gray-500">Lote: {vaccine.batch}</div>
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell>{vaccine.batch}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
@@ -552,14 +719,25 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {vaccine.nextDueDate ? (
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          {vaccine.nextDueDate.toLocaleDateString('pt-BR')}
+                      <Badge variant={
+                        vaccine.status === 'applied' ? 'default' : 
+                        vaccine.status === 'scheduled' ? 'secondary' : 
+                        'destructive'
+                      } className={
+                        vaccine.status === 'applied' ? 'bg-green-100 text-green-800' :
+                        vaccine.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : ''
+                      }>
+                        <div className="flex items-center gap-1">
+                          {vaccine.status === 'applied' && <CheckCircle />}
+                          {vaccine.status === 'scheduled' && <Clock />}
+                          {vaccine.status === 'canceled' && <Ban />}
+                          {
+                            vaccine.status === 'applied' ? 'Aplicada' :
+                            vaccine.status === 'scheduled' ? 'Agendada' :
+                            'Cancelada'
+                          }
                         </div>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
+                      </Badge>
                     </TableCell>
                     <TableCell>{vaccine.veterinarian?.name}</TableCell>
                     <TableCell className="text-right">
@@ -569,7 +747,7 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                           size="sm"
                           onClick={() => handleSendToPOS(vaccine)}
                           title="Enviar para o PDV"
-                          disabled={vaccinePrices[vaccine.vaccineType] === undefined}
+                          disabled={vaccine.status !== 'applied' || vaccinePrices[vaccine.vaccineType] === undefined}
                         >
                           <Receipt className="w-4 h-4" />
                         </Button>
@@ -583,24 +761,12 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(vaccine.id)}
-                          className={`${
-                            canDeleteVaccine(vaccine) 
-                              ? 'text-red-600 hover:text-red-800' 
-                              : 'text-gray-400 cursor-not-allowed'
-                          }`}
-                          disabled={!canDeleteVaccine(vaccine)}
-                          title={
-                            canDeleteVaccine(vaccine) 
-                              ? 'Excluir vacina' 
-                              : 'Não é possível excluir após 2 dias'
-                          }
+                          onClick={() => openCancelDialog(vaccine)}
+                          className="text-red-600 hover:text-red-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+                          disabled={vaccine.status === 'applied' || vaccine.status === 'canceled'}
+                          title="Cancelar Agendamento"
                         >
-                          {canDeleteVaccine(vaccine) ? (
-                            <Trash2 className="w-4 h-4" />
-                          ) : (
-                            <AlertTriangle className="w-4 h-4" />
-                          )}
+                          <Ban className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -611,6 +777,31 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
           </div>
         </CardContent>
       </Card>
+      
+      <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancelar Agendamento de Vacina</DialogTitle>
+            <DialogDescription>
+              Você está cancelando a vacina <strong>{cancellingVaccine?.vaccineType}</strong> para <strong>{cancellingVaccine?.animal?.name}</strong>.
+              Por favor, informe o motivo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="cancellationReason">Motivo do Cancelamento</Label>
+            <Textarea
+              id="cancellationReason"
+              value={cancellationReason}
+              onChange={(e) => setCancellationReason(e.target.value)}
+              placeholder="Ex: Tutor desmarcou, animal indisposto..."
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCancelDialogOpen(false)}>Voltar</Button>
+            <Button variant="destructive" onClick={handleConfirmCancel}>Confirmar Cancelamento</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
