@@ -297,6 +297,14 @@ const Appointments: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const formatDate = (date: Date): string => {
+    // Garante que a data seja formatada de forma consistente com base no horário local, evitando problemas de fuso horário.
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${day}/${month}/${year}`;
+  };
+
   const handleSaveAppointment = () => {
     // --- Validation Logic ---
     const { animalId, appointmentDate: dateString, appointmentTime, serviceTypeId, veterinarianId, notes, products } = appointmentForm;
@@ -740,7 +748,7 @@ const Appointments: React.FC = () => {
                       <div><strong className="block text-gray-500">{t('animal')}:</strong> {executingAppointment.animal.name}</div>
                       <div><strong className="block text-gray-500">{t('tutor')}:</strong> {executingAppointment.animal.tutor.name}</div>
                       <div><strong className="block text-gray-500">{t('service')}:</strong> {executingAppointment.serviceType.name}</div>
-                      <div><strong className="block text-gray-500">{t('dateTime')}:</strong> {executingAppointment.appointmentDate.toLocaleDateString('pt-BR')} às {executingAppointment.appointmentTime}</div>
+                      <div><strong className="block text-gray-500">{t('dateTime')}:</strong> {formatDate(executingAppointment.appointmentDate)} às {executingAppointment.appointmentTime}</div>
                       <div className="col-span-2"><strong className="block text-gray-500">{t('veterinarian')}:</strong> {executingAppointment.veterinarian?.name || 'N/A'}</div>
                     </div>
                     <div className="border-t pt-4">
@@ -862,7 +870,7 @@ const Appointments: React.FC = () => {
                     </TableCell>
                     <TableCell>{appointment.serviceType.name}</TableCell>
                     <TableCell>
-                      {appointment.appointmentDate.toLocaleDateString('pt-BR')} às {appointment.appointmentTime}
+                      {formatDate(appointment.appointmentDate)} às {appointment.appointmentTime}
                     </TableCell>
                     <TableCell>{appointment.veterinarian?.name || '-'}</TableCell>
                     <TableCell>
