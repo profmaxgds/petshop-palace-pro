@@ -9,8 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Search, Stethoscope, Package, X, Play } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Animal, Veterinarian, ServiceType, Appointment, Room, Breed, Tutor, Product, WorkSchedule, ClinicSettings as ClinicSettingsType } from '@/types';
+import type { Animal, Veterinarian, ServiceType, Appointment, Room, Breed, Tutor, Product, WorkSchedule, ClinicSettings as ClinicSettingsType, Sale, SaleItem } from '@/types';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
 
 const Appointments: React.FC = () => {
   // Mock data with proper typing
@@ -254,6 +255,7 @@ const Appointments: React.FC = () => {
   const [isExecuteDialogOpen, setIsExecuteDialogOpen] = useState(false);
   const [executingAppointment, setExecutingAppointment] = useState<Appointment | null>(null);
   const [productDialogContext, setProductDialogContext] = useState<'form' | 'execution'>('form');
+  const { toast } = useToast();
 
   const [clinicSettings, setClinicSettings] = useState<Partial<ClinicSettingsType>>({
     preventAnimalDoubleBooking: true,
@@ -327,9 +329,8 @@ const Appointments: React.FC = () => {
     
     const veterinarian = veterinarianId ? mockVeterinarians.find(v => v.id === veterinarianId) : undefined;
     
-    // Create a UTC date to avoid timezone problems.
-    const [year, month, day] = dateString.split('-').map(Number);
-    const appointmentDate = new Date(Date.UTC(year, month - 1, day));
+    // Create a UTC date from the 'YYYY-MM-DD' string to avoid timezone issues.
+    const appointmentDate = new Date(`${dateString}T00:00:00.000Z`);
     
     const dayIndex = appointmentDate.getUTCDay();
     const dayOfWeek = (['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as (keyof WorkSchedule)[])[dayIndex];
@@ -442,12 +443,9 @@ const Appointments: React.FC = () => {
   const handleEditAppointment = (appointment: Appointment) => {
     setEditingAppointment(appointment);
 
-    // Format the UTC date to YYYY-MM-DD for the input field
-    const date = appointment.appointmentDate;
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const formattedDate = `${year}-${month}-${day}`;
+    // Format the UTC date to YYYY-MM-DD for the input[type="date"] field.
+    // .toISOString() returns a string in UTC format 'YYYY-MM-DDTHH:mm:ss.sssZ'.
+    const formattedDate = appointment.appointmentDate.toISOString().slice(0, 10);
     
     setAppointmentForm({
       animalId: appointment.animalId,
@@ -506,7 +504,64 @@ const Appointments: React.FC = () => {
 
   const handleStartService = () => {
     if (!executingAppointment) return;
+
+    // --- Send to POS Logic ---
+    const serviceItem: SaleItem = {
+      id: executingAppointment.serviceType.id,
+      name: executingAppointment.serviceType.name,
+      quantity: 1,
+      unitPrice: executingAppointment.serviceType.price,
+      total: executingAppointment.serviceType.price,
+      type: 'service',
+    };
+
+    const productItems: SaleItem[] = (executingAppointment.products || []).map(p => ({
+      id: p.productId,
+      name: p.product.name,
+      quantity: p.quantity,
+      unitPrice: p.product.salePrice || 0,
+      total: (p.product.salePrice || 0) * p.quantity,
+      type: 'product',
+    }));
+
+    const items = [serviceItem, ...productItems];
+    const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+
+    const newSale: Sale = {
+      id: `apt-${executingAppointment.id}`,
+      date: new Date(),
+      customerName: executingAppointment.animal.tutor.name,
+      customerPhone: executingAppointment.animal.tutor.phone,
+      animalId: executingAppointment.animal.id,
+      animalName: executingAppointment.animal.name,
+      items: items,
+      subtotal: subtotal,
+      discount: 0,
+      total: subtotal,
+      paymentMethod: '',
+      status: 'pending',
+    };
+
+    try {
+      const existingSalesJSON = localStorage.getItem('pos_sales');
+      const existingSales: Sale[] = existingSalesJSON ? JSON.parse(existingSalesJSON) : [];
+      localStorage.setItem('pos_sales', JSON.stringify([...existingSales, newSale]));
+      
+      toast({
+        title: "Sucesso",
+        description: "Agendamento enviado para o Ponto de Venda.",
+      });
+
+    } catch (error) {
+      console.error("Failed to save sale to localStorage", error);
+      toast({
+        title: "Erro",
+        description: "Falha ao enviar agendamento para o Ponto de Venda.",
+        variant: 'destructive',
+      });
+    }
     
+    // --- Update Appointment Status ---
     setAppointments(appointments.map(apt => 
         apt.id === executingAppointment.id
         ? { ...executingAppointment, status: 'in_progress', updatedAt: new Date() }

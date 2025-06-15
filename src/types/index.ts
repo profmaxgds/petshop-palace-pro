@@ -293,3 +293,28 @@ export interface ClinicSettings {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// Types for Point of Sale integration
+export interface SaleItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+  type: 'product' | 'service';
+}
+
+export interface Sale {
+  id: string;
+  date: Date;
+  customerName: string;
+  customerPhone?: string;
+  animalId: string;
+  animalName: string;
+  items: SaleItem[];
+  subtotal: number;
+  discount: number;
+  total: number;
+  paymentMethod: string;
+  status: 'pending' | 'completed' | 'cancelled';
+}
