@@ -13,9 +13,28 @@ import { useToast } from '@/hooks/use-toast';
 import type { Animal, Veterinarian, Breed, Tutor } from '@/types';
 import type { Sale, NewSale, SaleItem } from '@/types/sales';
 import { Product } from '@/types/products';
-import { addDays } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+
+// Adicionando a interface Vaccine para corrigir os erros de compilação
+interface Vaccine {
+  id: string;
+  animalId: string;
+  animal?: Animal;
+  vaccineType: string;
+  productId?: string;
+  product?: Product;
+  batch?: string;
+  applicationDate: Date;
+  nextDueDate?: Date;
+  veterinarianId: string;
+  veterinarian?: Veterinarian;
+  notes?: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt?: Date;
+}
 
 interface VaccinesProps {
   navigationState?: any;
@@ -27,8 +46,6 @@ type VaccineStatus = 'applied' | 'scheduled' | 'canceled';
 interface ExtendedVaccine extends Vaccine {
   status: VaccineStatus;
   cancellationReason?: string;
-  productId?: string;
-  product?: Product;
 }
 
 const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
@@ -233,6 +250,16 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [cancellingVaccine, setCancellingVaccine] = useState<ExtendedVaccine | null>(null);
   const [cancellationReason, setCancellationReason] = useState('');
+  
+  // New state for applying a scheduled vaccine
+  const [applyingVaccine, setApplyingVaccine] = useState<ExtendedVaccine | null>(null);
+  const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
+  const [applyFormData, setApplyFormData] = useState({
+    productId: '',
+    batch: '',
+    veterinarianId: '',
+    notes: '',
+  });
 
   useEffect(() => {
     if (selectedAnimalId) {
@@ -473,6 +500,63 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
     setIsCancelDialogOpen(false);
     setCancellingVaccine(null);
   };
+  
+  const handleOpenApplyDialog = (vaccine: ExtendedVaccine) => {
+    setApplyingVaccine(vaccine);
+    setApplyFormData({
+      productId: vaccine.productId || '',
+      batch: vaccine.batch || '',
+      veterinarianId: '', // Force selection of vet
+      notes: vaccine.notes || '',
+    });
+    setIsApplyDialogOpen(true);
+  };
+
+  const handleConfirmApply = () => {
+    if (!applyingVaccine || !applyFormData.productId || !applyFormData.veterinarianId) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Selecione a vacina e o veterinário.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const selectedProduct = mockVaccineProducts.find(p => p.id === applyFormData.productId);
+    const selectedVeterinarian = mockVeterinarians.find(v => v.id === applyFormData.veterinarianId);
+
+    if (!selectedProduct) {
+      toast({ title: "Produto não encontrado", variant: "destructive" });
+      return;
+    }
+    
+    const updatedVaccine: ExtendedVaccine = {
+      ...applyingVaccine,
+      status: 'applied',
+      applicationDate: new Date(), // Set to now as requested
+      productId: selectedProduct.id,
+      product: selectedProduct,
+      vaccineType: selectedProduct.name,
+      batch: applyFormData.batch || selectedProduct.batch || '',
+      veterinarianId: applyFormData.veterinarianId,
+      veterinarian: selectedVeterinarian,
+      notes: applyFormData.notes,
+      updatedAt: new Date(),
+    };
+
+    setVaccines(vaccines.map(v => v.id === updatedVaccine.id ? updatedVaccine : v));
+
+    toast({
+      title: 'Vacina Aplicada!',
+      description: `A vacina ${updatedVaccine.vaccineType} foi registrada como aplicada.`,
+    });
+    
+    createPendingSaleFromVaccine(updatedVaccine);
+    
+    setIsApplyDialogOpen(false);
+    setApplyingVaccine(null);
+  };
+
 
   return (
     <div className="space-y-6">
@@ -547,6 +631,7 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                           batch: product?.batch || '',
                         });
                       }}
+                      disabled={editingVaccine?.status === 'scheduled'}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a vacina" />
@@ -578,6 +663,7 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                       type="date"
                       value={formData.applicationDate}
                       onChange={(e) => setFormData({...formData, applicationDate: e.target.value})}
+                      disabled={editingVaccine?.status === 'scheduled'}
                     />
                   </div>
 
@@ -696,7 +782,7 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                 <TableRow>
                   <TableHead>Animal</TableHead>
                   <TableHead>Vacina</TableHead>
-                  <TableHead>Aplicação</TableHead>
+                  <TableHead>Data</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Veterinário</TableHead>
                   <TableHead className="text-right">{t('actions')}</TableHead>
@@ -750,6 +836,17 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
                     <TableCell>{vaccine.veterinarian?.name}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end space-x-2">
+                        {vaccine.status === 'scheduled' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleOpenApplyDialog(vaccine)}
+                            className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"
+                            title="Aplicar Vacina"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -798,6 +895,89 @@ const Vaccines: React.FC<VaccinesProps> = ({ navigationState, onNavigate }) => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCancelDialogOpen(false)}>Voltar</Button>
             <Button variant="destructive" onClick={handleConfirmCancel}>Confirmar Cancelamento</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* New Dialog for Applying a Scheduled Vaccine */}
+      <Dialog open={isApplyDialogOpen} onOpenChange={setIsApplyDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Aplicar Vacina Agendada</DialogTitle>
+            <DialogDescription>
+              Confirmar aplicação da vacina <strong>{applyingVaccine?.vaccineType}</strong> em <strong>{applyingVaccine?.animal?.name}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div>
+              <Label>Data da Aplicação</Label>
+              <Input value={format(new Date(), 'dd/MM/yyyy')} disabled />
+            </div>
+            <div>
+              <Label htmlFor="apply-productId">Vacina (Produto)</Label>
+              <Select
+                value={applyFormData.productId}
+                onValueChange={(value) => {
+                  const product = mockVaccineProducts.find(p => p.id === value);
+                  setApplyFormData({
+                    ...applyFormData, 
+                    productId: value,
+                    batch: product?.batch || '',
+                  });
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a vacina" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockVaccineProducts.filter(p => p.vaccineType).map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="apply-batch">Lote</Label>
+              <Input
+                id="apply-batch"
+                value={applyFormData.batch}
+                onChange={(e) => setApplyFormData({...applyFormData, batch: e.target.value})}
+                placeholder="Confirme o número do lote"
+              />
+            </div>
+            <div>
+              <Label htmlFor="apply-vet">{t('veterinarian')}</Label>
+              <Select
+                value={applyFormData.veterinarianId}
+                onValueChange={(value) => setApplyFormData({...applyFormData, veterinarianId: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('selectVeterinarian')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockVeterinarians.map((vet) => (
+                    <SelectItem key={vet.id} value={vet.id}>
+                      {vet.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="apply-notes">Observações</Label>
+              <Textarea
+                id="apply-notes"
+                value={applyFormData.notes}
+                onChange={(e) => setApplyFormData({...applyFormData, notes: e.target.value})}
+                placeholder="Observações sobre a aplicação"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsApplyDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleConfirmApply} className="bg-teal-600 hover:bg-teal-700">Confirmar Aplicação</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
