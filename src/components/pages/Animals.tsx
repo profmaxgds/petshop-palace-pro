@@ -142,7 +142,6 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
       species: 'dog',
       breedId: '1',
       breed: breeds[0],
-      age: 3,
       birthDate: new Date('2022-06-15'),
       sex: 'male',
       weight: 32.5,
@@ -159,7 +158,6 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
       species: 'cat',
       breedId: '2',
       breed: breeds[1],
-      age: 2,
       birthDate: new Date('2023-06-15'),
       sex: 'female',
       weight: 4.2,
@@ -212,19 +210,17 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
 
     const selectedTutor = tutors.find(t => t.id === formData.tutorId);
     const selectedBreed = breeds.find(b => b.id === formData.breedId);
-    const age = calculateAge(formData.birthDate);
     
     if (editingAnimal) {
       setAnimals(animals.map(a => 
         a.id === editingAnimal.id 
-          ? { ...editingAnimal, ...formData, age, tutor: selectedTutor!, breed: selectedBreed, updatedAt: new Date() }
+          ? { ...editingAnimal, ...formData, tutor: selectedTutor!, breed: selectedBreed, updatedAt: new Date() }
           : a
       ));
     } else {
       const newAnimal: Animal = {
         id: Date.now().toString(),
         ...formData,
-        age,
         tutor: selectedTutor!,
         breed: selectedBreed,
         isActive: true,

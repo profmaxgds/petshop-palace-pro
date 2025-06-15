@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Eye, Save, Undo, Palette, Type, Image, Layout, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { t } from '@/lib/i18n';
 
 const VaccineCardLayout: React.FC = () => {
   const { toast } = useToast();
@@ -169,43 +170,31 @@ const VaccineCardLayout: React.FC = () => {
         <h2 className="font-semibold text-lg border-b pb-1">Dados do Animal</h2>
         {layout.fields.animalName && (
           <div className="flex justify-between">
-            <span className="font-medium">Nome:</span>
-            <span>Rex</span>
-          </div>
-        )}
-        {layout.fields.tutorName && (
-          <div className="flex justify-between">
-            <span className="font-medium">Tutor:</span>
-            <span>João Silva</span>
-          </div>
-        )}
-        {layout.fields.species && (
-          <div className="flex justify-between">
-            <span className="font-medium">Espécie:</span>
-            <span>Cão</span>
-          </div>
-        )}
-        {layout.fields.breed && (
-          <div className="flex justify-between">
-            <span className="font-medium">Raça:</span>
+            <span className="font-medium">{t('breed', 'Raça')}:</span>
             <span>Golden Retriever</span>
           </div>
         )}
         {layout.fields.birthDate && (
-          <div className="flex justify-between">
-            <span className="font-medium">Idade:</span>
-            <span>3 anos</span>
-          </div>
+          <>
+            <div className="flex justify-between">
+              <span className="font-medium">{t('birthDate', 'Data de Nasc.')}:</span>
+              <span>15/06/2022</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium">{t('age', 'Idade')}:</span>
+              <span>3 anos</span>
+            </div>
+          </>
         )}
         {layout.fields.weight && (
           <div className="flex justify-between">
-            <span className="font-medium">Peso:</span>
+            <span className="font-medium">{t('weight', 'Peso')}:</span>
             <span>32,5 kg</span>
           </div>
         )}
         {layout.fields.microchip && (
           <div className="flex justify-between">
-            <span className="font-medium">Microchip:</span>
+            <span className="font-medium">{t('microchip', 'Microchip')}:</span>
             <span>123456789</span>
           </div>
         )}
@@ -473,15 +462,15 @@ const VaccineCardLayout: React.FC = () => {
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
                   {Object.entries({
-                    animalName: 'Nome do Animal',
-                    tutorName: 'Nome do Tutor',
-                    species: 'Espécie',
-                    breed: 'Raça',
-                    birthDate: 'Data de Nascimento',
-                    weight: 'Peso',
-                    microchip: 'Microchip',
-                    veterinarian: 'Veterinário',
-                    clinicInfo: 'Info da Clínica',
+                    animalName: t('animalName', 'Nome do Animal'),
+                    tutorName: t('tutorName', 'Nome do Tutor'),
+                    species: t('species', 'Espécie'),
+                    breed: t('breed', 'Raça'),
+                    birthDate: t('birthDate', 'Data de Nascimento'),
+                    weight: t('weight', 'Peso'),
+                    microchip: t('microchip', 'Microchip'),
+                    veterinarian: t('veterinarian', 'Veterinário'),
+                    clinicInfo: t('clinicInfo', 'Info da Clínica'),
                   }).map(([key, label]) => (
                     <div key={key} className="flex items-center space-x-2">
                       <input

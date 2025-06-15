@@ -46,6 +46,18 @@ const getClinicInfo = () => {
   };
 };
 
+const calculateAge = (birthDate?: Date): number | undefined => {
+  if (!birthDate) return undefined;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+};
+
 const getStoredLayout = (): VaccineCardLayout => {
   try {
     const stored = localStorage.getItem('vaccineCardLayout');
@@ -299,43 +311,47 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
             <div class="info-grid">
               ${layout.fields.animalName ? `
                 <div class="info-item">
-                  <span class="info-label">Nome:</span>
+                  <span class="info-label">${t('animalName', 'Nome')}:</span>
                   <span class="info-value">${animal.name}</span>
                 </div>
               ` : ''}
               ${layout.fields.tutorName ? `
                 <div class="info-item">
-                  <span class="info-label">Tutor:</span>
+                  <span class="info-label">${t('tutorName', 'Tutor')}:</span>
                   <span class="info-value">${animal.tutor?.name || 'N/A'}</span>
                 </div>
               ` : ''}
               ${layout.fields.species ? `
                 <div class="info-item">
-                  <span class="info-label">Espécie:</span>
+                  <span class="info-label">${t('species', 'Espécie')}:</span>
                   <span class="info-value">${t(animal.species)}</span>
                 </div>
               ` : ''}
               ${layout.fields.breed ? `
                 <div class="info-item">
-                  <span class="info-label">Raça:</span>
+                  <span class="info-label">${t('breed', 'Raça')}:</span>
                   <span class="info-value">${animal.breed?.name || 'SRD'}</span>
                 </div>
               ` : ''}
-              ${layout.fields.birthDate && animal.age ? `
+              ${layout.fields.birthDate && animal.birthDate ? `
                 <div class="info-item">
-                  <span class="info-label">Idade:</span>
-                  <span class="info-value">${animal.age} anos</span>
+                  <span class="info-label">${t('birthDate', 'Data de Nascimento')}:</span>
+                  <span class="info-value">${new Date(animal.birthDate).toLocaleDateString('pt-BR')}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">${t('age', 'Idade')}:</span>
+                  <span class="info-value">${calculateAge(animal.birthDate)} anos</span>
                 </div>
               ` : ''}
               ${layout.fields.weight && animal.weight ? `
                 <div class="info-item">
-                  <span class="info-label">Peso:</span>
+                  <span class="info-label">${t('weight', 'Peso')}:</span>
                   <span class="info-value">${animal.weight} kg</span>
                 </div>
               ` : ''}
               ${layout.fields.microchip && animal.microchip ? `
                 <div class="info-item">
-                  <span class="info-label">Microchip:</span>
+                  <span class="info-label">${t('microchip', 'Microchip')}:</span>
                   <span class="info-value">${animal.microchip}</span>
                 </div>
               ` : ''}

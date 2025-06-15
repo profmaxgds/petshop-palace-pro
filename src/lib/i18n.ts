@@ -58,11 +58,13 @@ i18next
           reports: 'Reports',
           vaccineCardLayout: 'Vaccine Card Layout',
           animalHealth: 'Animal Health',
+          clinicInfo: 'Clinic Info',
 
           // Common actions
           actions: 'Actions',
           add: 'Add',
           edit: 'Edit',
+          editAnimal: 'Edit Animal',
           delete: 'Delete',
           save: 'Save',
           cancel: 'Cancel',
@@ -88,6 +90,14 @@ i18next
           city: 'City',
           state: 'State',
           zipCode: 'ZIP Code',
+          birthDate: 'Birth Date',
+          age: 'Age',
+          sex: 'Sex',
+          male: 'Male',
+          female: 'Female',
+          weight: 'Weight',
+          breed: 'Breed',
+          microchip: 'Microchip',
 
           // Species
           dog: 'Dog',
@@ -187,9 +197,11 @@ i18next
           reports: 'Relatórios',
           vaccineCardLayout: 'Layout da Carteirinha',
           animalHealth: 'Saúde Animal',
+          clinicInfo: 'Info da Clínica',
           actions: 'Ações',
           add: 'Adicionar',
           edit: 'Editar',
+          editAnimal: 'Editar Animal',
           delete: 'Excluir',
           save: 'Salvar',
           cancel: 'Cancelar',
@@ -213,6 +225,14 @@ i18next
           city: 'Cidade',
           state: 'Estado',
           zipCode: 'CEP',
+          birthDate: 'Data de Nascimento',
+          age: 'Idade',
+          sex: 'Sexo',
+          male: 'Macho',
+          female: 'Fêmea',
+          weight: 'Peso',
+          breed: 'Raça',
+          microchip: 'Microchip',
           dog: 'Cão',
           cat: 'Gato',
           bird: 'Ave',
@@ -296,9 +316,11 @@ i18next
           reports: 'Informes',
           vaccineCardLayout: 'Diseño de Tarjeta de Vacunas',
           animalHealth: 'Salud Animal',
+          clinicInfo: 'Info de la Clínica',
           actions: 'Acciones',
           add: 'Agregar',
           edit: 'Editar',
+          editAnimal: 'Editar Animal',
           delete: 'Eliminar',
           save: 'Guardar',
           cancel: 'Cancelar',
@@ -322,6 +344,14 @@ i18next
           city: 'Ciudad',
           state: 'Estado',
           zipCode: 'Código Postal',
+          birthDate: 'Fecha de Nacimiento',
+          age: 'Edad',
+          sex: 'Sexo',
+          male: 'Macho',
+          female: 'Hembra',
+          weight: 'Peso',
+          breed: 'Raza',
+          microchip: 'Microchip',
           dog: 'Perro',
           cat: 'Gato',
           bird: 'Ave',
@@ -389,7 +419,7 @@ i18next.on('languageChanged', (lng) => {
   localStorage.setItem('i18nextLng', lng);
 });
 
-export const t = (key: string) => i18next.t(key);
+export const t = (key: string, defaultValue?: string) => i18next.t(key, { defaultValue });
 
 export const changeLanguage = (lng: string) => {
   if (availableLanguages.includes(lng as Language)) {
