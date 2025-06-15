@@ -74,48 +74,48 @@ const ClinicSettings: React.FC = () => {
         <CardContent className="space-y-4">
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="preventAnimalDoubleBooking" className="font-semibold text-base">Impedir agendamento duplo para o mesmo animal</Label>
-              <p className="text-sm text-gray-500">Não permite que o mesmo animal tenha dois agendamentos (exceto exames) no mesmo horário.</p>
+              <Label htmlFor="preventAnimalDoubleBooking" className="font-semibold text-base">Impedir agendamento duplo para o mesmo animal no mesmo horário</Label>
+              <p className="text-sm text-gray-500">Não permite que um animal tenha múltiplos serviços (ex: consulta e banho) agendados simultaneamente.</p>
             </div>
             <Switch
               id="preventAnimalDoubleBooking"
-              checked={settings.preventAnimalDoubleBooking}
+              checked={!!settings.preventAnimalDoubleBooking}
               onCheckedChange={(value) => handleSettingChange('preventAnimalDoubleBooking', value)}
             />
           </div>
           
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="preventVetDoubleBooking" className="font-semibold text-base">Impedir agendamento duplo para o mesmo veterinário</Label>
-              <p className="text-sm text-gray-500">Não permite que o mesmo veterinário atenda dois animais (exceto em exames) no mesmo horário.</p>
+              <Label htmlFor="preventVetDoubleBooking" className="font-semibold text-base">Impedir agendamento duplo para o mesmo veterinário no mesmo horário</Label>
+              <p className="text-sm text-gray-500">Não permite que um veterinário atenda múltiplos animais ou realize múltiplos serviços simultaneamente.</p>
             </div>
             <Switch
               id="preventVetDoubleBooking"
-              checked={settings.preventVetDoubleBooking}
+              checked={!!settings.preventVetDoubleBooking}
               onCheckedChange={(value) => handleSettingChange('preventVetDoubleBooking', value)}
             />
           </div>
 
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="allowDoubleBookingForExamServices" className="font-semibold text-base">Permitir agendamento duplo para exames</Label>
-              <p className="text-sm text-gray-500">Permite que múltiplos exames sejam agendados para o mesmo animal ou veterinário no mesmo horário.</p>
+              <Label htmlFor="allowDoubleBookingForExamServices" className="font-semibold text-base">Permitir agendamento simultâneo de exames</Label>
+              <p className="text-sm text-gray-500">Permite que múltiplos exames sejam agendados ao mesmo tempo para o mesmo animal ou veterinário, ignorando as regras de bloqueio.</p>
             </div>
             <Switch
               id="allowDoubleBookingForExamServices"
-              checked={settings.allowDoubleBookingForExamServices}
+              checked={!!settings.allowDoubleBookingForExamServices}
               onCheckedChange={(value) => handleSettingChange('allowDoubleBookingForExamServices', value)}
             />
           </div>
           
           <div className="flex items-start sm:items-center justify-between p-4 border rounded-lg flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="preventBookingOutsideWorkHours" className="font-semibold text-base">Impedir agendamentos fora do expediente</Label>
-              <p className="text-sm text-gray-500">Só permite agendamentos dentro do horário de trabalho cadastrado para o veterinário.</p>
+              <Label htmlFor="preventBookingOutsideWorkHours" className="font-semibold text-base">Validar horário de trabalho do veterinário</Label>
+              <p className="text-sm text-gray-500">Permitir agendamentos apenas dentro dos dias e horários de trabalho definidos para o veterinário.</p>
             </div>
             <Switch
               id="preventBookingOutsideWorkHours"
-              checked={settings.preventBookingOutsideWorkHours}
+              checked={!!settings.preventBookingOutsideWorkHours}
               onCheckedChange={(value) => handleSettingChange('preventBookingOutsideWorkHours', value)}
             />
           </div>
