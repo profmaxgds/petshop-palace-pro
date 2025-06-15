@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -12,6 +11,7 @@ import { ShoppingCart, Plus, Minus, Trash2, Calculator, Receipt, Search, Dog } f
 import { useToast } from '@/hooks/use-toast';
 import { Sale, SaleItem } from '@/types/sales';
 import type { Animal, Tutor, Breed } from '@/types';
+import { Label } from '@/components/ui/label';
 
 // MOCK DATA - In a real app, this would come from an API
 const mockBreeds: Breed[] = [
@@ -244,7 +244,7 @@ const PointOfSale: React.FC<PointOfSaleProps> = ({ onSaleCompleted, initialCartI
                   <SelectValue placeholder="Selecionar animal" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Cliente não identificado</SelectItem>
+                  <SelectItem value="unidentified">Cliente não identificado</SelectItem>
                   {mockAnimals.map(animal => (
                     <SelectItem key={animal.id} value={animal.id}>
                       {animal.name} (Tutor: {animal.tutor.name})
