@@ -1,3 +1,4 @@
+
 import type { Animal, Vaccine } from '@/types';
 import { t } from '@/lib/i18n';
 
@@ -25,6 +26,26 @@ interface VaccineCardLayout {
     clinicInfo: boolean;
   };
 }
+
+// Mock function to get clinic info from settings
+const getClinicInfo = () => {
+  // In a real scenario, this would fetch from a global state, context, or API
+  // For now, we'll use mock data.
+  const storedSettings = localStorage.getItem('clinicSettings');
+  if (storedSettings) {
+    try {
+      return JSON.parse(storedSettings);
+    } catch (e) {
+      console.error("Could not parse clinic settings from localStorage", e)
+    }
+  }
+  return {
+    name: 'Clínica Veterinária PetShop',
+    phone: '(11) 99999-9999',
+    website: 'www.petshop.com.br',
+    email: 'contato@petshop.com.br'
+  };
+};
 
 const getStoredLayout = (): VaccineCardLayout => {
   try {
@@ -64,6 +85,7 @@ const getStoredLayout = (): VaccineCardLayout => {
 
 export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
   const layout = getStoredLayout();
+  const clinicInfo = getClinicInfo();
   const animalVaccines = vaccines
     .filter(v => v.animalId === animal.id)
     .sort((a, b) => {
@@ -222,6 +244,19 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
           .vaccine-detail {
             color: #666;
           }
+          .vaccine-signature {
+            margin-top: 20px;
+            text-align: center;
+          }
+          .signature-line {
+            border-bottom: 1px solid #333;
+            width: 250px;
+            margin: 0 auto 5px auto;
+          }
+          .signature-info {
+            font-size: 12px;
+            color: #333;
+          }
           .footer {
             text-align: center;
             padding: 20px;
@@ -320,19 +355,27 @@ export const generateVaccineCard = (animal: Animal, vaccines: Vaccine[]) => {
                 <div class="vaccine-details">
                   ${vaccine.batch ? `<div class="vaccine-detail"><strong>Lote:</strong> ${vaccine.batch}</div>` : ''}
                   ${nextDueDateString ? `<div class="vaccine-detail"><strong>Próxima Dose:</strong> ${nextDueDateString}</div>` : ''}
-                  ${layout.fields.veterinarian && vaccine.veterinarian ? `<div class="vaccine-detail"><strong>Veterinário:</strong> ${vaccine.veterinarian.name}</div>` : ''}
                   ${vaccine.notes ? `<div class="vaccine-detail" style="grid-column: 1 / -1;"><strong>Observações:</strong> ${vaccine.notes}</div>` : ''}
                 </div>
+                ${!isScheduled && layout.fields.veterinarian && vaccine.veterinarian ? `
+                  <div class="vaccine-signature">
+                    <div class="signature-line"></div>
+                    <div class="signature-info">
+                      ${vaccine.veterinarian.name}<br>
+                      CRMV: ${vaccine.veterinarian.crmv}
+                    </div>
+                  </div>
+                ` : ''}
               </div>
             `}).join('')}
           </div>
 
           ${layout.fields.clinicInfo ? `
             <div class="footer">
-              <h3 style="margin: 0 0 10px 0; color: ${layout.headerColor};">Clínica Veterinária PetShop</h3>
-              <p style="margin: 5px 0;">📞 Telefone: (11) 99999-9999</p>
-              <p style="margin: 5px 0;">🌐 www.petshop.com.br</p>
-              <p style="margin: 5px 0;">📧 contato@petshop.com.br</p>
+              <h3 style="margin: 0 0 10px 0; color: ${layout.headerColor};">${clinicInfo.name}</h3>
+              <p style="margin: 5px 0;">📞 Telefone: ${clinicInfo.phone}</p>
+              <p style="margin: 5px 0;">🌐 ${clinicInfo.website}</p>
+              <p style="margin: 5px 0;">📧 ${clinicInfo.email}</p>
             </div>
           ` : ''}
         </div>

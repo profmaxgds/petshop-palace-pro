@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import type { Animal, Tutor, Vaccine, Appointment, GroomingService, Breed } from '@/types';
+import type { Animal, Tutor, Vaccine, Appointment, GroomingService, Breed, Veterinarian } from '@/types';
 import AnimalForm from './animals/AnimalForm';
 import AnimalsTable from './animals/AnimalsTable';
 import AnimalHistoryDialog from './animals/AnimalHistoryDialog';
@@ -80,6 +79,11 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
     }
   ];
 
+  const mockVeterinarians: Veterinarian[] = [
+    { id: '1', name: 'Dr. Carlos Silva', crmv: 'CRMV-SP 12345' },
+    { id: '2', name: 'Dra. Ana Costa', crmv: 'CRMV-SP 54321' },
+  ];
+
   const mockVaccines: Vaccine[] = [
     {
       id: '1',
@@ -90,6 +94,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
       applicationDate: new Date('2024-11-15'),
       nextDueDate: new Date('2025-11-15'),
       veterinarianId: '1',
+      veterinarian: mockVeterinarians[0],
       notes: 'Primeira dose da V8',
       createdBy: 'system',
       createdAt: new Date(),
@@ -103,6 +108,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
       applicationDate: new Date(new Date().setDate(new Date().getDate() + 30)),
       nextDueDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate() + 30)),
       veterinarianId: '2',
+      veterinarian: mockVeterinarians[1],
       notes: 'Agendamento da vacina antirrábica anual',
       createdBy: 'system',
       createdAt: new Date(),

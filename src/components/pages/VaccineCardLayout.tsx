@@ -222,7 +222,11 @@ const VaccineCardLayout: React.FC = () => {
             </div>
             <div className="text-xs text-gray-600">Lote: AB123 | Próxima: 15/01/2025</div>
             {layout.fields.veterinarian && (
-              <div className="text-xs text-gray-600">Vet: Dr. Carlos Silva</div>
+              <div className="mt-4 text-center text-xs text-gray-600">
+                <div className="w-48 mx-auto border-b border-gray-700 my-1"></div>
+                Dr. Carlos Silva<br/>
+                CRMV: CRMV-SP 12345
+              </div>
             )}
           </div>
           <div className="bg-gray-50 p-2 rounded">
@@ -232,7 +236,11 @@ const VaccineCardLayout: React.FC = () => {
             </div>
             <div className="text-xs text-gray-600">Lote: CD456 | Próxima: 20/02/2025</div>
             {layout.fields.veterinarian && (
-              <div className="text-xs text-gray-600">Vet: Dra. Ana Costa</div>
+               <div className="mt-4 text-center text-xs text-gray-600">
+                <div className="w-48 mx-auto border-b border-gray-700 my-1"></div>
+                Dra. Ana Costa<br/>
+                CRMV: CRMV-SP 54321
+              </div>
             )}
           </div>
         </div>
