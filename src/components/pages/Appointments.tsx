@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatInTimeZone, toDate } from 'date-fns-tz';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -210,7 +211,7 @@ const Appointments: React.FC = () => {
       id: '1',
       animalId: '1',
       animal: mockAnimals[0],
-      appointmentDate: new Date(Date.UTC(2024, 11, 15)), // Using UTC for Dec 15
+      appointmentDate: toDate('2024-12-15T00:00:00.000Z'),
       appointmentTime: '09:00',
       serviceTypeId: '1',
       serviceType: mockServiceTypes[0],
@@ -229,7 +230,7 @@ const Appointments: React.FC = () => {
       id: '2',
       animalId: '2',
       animal: mockAnimals[1],
-      appointmentDate: new Date(Date.UTC(2024, 11, 16)), // Using UTC for Dec 16
+      appointmentDate: toDate('2024-12-16T00:00:00.000Z'),
       appointmentTime: '14:30',
       serviceTypeId: '2',
       serviceType: mockServiceTypes[1],
@@ -300,11 +301,8 @@ const Appointments: React.FC = () => {
   });
 
   const formatDate = (date: Date): string => {
-    // Format date based on UTC to avoid timezone issues.
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    return `${day}/${month}/${year}`;
+    // Format date based on UTC to avoid timezone issues, using a robust library.
+    return formatInTimeZone(date, 'UTC', 'dd/MM/yyyy');
   };
 
   const handleSaveAppointment = () => {
@@ -330,7 +328,7 @@ const Appointments: React.FC = () => {
     const veterinarian = veterinarianId ? mockVeterinarians.find(v => v.id === veterinarianId) : undefined;
     
     // Create a UTC date from the 'YYYY-MM-DD' string to avoid timezone issues.
-    const appointmentDate = new Date(`${dateString}T00:00:00.000Z`);
+    const appointmentDate = toDate(`${dateString}T00:00:00.000Z`);
     
     const dayIndex = appointmentDate.getUTCDay();
     const dayOfWeek = (['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as (keyof WorkSchedule)[])[dayIndex];
@@ -444,8 +442,7 @@ const Appointments: React.FC = () => {
     setEditingAppointment(appointment);
 
     // Format the UTC date to YYYY-MM-DD for the input[type="date"] field.
-    // .toISOString() returns a string in UTC format 'YYYY-MM-DDTHH:mm:ss.sssZ'.
-    const formattedDate = appointment.appointmentDate.toISOString().slice(0, 10);
+    const formattedDate = formatInTimeZone(appointment.appointmentDate, 'UTC', 'yyyy-MM-dd');
     
     setAppointmentForm({
       animalId: appointment.animalId,
