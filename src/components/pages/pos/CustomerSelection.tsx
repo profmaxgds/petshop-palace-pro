@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Tutor, Animal } from '@/types';
@@ -28,7 +28,7 @@ const CustomerSelection: React.FC<CustomerSelectionProps> = ({
 
     useEffect(() => {
         onAnimalChange('');
-    }, [selectedTutorId]);
+    }, [selectedTutorId, onAnimalChange]);
 
     return (
         <div className="space-y-4">
