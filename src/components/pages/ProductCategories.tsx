@@ -8,15 +8,17 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Edit, Trash2, Tag } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import type { ProductCategory } from '@/types';
 
 const ProductCategories: React.FC = () => {
-  const [categories, setCategories] = useState<ProductCategory[]>([
+  const [categories, setCategories] = useState<(ProductCategory & { isVaccine?: boolean })[]>([
     {
       id: '1',
       name: 'Medicamentos',
       description: 'Medicamentos veterinários diversos',
       isActive: true,
+      isVaccine: false,
       createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -26,6 +28,7 @@ const ProductCategories: React.FC = () => {
       name: 'Alimentação',
       description: 'Rações e suplementos alimentares',
       isActive: true,
+      isVaccine: false,
       createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -35,6 +38,17 @@ const ProductCategories: React.FC = () => {
       name: 'Higiene',
       description: 'Produtos de limpeza e higiene',
       isActive: true,
+      isVaccine: false,
+      createdBy: 'admin',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '4',
+      name: 'Vacinas',
+      description: 'Vacinas para animais',
+      isActive: true,
+      isVaccine: true,
       createdBy: 'admin',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -43,11 +57,12 @@ const ProductCategories: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<ProductCategory | null>(null);
+  const [editingCategory, setEditingCategory] = useState<(ProductCategory & { isVaccine?: boolean }) | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    isVaccine: false,
   });
 
   const filteredCategories = categories.filter(category => 
@@ -71,7 +86,7 @@ const ProductCategories: React.FC = () => {
           : c
       ));
     } else {
-      const newCategory: ProductCategory = {
+      const newCategory: (ProductCategory & { isVaccine?: boolean }) = {
         id: Date.now().toString(),
         ...formData,
         isActive: true,
@@ -90,14 +105,16 @@ const ProductCategories: React.FC = () => {
     setFormData({
       name: '',
       description: '',
+      isVaccine: false,
     });
   };
 
-  const handleEdit = (category: ProductCategory) => {
+  const handleEdit = (category: (ProductCategory & { isVaccine?: boolean })) => {
     setEditingCategory(category);
     setFormData({
       name: category.name,
       description: category.description || '',
+      isVaccine: category.isVaccine || false,
     });
     setIsAddDialogOpen(true);
   };
@@ -169,6 +186,11 @@ const ProductCategories: React.FC = () => {
                       placeholder="Descrição da categoria"
                     />
                   </div>
+
+                  <div className="flex items-center space-x-2 pt-2">
+                    <Checkbox id="isVaccine" checked={formData.isVaccine} onCheckedChange={(checked) => setFormData({...formData, isVaccine: !!checked})} />
+                    <Label htmlFor="isVaccine" className="font-normal">Esta categoria é para vacinas</Label>
+                  </div>
                 </div>
                 
                 <DialogFooter>
@@ -212,6 +234,7 @@ const ProductCategories: React.FC = () => {
                     <div className="flex items-center">
                       <Tag className="w-4 h-4 mr-2 text-purple-600" />
                       <span className="font-medium">{category.name}</span>
+                      {category.isVaccine && <Badge variant="outline" className="ml-2 border-blue-600 text-blue-600">Vacina</Badge>}
                     </div>
                   </TableCell>
                   <TableCell>{category.description}</TableCell>

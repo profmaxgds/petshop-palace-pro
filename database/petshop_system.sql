@@ -1,4 +1,3 @@
-
 -- Criação do banco de dados do sistema PetShop
 -- Versão atualizada com todas as funcionalidades
 
@@ -220,6 +219,7 @@ CREATE TABLE product_categories (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(50) NOT NULL,
     description TEXT,
+    is_vaccine_category BOOLEAN DEFAULT FALSE,
     is_active BOOLEAN DEFAULT TRUE,
     created_by VARCHAR(36) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -460,12 +460,12 @@ INSERT INTO rooms (name, type, created_by) VALUES
 ('Sala de Estética', 'grooming', '1');
 
 -- Categorias de produtos padrão
-INSERT INTO product_categories (name, description, created_by) VALUES
-('Medicamentos', 'Medicamentos veterinários', '1'),
-('Vacinas', 'Vacinas para animais', '1'),
-('Rações', 'Rações e alimentos', '1'),
-('Acessórios', 'Coleiras, brinquedos, etc.', '1'),
-('Produtos de Higiene', 'Shampoos, condicionadores, etc.', '1');
+INSERT INTO product_categories (name, description, is_vaccine_category, created_by) VALUES
+('Medicamentos', 'Medicamentos veterinários', FALSE, '1'),
+('Vacinas', 'Vacinas para animais', TRUE, '1'),
+('Rações', 'Rações e alimentos', FALSE, '1'),
+('Acessórios', 'Coleiras, brinquedos, etc.', FALSE, '1'),
+('Produtos de Higiene', 'Shampoos, condicionadores, etc.', FALSE, '1');
 
 -- Layout padrão da carteirinha
 INSERT INTO vaccine_card_layouts (id, name, description, fields, header_text, footer_text, is_default, created_by) VALUES
