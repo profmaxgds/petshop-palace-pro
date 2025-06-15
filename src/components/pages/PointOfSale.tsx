@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,13 @@ import { ShoppingCart, Plus, Minus, Trash2, Calculator, CreditCard, Banknote, Re
 import { useToast } from '@/hooks/use-toast';
 import { Sale, SaleItem } from '@/types/sales';
 
-const PointOfSale: React.FC<{ onSaleCompleted: (sale: Sale) => void }> = ({ onSaleCompleted }) => {
+interface PointOfSaleProps {
+  onSaleCompleted: (sale: Sale) => void;
+  initialCartItems?: SaleItem[] | null;
+  onCartLoaded?: () => void;
+}
+
+const PointOfSale: React.FC<PointOfSaleProps> = ({ onSaleCompleted, initialCartItems, onCartLoaded }) => {
   const { toast } = useToast();
   
   const [cartItems, setCartItems] = useState<SaleItem[]>([]);
@@ -20,6 +26,38 @@ const PointOfSale: React.FC<{ onSaleCompleted: (sale: Sale) => void }> = ({ onSa
   const [paymentMethod, setPaymentMethod] = useState('');
   const [discount, setDiscount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    if (initialCartItems && initialCartItems.length > 0) {
+      setCartItems(prevItems => {
+        const newItems = [...prevItems];
+        initialCartItems.forEach(initialItem => {
+          const existingItemIndex = newItems.findIndex(item => item.id === initialItem.id && item.type === initialItem.type);
+          if (existingItemIndex > -1) {
+            const existingItem = newItems[existingItemIndex];
+            const newQuantity = existingItem.quantity + initialItem.quantity;
+            newItems[existingItemIndex] = {
+              ...existingItem,
+              quantity: newQuantity,
+              total: newQuantity * existingItem.unitPrice,
+            };
+          } else {
+            newItems.push(initialItem);
+          }
+        });
+        return newItems;
+      });
+
+      toast({
+        title: "Itens adicionados ao carrinho",
+        description: "Itens de outras telas foram adicionados à venda atual.",
+      });
+
+      if (onCartLoaded) {
+        onCartLoaded();
+      }
+    }
+  }, [initialCartItems, onCartLoaded, toast]);
 
   // Mock data for products and services
   const availableItems = [

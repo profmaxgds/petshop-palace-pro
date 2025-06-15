@@ -26,7 +26,7 @@ import Reports from '@/components/pages/Reports';
 import Settings from '@/components/pages/Settings';
 import PointOfSale from '@/components/pages/PointOfSale';
 import Sales from '@/components/pages/Sales';
-import { Sale } from '@/types/sales';
+import { Sale, SaleItem } from '@/types/sales';
 
 // Mock user data
 const mockUser = {
@@ -72,10 +72,18 @@ function App() {
       status: 'completed',
     },
   ]);
+  const [draftSaleItems, setDraftSaleItems] = useState<SaleItem[] | null>(null);
 
   const handlePageChange = (page: string, state?: any) => {
     setCurrentPage(page);
     setNavigationState(state);
+    if (state?.draftSaleItems) {
+      setDraftSaleItems(state.draftSaleItems);
+    }
+  };
+
+  const handleClearDraftSaleItems = () => {
+    setDraftSaleItems(null);
   };
 
   const handleLogout = () => {
@@ -145,7 +153,11 @@ function App() {
       case 'settings':
         return <Settings />;
       case 'point-of-sale':
-        return <PointOfSale onSaleCompleted={(newSale) => setSales(prevSales => [newSale, ...prevSales])} />;
+        return <PointOfSale 
+          onSaleCompleted={(newSale) => setSales(prevSales => [newSale, ...prevSales])} 
+          initialCartItems={draftSaleItems}
+          onCartLoaded={handleClearDraftSaleItems}
+        />;
       case 'sales':
         return <Sales sales={sales} />;
       default:
