@@ -136,6 +136,11 @@ export interface Appointment {
   roomId?: string;
   status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
   totalPrice?: number;
+  products?: {
+    product: Product;
+    productId: string;
+    quantity: number;
+  }[];
   notes?: string;
   isActive: boolean;
   createdBy: string;

@@ -1,6 +1,9 @@
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+
+export type Language = 'pt' | 'en' | 'es';
 
 i18n
   .use(LanguageDetector)
@@ -48,6 +51,44 @@ i18n
           "thursday": "Quinta-feira",
           "friday": "Sexta-feira",
           "saturday": "Sábado",
+          "clinic": "Clínica",
+          "manageAppointments": "Gerencie os agendamentos",
+          "appointmentsList": "Lista de Agendamentos",
+          "appointmentsRegistered": "agendamentos registrados",
+          "newAppointment": "Novo Agendamento",
+          "editAppointment": "Editar Agendamento",
+          "fillAppointmentData": "Preencha os dados do agendamento",
+          "animal": "Animal",
+          "selectAnimal": "Selecionar Animal",
+          "serviceType": "Tipo de Serviço",
+          "selectService": "Selecionar Serviço",
+          "date": "Data",
+          "time": "Horário",
+          "veterinarian": "Veterinário",
+          "selectVeterinarian": "Selecionar Veterinário",
+          "room": "Sala",
+          "selectRoom": "Selecionar Sala",
+          "searchByAnimalOrVet": "Buscar por animal, tutor ou veterinário",
+          "allStatuses": "Todos os Status",
+          "scheduled": "Agendado",
+          "completed": "Concluído",
+          "cancelled": "Cancelado",
+          "tutor": "Tutor",
+          "service": "Serviço",
+          "dateTime": "Data/Hora",
+          "actions": "Ações",
+          "confirmExclusion": "Tem certeza que deseja excluir este agendamento?",
+          "products": "Produtos",
+          "addProduct": "Adicionar Produto",
+          "quantity": "Quantidade",
+          "selectProduct": "Selecionar Produto",
+          "searchProduct": "Buscar produto...",
+          "vetUnavailable": "O veterinário selecionado não está disponível neste dia/horário.",
+          "animalDoubleBooked": "O animal já possui outro agendamento (não-exame) neste mesmo horário.",
+          "vetDoubleBooked": "O veterinário já possui outro agendamento (não-exame) neste mesmo horário.",
+          "price": "Preço",
+          "category": "Categoria",
+          "status": "Status",
         }
       },
       "en": {
@@ -91,6 +132,44 @@ i18n
           "thursday": "Thursday",
           "friday": "Friday",
           "saturday": "Saturday",
+          "clinic": "Clinic",
+          "manageAppointments": "Manage appointments",
+          "appointmentsList": "Appointments List",
+          "appointmentsRegistered": "appointments registered",
+          "newAppointment": "New Appointment",
+          "editAppointment": "Edit Appointment",
+          "fillAppointmentData": "Fill appointment data",
+          "animal": "Animal",
+          "selectAnimal": "Select Animal",
+          "serviceType": "Service Type",
+          "selectService": "Select Service",
+          "date": "Date",
+          "time": "Time",
+          "veterinarian": "Veterinarian",
+          "selectVeterinarian": "Select Veterinarian",
+          "room": "Room",
+          "selectRoom": "Select Room",
+          "searchByAnimalOrVet": "Search by animal, tutor or vet",
+          "allStatuses": "All Statuses",
+          "scheduled": "Scheduled",
+          "completed": "Completed",
+          "cancelled": "Cancelled",
+          "tutor": "Tutor",
+          "service": "Service",
+          "dateTime": "Date/Time",
+          "actions": "Actions",
+          "confirmExclusion": "Are you sure you want to delete this appointment?",
+          "products": "Products",
+          "addProduct": "Add Product",
+          "quantity": "Quantity",
+          "selectProduct": "Select Product",
+          "searchProduct": "Search product...",
+          "vetUnavailable": "The selected veterinarian is not available at this day/time.",
+          "animalDoubleBooked": "The animal already has another non-exam appointment at this same time.",
+          "vetDoubleBooked": "The veterinarian already has another non-exam appointment at this same time.",
+          "price": "Price",
+          "category": "Category",
+          "status": "Status",
         }
       },
       "es": {
@@ -134,6 +213,44 @@ i18n
           "thursday": "Jueves",
           "friday": "Viernes",
           "saturday": "Sábado",
+          "clinic": "Clínica",
+          "manageAppointments": "Administrar citas",
+          "appointmentsList": "Lista de Citas",
+          "appointmentsRegistered": "citas registradas",
+          "newAppointment": "Nueva Cita",
+          "editAppointment": "Editar Cita",
+          "fillAppointmentData": "Llenar datos de la cita",
+          "animal": "Animal",
+          "selectAnimal": "Seleccionar Animal",
+          "serviceType": "Tipo de Servicio",
+          "selectService": "Seleccionar Servicio",
+          "date": "Fecha",
+          "time": "Hora",
+          "veterinarian": "Veterinario",
+          "selectVeterinarian": "Seleccionar Veterinario",
+          "room": "Sala",
+          "selectRoom": "Seleccionar Sala",
+          "searchByAnimalOrVet": "Buscar por animal, tutor o veterinario",
+          "allStatuses": "Todos los Estados",
+          "scheduled": "Programada",
+          "completed": "Completada",
+          "cancelled": "Cancelada",
+          "tutor": "Tutor",
+          "service": "Servicio",
+          "dateTime": "Fecha/Hora",
+          "actions": "Acciones",
+          "confirmExclusion": "¿Estás seguro de que deseas eliminar esta cita?",
+          "products": "Productos",
+          "addProduct": "Añadir Producto",
+          "quantity": "Cantidad",
+          "selectProduct": "Seleccionar Producto",
+          "searchProduct": "Buscar producto...",
+          "vetUnavailable": "El veterinario seleccionado no está disponible en este día/hora.",
+          "animalDoubleBooked": "El animal ya tiene otra cita (no examen) a esta misma hora.",
+          "vetDoubleBooked": "El veterinario ya tiene otra cita (no examen) a esta misma hora.",
+          "price": "Precio",
+          "category": "Categoría",
+          "status": "Estado",
         }
       }
     },
@@ -142,6 +259,18 @@ i18n
       escapeValue: false,
     },
   });
+
+export const setLanguage = (lang: Language) => {
+  return i18n.changeLanguage(lang);
+};
+
+export const getCurrentLanguage = (): Language => {
+  const lang = i18n.language;
+  if (['pt', 'en', 'es'].includes(lang)) {
+    return lang as Language;
+  }
+  return 'pt';
+};
 
 export const t = i18n.t.bind(i18n);
 
