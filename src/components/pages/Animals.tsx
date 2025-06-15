@@ -143,6 +143,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
       breedId: '1',
       breed: breeds[0],
       age: 3,
+      birthDate: new Date('2022-06-15'),
       sex: 'male',
       weight: 32.5,
       tutorId: '1',
@@ -159,6 +160,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
       breedId: '2',
       breed: breeds[1],
       age: 2,
+      birthDate: new Date('2023-06-15'),
       sex: 'female',
       weight: 4.2,
       tutorId: '2',
@@ -179,7 +181,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
     name: '',
     species: 'dog' as 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other',
     breedId: '',
-    age: 0,
+    birthDate: undefined as Date | undefined,
     sex: 'male' as 'male' | 'female',
     weight: 0,
     tutorId: '',
@@ -191,6 +193,18 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
     animal.tutor?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const calculateAge = (birthDate?: Date): number | undefined => {
+    if (!birthDate) return undefined;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const handleSave = () => {
     if (!formData.species || !formData.name || !formData.tutorId) {
       return;
@@ -198,17 +212,19 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
 
     const selectedTutor = tutors.find(t => t.id === formData.tutorId);
     const selectedBreed = breeds.find(b => b.id === formData.breedId);
+    const age = calculateAge(formData.birthDate);
     
     if (editingAnimal) {
       setAnimals(animals.map(a => 
         a.id === editingAnimal.id 
-          ? { ...editingAnimal, ...formData, tutor: selectedTutor!, breed: selectedBreed, updatedAt: new Date() }
+          ? { ...editingAnimal, ...formData, age, tutor: selectedTutor!, breed: selectedBreed, updatedAt: new Date() }
           : a
       ));
     } else {
       const newAnimal: Animal = {
         id: Date.now().toString(),
         ...formData,
+        age,
         tutor: selectedTutor!,
         breed: selectedBreed,
         isActive: true,
@@ -228,7 +244,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
       name: '',
       species: 'dog',
       breedId: '',
-      age: 0,
+      birthDate: undefined,
       sex: 'male',
       weight: 0,
       tutorId: '',
@@ -241,7 +257,7 @@ const Animals: React.FC<AnimalsProps> = ({ onNavigate }) => {
       name: animal.name,
       species: animal.species,
       breedId: animal.breedId || '',
-      age: animal.age || 0,
+      birthDate: animal.birthDate,
       sex: animal.sex,
       weight: animal.weight || 0,
       tutorId: animal.tutorId,

@@ -42,6 +42,7 @@ export interface Animal {
   breed?: Breed;
   breedId?: string;
   age?: number;
+  birthDate?: Date;
   sex: 'male' | 'female';
   weight?: number;
   color?: string;

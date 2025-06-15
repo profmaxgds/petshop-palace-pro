@@ -1,10 +1,14 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { t } from '@/lib/i18n';
 import type { Animal, Tutor, Breed } from '@/types';
 
@@ -17,7 +21,7 @@ interface AnimalFormProps {
     name: string;
     species: 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other';
     breedId: string;
-    age: number;
+    birthDate?: Date;
     sex: 'male' | 'female';
     weight: number;
     tutorId: string;
@@ -26,7 +30,7 @@ interface AnimalFormProps {
     name: string;
     species: 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'other';
     breedId: string;
-    age: number;
+    birthDate?: Date;
     sex: 'male' | 'female';
     weight: number;
     tutorId: string;
@@ -113,14 +117,31 @@ const AnimalForm: React.FC<AnimalFormProps> = ({
           </div>
           
           <div>
-            <Label htmlFor="age">{t('age')}</Label>
-            <Input
-              id="age"
-              type="number"
-              value={formData.age}
-              onChange={(e) => setFormData({...formData, age: parseInt(e.target.value) || 0})}
-              placeholder="Idade em anos"
-            />
+            <Label htmlFor="birthDate">{t('birthDate', 'Data de Nascimento')}</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !formData.birthDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.birthDate ? format(formData.birthDate, "dd/MM/yyyy") : <span>Selecione a data</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={formData.birthDate}
+                  onSelect={(date) => setFormData({ ...formData, birthDate: date })}
+                  disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           
           <div>
