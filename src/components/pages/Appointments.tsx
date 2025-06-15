@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -210,7 +209,7 @@ const Appointments: React.FC = () => {
       id: '1',
       animalId: '1',
       animal: mockAnimals[0],
-      appointmentDate: new Date('2024-12-15'),
+      appointmentDate: new Date('2024-12-15T00:00:00'),
       appointmentTime: '09:00',
       serviceTypeId: '1',
       serviceType: mockServiceTypes[0],
@@ -229,7 +228,7 @@ const Appointments: React.FC = () => {
       id: '2',
       animalId: '2',
       animal: mockAnimals[1],
-      appointmentDate: new Date('2024-12-16'),
+      appointmentDate: new Date('2024-12-16T00:00:00'),
       appointmentTime: '14:30',
       serviceTypeId: '2',
       serviceType: mockServiceTypes[1],
@@ -380,7 +379,7 @@ const Appointments: React.FC = () => {
               ...editingAppointment,
               animal,
               animalId: appointmentForm.animalId,
-              appointmentDate: new Date(appointmentForm.appointmentDate),
+              appointmentDate,
               appointmentTime: appointmentForm.appointmentTime,
               serviceType,
               serviceTypeId: appointmentForm.serviceTypeId,
@@ -400,7 +399,7 @@ const Appointments: React.FC = () => {
         id: Date.now().toString(),
         animal,
         animalId: appointmentForm.animalId,
-        appointmentDate: new Date(appointmentForm.appointmentDate),
+        appointmentDate,
         appointmentTime: appointmentForm.appointmentTime,
         serviceType,
         serviceTypeId: appointmentForm.serviceTypeId,
@@ -430,9 +429,17 @@ const Appointments: React.FC = () => {
 
   const handleEditAppointment = (appointment: Appointment) => {
     setEditingAppointment(appointment);
+
+    // Correctly format the date to YYYY-MM-DD to avoid timezone issues
+    const date = appointment.appointmentDate;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    
     setAppointmentForm({
       animalId: appointment.animalId,
-      appointmentDate: appointment.appointmentDate.toISOString().split('T')[0],
+      appointmentDate: formattedDate,
       appointmentTime: appointment.appointmentTime,
       serviceTypeId: appointment.serviceTypeId,
       veterinarianId: appointment.veterinarianId || '',
