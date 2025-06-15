@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import Sidebar from '@/components/Sidebar';
@@ -28,6 +27,8 @@ import Reports from '@/components/pages/Reports';
 import Settings from '@/components/pages/Settings';
 import PointOfSale from '@/components/pages/PointOfSale';
 import Sales from '@/components/pages/Sales';
+import ClinicSettings from '@/components/pages/ClinicSettings';
+import RoomTypes from '@/components/pages/RoomTypes';
 import { Sale, SaleItem } from '@/types/sales';
 import type { Animal, Tutor, Breed } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -321,6 +322,10 @@ function App() {
         return <Reports />;
       case 'settings':
         return <Settings />;
+      case 'clinic-settings':
+        return <ClinicSettings />;
+      case 'room-types':
+        return <RoomTypes />;
       case 'point-of-sale':
         return <PointOfSale 
           sales={sales}
