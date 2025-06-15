@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +10,18 @@ import { Plus, Edit, Trash2 } from 'lucide-react';
 import { Breed } from '@/types';
 import { t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
+
+// Em uma aplicação real, estes dados viriam da nova tela de Espécies.
+// Adicionei 'Lagarto' como exemplo de uma espécie customizada.
+const managedSpecies = [
+    { name: 'dog', label: 'Cão' },
+    { name: 'cat', label: 'Gato' },
+    { name: 'bird', label: 'Ave' },
+    { name: 'rabbit', label: 'Coelho' },
+    { name: 'hamster', label: 'Hamster' },
+    { name: 'other', label: 'Outro' },
+    { name: 'lizard', label: 'Lagarto' },
+];
 
 const Breeds = () => {
   const { toast } = useToast();
@@ -120,15 +131,7 @@ const Breeds = () => {
   };
 
   const getSpeciesLabel = (species: string) => {
-    const labels = {
-      dog: 'Cão',
-      cat: 'Gato',
-      bird: 'Ave',
-      rabbit: 'Coelho',
-      hamster: 'Hamster',
-      other: 'Outro'
-    };
-    return labels[species as keyof typeof labels] || species;
+    return managedSpecies.find(s => s.name === species)?.label || species;
   };
 
   const filteredBreeds = breeds.filter(breed => {
@@ -167,17 +170,14 @@ const Breeds = () => {
               
               <div>
                 <Label htmlFor="species">{t('species')}</Label>
-                <Select value={formData.species} onValueChange={(value: Breed['species']) => setFormData({ ...formData, species: value })}>
+                <Select value={formData.species} onValueChange={(value) => setFormData({ ...formData, species: value as Breed['species'] })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="dog">Cão</SelectItem>
-                    <SelectItem value="cat">Gato</SelectItem>
-                    <SelectItem value="bird">Ave</SelectItem>
-                    <SelectItem value="rabbit">Coelho</SelectItem>
-                    <SelectItem value="hamster">Hamster</SelectItem>
-                    <SelectItem value="other">Outro</SelectItem>
+                    {managedSpecies.map((s) => (
+                      <SelectItem key={s.name} value={s.name}>{s.label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -232,12 +232,9 @@ const Breeds = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas as espécies</SelectItem>
-                  <SelectItem value="dog">Cães</SelectItem>
-                  <SelectItem value="cat">Gatos</SelectItem>
-                  <SelectItem value="bird">Aves</SelectItem>
-                  <SelectItem value="rabbit">Coelhos</SelectItem>
-                  <SelectItem value="hamster">Hamsters</SelectItem>
-                  <SelectItem value="other">Outros</SelectItem>
+                  {managedSpecies.map((s) => (
+                      <SelectItem key={s.name} value={s.name}>{s.label}s</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
