@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -53,7 +52,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
         updatedAt: new Date(),
       },
       animalId: '1',
-      appointmentDate: new Date('2024-12-20'),
+      appointmentDate: new Date(2024, 11, 20), // CORRIGIDO: Usa o construtor local
       appointmentTime: '09:00',
       serviceType: {
         id: '1',
@@ -265,13 +264,34 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
     return matchesSearch && matchesStatus;
   });
 
+  // --- INÍCIO DAS FUNÇÕES CORRIGIDAS ---
+  const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatDateForInput = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseDateFromInput = (dateString: string): Date => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    return localDate;
+  };
+  // --- FIM DAS FUNÇÕES CORRIGIDAS ---
+
   const addServiceToAppointment = () => {
     if (!selectedServiceId) return;
     
     const serviceType = veterinaryServiceTypes.find(s => s.id === selectedServiceId);
     if (!serviceType) return;
     
-    // Verificar se o serviço já foi adicionado
     if (appointmentServices.some(s => s.serviceTypeId === selectedServiceId)) {
       toast({
         title: "Serviço já adicionado",
@@ -315,8 +335,10 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
 
     if (!animal) return;
 
-    // Para múltiplos serviços, vamos usar o primeiro como principal
     const mainService = appointmentServices[0];
+    
+    // CORRIGIDO: Usa a função parseDateFromInput para criar a data
+    const appointmentDate = parseDateFromInput(appointmentForm.appointmentDate);
 
     if (editingAppointment) {
       setAppointments(appointments.map(a => 
@@ -325,7 +347,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
               ...editingAppointment,
               animal,
               animalId: appointmentForm.animalId,
-              appointmentDate: new Date(appointmentForm.appointmentDate),
+              appointmentDate: appointmentDate,
               appointmentTime: appointmentForm.appointmentTime,
               serviceType: mainService.serviceType,
               serviceTypeId: mainService.serviceTypeId,
@@ -348,7 +370,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
         id: Date.now().toString(),
         animal,
         animalId: appointmentForm.animalId,
-        appointmentDate: new Date(appointmentForm.appointmentDate),
+        appointmentDate: appointmentDate,
         appointmentTime: appointmentForm.appointmentTime,
         serviceType: mainService.serviceType,
         serviceTypeId: mainService.serviceTypeId,
@@ -398,7 +420,8 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
     }]);
     setAppointmentForm({
       animalId: appointment.animalId,
-      appointmentDate: appointment.appointmentDate.toISOString().split('T')[0],
+      // CORRIGIDO: Usa a função formatDateForInput para formatar
+      appointmentDate: formatDateForInput(appointment.appointmentDate),
       appointmentTime: appointment.appointmentTime,
       serviceTypeId: appointment.serviceTypeId,
       veterinarianId: appointment.veterinarianId || '',
@@ -569,7 +592,6 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
                     </div>
                   </div>
 
-                  {/* Seção de Serviços */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Serviços</h3>
                     
@@ -701,7 +723,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
                   <TableCell>{appointment.animal.tutor.name}</TableCell>
                   <TableCell>{appointment.serviceType.name}</TableCell>
                   <TableCell>
-                    {appointment.appointmentDate.toLocaleDateString('pt-BR')} às {appointment.appointmentTime}
+                    {formatDate(appointment.appointmentDate)} às {appointment.appointmentTime}
                   </TableCell>
                   <TableCell>{appointment.veterinarian?.name || '-'}</TableCell>
                   <TableCell>R$ {(appointment.totalPrice || appointment.serviceType.price).toFixed(2)}</TableCell>
