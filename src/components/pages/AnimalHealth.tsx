@@ -22,9 +22,11 @@ interface AppointmentService {
 
 interface AnimalHealthProps {
   onNavigate: (page: string, state?: any) => void;
+    veterinarians: Veterinarian[];
+
 }
 
-const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate }) => {
+const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }) => {
   const { toast } = useToast();
 
   // Mock data
