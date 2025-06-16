@@ -11,6 +11,9 @@ i18n
     resources: {
       "pt": {
         "translation": {
+          "admin": "Administrador", // Adicionado
+          "veterinarian": "Veterinário", // Adicionado
+          "receptionist": "Recepcionista", // Adicionado
           "dashboard": "Painel",
           "tutors": "Tutores",
           "manageTutors": "Gerenciar tutores",
@@ -135,6 +138,9 @@ i18n
       },
       "en": {
         "translation": {
+          "admin": "Administrator", // Adicionado
+          "veterinarian": "Veterinarian", // Adicionado
+          "receptionist": "Receptionist", // Adicionado
           "dashboard": "Dashboard",
           "tutors": "Tutors",
           "manageTutors": "Manage tutors",
@@ -252,6 +258,9 @@ i18n
       },
       "es": {
         "translation": {
+          "admin": "Administrador", // Adicionado
+          "veterinarian": "Veterinario", // Adicionado
+          "receptionist": "Recepcionista", // Adicionado
           "dashboard": "Panel",
           "tutors": "Tutores",
           "manageTutors": "Administrar tutores",
