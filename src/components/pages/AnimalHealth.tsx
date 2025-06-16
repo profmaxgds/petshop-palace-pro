@@ -22,62 +22,75 @@ interface AppointmentService {
 
 interface AnimalHealthProps {
   onNavigate: (page: string, state?: any) => void;
-    veterinarians: Veterinarian[];
-
+  veterinarians: Veterinarian[];
 }
 
 const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }) => {
   const { toast } = useToast();
 
-  // Mock data
+  // Mock data para o exemplo funcionar de forma isolada
+  const mockAnimals: Animal[] = [
+    {
+      id: '1',
+      name: 'Rex',
+      species: 'dog',
+      sex: 'male',
+      tutor: {
+        id: '1',
+        name: 'João Silva',
+        phone: '(11) 99999-9999',
+        isActive: true,
+        createdBy: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      tutorId: '1',
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+  ];
+
+  const mockServiceTypes: ServiceType[] = [
+    {
+      id: '1',
+      name: 'Consulta Veterinária',
+      category: 'consultation',
+      duration: 30,
+      price: 80,
+      requiresVeterinarian: true,
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+  ];
+  
+  const mockRooms: Room[] = [
+    {
+      id: '1',
+      name: 'Consultório 1',
+      type: 'consultation',
+      capacity: 4,
+      equipment: ['Mesa de exame', 'Estetoscópio', 'Balança'],
+      isActive: true,
+      createdBy: '1',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ];
+
   const [appointments, setAppointments] = useState<Appointment[]>([
     {
       id: '1',
-      animal: {
-        id: '1',
-        name: 'Rex',
-        species: 'dog',
-        sex: 'male',
-        tutor: {
-          id: '1',
-          name: 'João Silva',
-          phone: '(11) 99999-9999',
-          isActive: true,
-          createdBy: '1',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        tutorId: '1',
-        isActive: true,
-        createdBy: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+      animal: mockAnimals[0],
       animalId: '1',
-      appointmentDate: new Date(2024, 11, 20), // CORRIGIDO: Usa o construtor local
+      appointmentDate: new Date(2024, 11, 20), // Mês é 0-indexado (11 = Dezembro)
       appointmentTime: '09:00',
-      serviceType: {
-        id: '1',
-        name: 'Consulta Veterinária',
-        category: 'consultation',
-        duration: 30,
-        price: 80,
-        requiresVeterinarian: true,
-        isActive: true,
-        createdBy: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+      serviceType: mockServiceTypes[0],
       serviceTypeId: '1',
-      veterinarian: {
-        id: '1',
-        name: 'Dr. Carlos Silva',
-        crmv: '12345',
-        status: 'active',
-        createdBy: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+      veterinarian: veterinarians[0],
       veterinarianId: '1',
       status: 'scheduled',
       totalPrice: 80,
@@ -102,157 +115,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
     roomId: '',
     notes: '',
   });
-
-  // Mock data for selects
-  const animals: Animal[] = [
-    {
-      id: '1',
-      name: 'Rex',
-      species: 'dog',
-      sex: 'male',
-      tutor: {
-        id: '1',
-        name: 'João Silva',
-        phone: '(11) 99999-9999',
-        isActive: true,
-        createdBy: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      tutorId: '1',
-      isActive: true,
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-  ];
-
-  const serviceTypes: ServiceType[] = [
-    {
-      id: '1',
-      name: 'Consulta Veterinária',
-      category: 'consultation',
-      duration: 30,
-      price: 80,
-      requiresVeterinarian: true,
-      isActive: true,
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-  ];
-
-  const veterinarians: Veterinarian[] = [
-    {
-      id: '1',
-      name: 'Dr. Carlos Silva',
-      crmv: '12345',
-      status: 'active',
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-  ];
-
-  const rooms: Room[] = [
-    {
-      id: '1',
-      name: 'Consultório 1',
-      type: 'consultation',
-      capacity: 4,
-      equipment: ['Mesa de exame', 'Estetoscópio', 'Balança'],
-      isActive: true,
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '2',
-      name: 'Sala Cirúrgica 1',
-      type: 'surgery',
-      capacity: 6,
-      equipment: ['Mesa cirúrgica', 'Aparelho de anestesia', 'Monitor cardíaco'],
-      isActive: true,
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '3',
-      name: 'Sala de Banho e Tosa',
-      type: 'grooming',
-      capacity: 2,
-      equipment: ['Banheira', 'Secador', 'Mesa de tosa'],
-      isActive: true,
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
-
-  const veterinaryServiceTypes: ServiceType[] = [
-    {
-      id: '1',
-      name: 'Consulta Veterinária',
-      category: 'consultation',
-      duration: 30,
-      price: 80,
-      requiresVeterinarian: true,
-      isActive: true,
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '2',
-      name: 'Exame de Sangue',
-      category: 'exam',
-      duration: 15,
-      price: 120,
-      requiresVeterinarian: true,
-      isActive: true,
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '3',
-      name: 'Cirurgia',
-      category: 'surgery',
-      duration: 120,
-      price: 500,
-      requiresVeterinarian: true,
-      isActive: true,
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '4',
-      name: 'Raio-X',
-      category: 'exam',
-      duration: 30,
-      price: 150,
-      requiresVeterinarian: true,
-      isActive: true,
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '5',
-      name: 'Ultrassom',
-      category: 'exam',
-      duration: 45,
-      price: 200,
-      requiresVeterinarian: true,
-      isActive: true,
-      createdBy: '1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-  ];
-
+  
   const [appointmentServices, setAppointmentServices] = useState<AppointmentService[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState('');
 
@@ -266,7 +129,6 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
     return matchesSearch && matchesStatus;
   });
 
-  // --- INÍCIO DAS FUNÇÕES CORRIGIDAS ---
   const formatDate = (date: Date): string => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -283,15 +145,13 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
 
   const parseDateFromInput = (dateString: string): Date => {
     const [year, month, day] = dateString.split('-').map(Number);
-    const localDate = new Date(year, month - 1, day);
-    return localDate;
+    return new Date(year, month - 1, day);
   };
-  // --- FIM DAS FUNÇÕES CORRIGIDAS ---
 
   const addServiceToAppointment = () => {
     if (!selectedServiceId) return;
     
-    const serviceType = veterinaryServiceTypes.find(s => s.id === selectedServiceId);
+    const serviceType = mockServiceTypes.find(s => s.id === selectedServiceId);
     if (!serviceType) return;
     
     if (appointmentServices.some(s => s.serviceTypeId === selectedServiceId)) {
@@ -331,15 +191,13 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
       return;
     }
 
-    const animal = animals.find(a => a.id === appointmentForm.animalId);
-    const veterinarian = veterinarians.find(v => v.id === appointmentForm.veterinarianId);
-    const room = rooms.find(r => r.id === appointmentForm.roomId);
+    const animal = mockAnimals.find(a => a.id === appointmentForm.animalId);
+    const veterinarianData = veterinarians.find(v => v.id === appointmentForm.veterinarianId);
+    const room = mockRooms.find(r => r.id === appointmentForm.roomId);
 
     if (!animal) return;
 
     const mainService = appointmentServices[0];
-    
-    // CORRIGIDO: Usa a função parseDateFromInput para criar a data
     const appointmentDate = parseDateFromInput(appointmentForm.appointmentDate);
 
     if (editingAppointment) {
@@ -353,7 +211,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
               appointmentTime: appointmentForm.appointmentTime,
               serviceType: mainService.serviceType,
               serviceTypeId: mainService.serviceTypeId,
-              veterinarian,
+              veterinarian: veterinarianData,
               veterinarianId: appointmentForm.veterinarianId,
               room,
               roomId: appointmentForm.roomId,
@@ -376,7 +234,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
         appointmentTime: appointmentForm.appointmentTime,
         serviceType: mainService.serviceType,
         serviceTypeId: mainService.serviceTypeId,
-        veterinarian,
+        veterinarian: veterinarianData,
         veterinarianId: appointmentForm.veterinarianId,
         room,
         roomId: appointmentForm.roomId,
@@ -422,7 +280,6 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
     }]);
     setAppointmentForm({
       animalId: appointment.animalId,
-      // CORRIGIDO: Usa a função formatDateForInput para formatar
       appointmentDate: formatDateForInput(appointment.appointmentDate),
       appointmentTime: appointment.appointmentTime,
       serviceTypeId: appointment.serviceTypeId,
@@ -526,7 +383,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
                           <SelectValue placeholder={t('selectAnimal')} />
                         </SelectTrigger>
                         <SelectContent>
-                          {animals.map((animal) => (
+                          {mockAnimals.map((animal) => (
                             <SelectItem key={animal.id} value={animal.id}>
                               {animal.name} - {animal.tutor.name}
                             </SelectItem>
@@ -584,7 +441,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
                           <SelectValue placeholder={t('selectRoom')} />
                         </SelectTrigger>
                         <SelectContent>
-                          {rooms.filter(room => room.type !== 'grooming').map((room) => (
+                          {mockRooms.filter(room => room.type !== 'grooming').map((room) => (
                             <SelectItem key={room.id} value={room.id}>
                               {room.name}
                             </SelectItem>
@@ -606,7 +463,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
                           <SelectValue placeholder="Selecionar serviço" />
                         </SelectTrigger>
                         <SelectContent>
-                          {veterinaryServiceTypes.map((service) => (
+                          {mockServiceTypes.map((service) => (
                             <SelectItem key={service.id} value={service.id}>
                               {service.name} - R$ {service.price}
                             </SelectItem>
@@ -657,12 +514,12 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
                   </div>
                   
                   <div>
-                    <Label htmlFor="notes">{t('observationsNotes')}</Label>
+                    <Label htmlFor="notes">{t('notes')}</Label>
                     <Textarea
                       id="notes"
                       value={appointmentForm.notes}
                       onChange={(e) => setAppointmentForm({...appointmentForm, notes: e.target.value})}
-                      placeholder={t('observationsNotes')}
+                      placeholder="Observações sobre o agendamento..."
                       rows={3}
                     />
                   </div>
@@ -686,7 +543,7 @@ const AnimalHealth: React.FC<AnimalHealthProps> = ({ onNavigate, veterinarians }
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder={t('searchByAnimalOrVeterinarian')}
+                placeholder={t('searchByAnimalOrVet')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
