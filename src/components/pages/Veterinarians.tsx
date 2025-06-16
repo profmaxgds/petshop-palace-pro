@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,44 +12,12 @@ import { t } from '@/lib/i18n';
 import type { Veterinarian, WorkSchedule } from '@/types';
 import { Switch } from '@/components/ui/switch';
 
-const Veterinarians: React.FC = () => {
-  const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([
-    {
-      id: '1',
-      name: 'Dr. Carlos Silva',
-      crmv: 'CRMV-SP 12345',
-      cpf: '111.222.333-44',
-      address: {
-        street: 'Rua das Flores', number: '123', neighborhood: 'Centro',
-        city: 'São Paulo', state: 'SP', zipCode: '01000-000'
-      },
-      specialties: ['Clínica Geral', 'Dermatologia'],
-      phone: '(11) 99999-9999',
-      email: 'carlos@clinica.com',
-      status: 'active',
-      createdBy: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '2',
-      name: 'Dra. Ana Costa',
-      crmv: 'CRMV-SP 67890',
-      cpf: '444.555.666-77',
-      address: {
-        street: 'Avenida Paulista', number: '1500', neighborhood: 'Bela Vista',
-        city: 'São Paulo', state: 'SP', zipCode: '01310-200'
-      },
-      specialties: ['Cirurgia', 'Cardiologia'],
-      phone: '(11) 88888-8888',
-      email: 'ana@clinica.com',
-      status: 'active',
-      createdBy: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ]);
+interface VeterinariansProps {
+  veterinarians: Veterinarian[];
+  setVeterinarians: React.Dispatch<React.SetStateAction<Veterinarian[]>>;
+}
 
+const Veterinarians: React.FC<VeterinariansProps> = ({ veterinarians, setVeterinarians }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVet, setEditingVet] = useState<Veterinarian | null>(null);
