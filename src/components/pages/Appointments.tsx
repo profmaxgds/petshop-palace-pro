@@ -211,7 +211,7 @@ const Appointments: React.FC = () => {
       id: '1',
       animalId: '1',
       animal: mockAnimals[0],
-      appointmentDate: new Date('2024-12-15'),
+      appointmentDate: new Date(Date.UTC(2024, 11, 15)),
       appointmentTime: '09:00',
       serviceTypeId: '1',
       serviceType: mockServiceTypes[0],
@@ -230,7 +230,7 @@ const Appointments: React.FC = () => {
       id: '2',
       animalId: '2',
       animal: mockAnimals[1],
-      appointmentDate: new Date('2024-12-16'),
+      appointmentDate: new Date(Date.UTC(2024, 11, 16)),
       appointmentTime: '14:30',
       serviceTypeId: '2',
       serviceType: mockServiceTypes[1],
@@ -301,25 +301,22 @@ const Appointments: React.FC = () => {
   });
 
   const formatDate = (date: Date): string => {
-    // Usar formatação simples e consistente
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
     return `${day}/${month}/${year}`;
   };
 
   const formatDateForInput = (date: Date): string => {
-    // Formatar data para input[type="date"] (YYYY-MM-DD)
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
 
   const parseDateFromInput = (dateString: string): Date => {
-    // Criar data simples sem considerar timezone
     const [year, month, day] = dateString.split('-').map(Number);
-    return new Date(year, month - 1, day);
+    return new Date(Date.UTC(year, month - 1, day));
   };
 
   const handleSaveAppointment = () => {
