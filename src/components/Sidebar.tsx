@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { 
@@ -62,7 +61,7 @@ interface ModuleItem {
 const modules: ModuleItem[] = [
   {
     key: 'cadastros',
-    label: 'Entidades',
+    label: 'entities',
     icon: FolderOpen,
     items: [
       { key: 'tutors', icon: Users, label: 'tutors' },
@@ -74,7 +73,7 @@ const modules: ModuleItem[] = [
   },
   {
     key: 'servicos',
-    label: 'Serviços',
+    label: 'services',
     icon: ClipboardList,
     items: [
       { key: 'animal-health', icon: Stethoscope, label: 'clinic' },
@@ -84,7 +83,7 @@ const modules: ModuleItem[] = [
   },
   {
     key: 'vendas',
-    label: 'Vendas',
+    label: 'sales',
     icon: ShoppingCart,
     items: [
       { key: 'point-of-sale', icon: ShoppingCart, label: 'PDV' },
@@ -93,7 +92,7 @@ const modules: ModuleItem[] = [
   },
   {
     key: 'financeiro',
-    label: 'Financeiro',
+    label: 'financial',
     icon: Wallet,
     items: [
       { key: 'accounts-payable', icon: CreditCard, label: 'accountsPayable' },
@@ -104,7 +103,7 @@ const modules: ModuleItem[] = [
   },
   {
     key: 'produtos-estoque',
-    label: 'Produtos e Estoque',
+    label: 'productsAndStock',
     icon: Package,
     items: [
       { key: 'inventory', icon: Archive, label: 'inventory' },
@@ -116,7 +115,7 @@ const modules: ModuleItem[] = [
   },
   {
     key: 'sistema',
-    label: 'Sistema',
+    label: 'system',
     icon: Settings,
     items: [
       { key: 'users', icon: UserCog, label: 'users' },
@@ -155,7 +154,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     return expandedModules.includes(moduleKey);
   };
 
-  // Verificar se o módulo deve ser visível baseado nas permissões
   const isModuleVisible = (moduleKey: string) => {
     const modulePermissions: Record<string, string> = {
       'cadastros': 'tutors',
@@ -169,7 +167,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     return hasPermission(modulePermissions[moduleKey]);
   };
 
-  // Verificar se um item específico deve ser visível
   const isItemVisible = (itemKey: string) => {
     const itemPermissions: Record<string, { module: string; action?: string }> = {
       'tutors': { module: 'tutors' },
@@ -202,7 +199,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     const permission = itemPermissions[itemKey];
-    if (!permission) return true; // Se não há restrição específica, mostrar
+    if (!permission) return true;
     
     return hasPermission(permission.module, permission.action);
   };
@@ -258,7 +255,6 @@ const Sidebar: React.FC<SidebarProps> = ({
               const isExpanded = isModuleExpanded(module.key);
               const visibleItems = module.items.filter(item => isItemVisible(item.key));
               
-              // Se não há itens visíveis, não mostrar o módulo
               if (visibleItems.length === 0) return null;
               
               return (
@@ -273,7 +269,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <ModuleIcon className="w-5 h-5 flex-shrink-0" />
                     {!collapsed && (
                       <>
-                        <span className="flex-1 text-left font-medium">{module.label}</span>
+                        <span className="flex-1 text-left font-medium">{t(module.label)}</span>
                         {isExpanded ? (
                           <ChevronUp className="w-4 h-4" />
                         ) : (
