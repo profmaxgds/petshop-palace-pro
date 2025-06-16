@@ -30,7 +30,7 @@ import Sales from '@/components/pages/Sales';
 import ClinicSettings from '@/components/pages/ClinicSettings';
 import RoomTypes from '@/components/pages/RoomTypes';
 import { Sale, SaleItem } from '@/types/sales';
-import type { Animal, Tutor, Breed } from '@/types';
+import type { Animal, Tutor, Breed, Veterinarian, WorkSchedule } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types/products';
 import { Service } from '@/types/services';
@@ -47,7 +47,7 @@ interface SpeciesData {
   updatedAt: Date;
 }
 
-// MOCK DATA - In a real app, this would come from an API
+// DADOS MOCKADOS CENTRALIZADOS
 const mockBreeds: Breed[] = [
     { id: '1', name: 'Golden Retriever', species: 'dog', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
     { id: '2', name: 'Persa', species: 'cat', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() }
@@ -64,11 +64,10 @@ const mockAnimals: Animal[] = [
     { id: '3', name: 'Thor', species: 'dog', breedId: '1', breed: mockBreeds[0], age: 5, sex: 'male', weight: 35, tutorId: '2', tutor: mockTutors[1], isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
 ];
 
-// Mock data for products and services
 const mockProducts: Product[] = [
-    { id: 'prod-1', name: 'Ração Premium 15kg', categoryId: 'cat1', quantity: 50, minQuantity: 10, costPrice: 60.00, salePrice: 89.90, supplier: 'Fornecedor A', createdAt: new Date(), updatedAt: new Date() },
-    { id: 'prod-2', name: 'Brinquedo de Corda', categoryId: 'cat3', quantity: 100, minQuantity: 20, costPrice: 10.00, salePrice: 25.00, supplier: 'Fornecedor B', createdAt: new Date(), updatedAt: new Date() },
-    { id: 'prod-3', name: 'Shampoo Hipoalergênico', categoryId: 'cat5', quantity: 30, minQuantity: 5, costPrice: 25.00, salePrice: 45.00, supplier: 'Fornecedor A', createdAt: new Date(), updatedAt: new Date() },
+    { id: 'prod-1', name: 'Ração Premium 15kg', categoryId: 'cat1', quantity: 50, minQuantity: 10, costPrice: 60.00, salePrice: 89.90, supplier: 'Fornecedor A', createdAt: new Date(), updatedAt: new Date(), expirationControl: false },
+    { id: 'prod-2', name: 'Brinquedo de Corda', categoryId: 'cat3', quantity: 100, minQuantity: 20, costPrice: 10.00, salePrice: 25.00, supplier: 'Fornecedor B', createdAt: new Date(), updatedAt: new Date(), expirationControl: false },
+    { id: 'prod-3', name: 'Shampoo Hipoalergênico', categoryId: 'cat5', quantity: 30, minQuantity: 5, costPrice: 25.00, salePrice: 45.00, supplier: 'Fornecedor A', createdAt: new Date(), updatedAt: new Date(), expirationControl: false },
 ];
 
 const mockServices: Service[] = [
@@ -77,7 +76,6 @@ const mockServices: Service[] = [
     { id: 'serv-3', name: 'Aplicação de Vacina', price: 50.00 },
 ];
 
-// Mock user data
 const mockUser = {
   id: '1',
   name: 'Administrador',
@@ -85,6 +83,50 @@ const mockUser = {
   role: 'admin' as const,
   permissions: { all: true }
 };
+
+const defaultSchedule: WorkSchedule = {
+  sunday: { active: false, start: '09:00', end: '18:00' },
+  monday: { active: true, start: '09:00', end: '18:00' },
+  tuesday: { active: true, start: '09:00', end: '18:00' },
+  wednesday: { active: true, start: '09:00', end: '18:00' },
+  thursday: { active: true, start: '09:00', end: '18:00' },
+  friday: { active: true, start: '09:00', end: '18:00' },
+  saturday: { active: false, start: '09:00', end: '18:00' },
+};
+
+const initialVeterinarians: Veterinarian[] = [
+  {
+    id: '1',
+    name: 'Dr. Carlos Silva',
+    crmv: 'CRMV-SP 12345',
+    cpf: '111.222.333-44',
+    address: { street: 'Rua das Flores', number: '123', neighborhood: 'Centro', city: 'São Paulo', state: 'SP', zipCode: '01000-000' },
+    specialties: ['Clínica Geral', 'Dermatologia'],
+    phone: '(11) 99999-9999',
+    email: 'carlos@clinica.com',
+    status: 'active',
+    schedule: defaultSchedule,
+    createdBy: 'admin',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: '2',
+    name: 'Dra. Ana Costa',
+    crmv: 'CRMV-SP 67890',
+    cpf: '444.555.666-77',
+    address: { street: 'Avenida Paulista', number: '1500', neighborhood: 'Bela Vista', city: 'São Paulo', state: 'SP', zipCode: '01310-200' },
+    specialties: ['Cirurgia', 'Cardiologia'],
+    phone: '(11) 88888-8888',
+    email: 'ana@clinica.com',
+    status: 'active',
+    schedule: defaultSchedule,
+    createdBy: 'admin',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+
 
 function App() {
   const { toast } = useToast();
@@ -100,6 +142,9 @@ function App() {
     { id: '5', name: 'Hamster', systemName: 'hamster', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
     { id: '6', name: 'Outro', systemName: 'other', isActive: true, createdBy: 'system', createdAt: new Date(), updatedAt: new Date() },
   ]);
+  
+  // ESTADO CENTRALIZADO PARA VETERINÁRIOS
+  const [veterinarians, setVeterinarians] = useState<Veterinarian[]>(initialVeterinarians);
 
   const [sales, setSales] = useState<Sale[]>([
     {
@@ -254,7 +299,6 @@ function App() {
     alert(t('logoutSuccess'));
   };
 
-  // Mock permission checker
   const hasPermission = (module: string, action?: string): boolean => {
     if (mockUser.permissions.all) return true;
     
@@ -288,7 +332,7 @@ function App() {
       case 'rooms':
         return <Rooms />;
       case 'animal-health':
-        return <AnimalHealth onNavigate={handlePageChange} />;
+        return <AnimalHealth onNavigate={handlePageChange} veterinarians={veterinarians} />;
       case 'grooming':
         return <Grooming onNavigate={handlePageChange} />;
       case 'vaccines':
@@ -312,7 +356,7 @@ function App() {
       case 'service-types':
         return <ServiceTypes />;
       case 'veterinarians':
-        return <Veterinarians />;
+        return <Veterinarians veterinarians={veterinarians} setVeterinarians={setVeterinarians} />;
       case 'users':
         return <Users />;
       case 'profiles':
