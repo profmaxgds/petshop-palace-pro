@@ -211,7 +211,7 @@ const Appointments: React.FC = () => {
       id: '1',
       animalId: '1',
       animal: mockAnimals[0],
-      appointmentDate: new Date(Date.UTC(2024, 11, 15)),
+      appointmentDate: new Date(2024, 11, 15), // Mês é 0-indexado (11 = Dezembro)
       appointmentTime: '09:00',
       serviceTypeId: '1',
       serviceType: mockServiceTypes[0],
@@ -230,7 +230,7 @@ const Appointments: React.FC = () => {
       id: '2',
       animalId: '2',
       animal: mockAnimals[1],
-      appointmentDate: new Date(Date.UTC(2024, 11, 16)),
+      appointmentDate: new Date(2024, 11, 18), // Mês é 0-indexado (11 = Dezembro)
       appointmentTime: '14:30',
       serviceTypeId: '2',
       serviceType: mockServiceTypes[1],
@@ -300,23 +300,26 @@ const Appointments: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // CORREÇÃO: Usar métodos de data locais (getFullYear, getMonth, getDate) para consistência
   const formatDate = (date: Date): string => {
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${day}/${month}/${year}`;
   };
 
   const formatDateForInput = (date: Date): string => {
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
 
   const parseDateFromInput = (dateString: string): Date => {
     const [year, month, day] = dateString.split('-').map(Number);
-    return new Date(Date.UTC(year, month - 1, day));
+    // Adiciona o horário local para evitar problemas de fuso horário
+    const localDate = new Date(year, month - 1, day);
+    return localDate;
   };
 
   const handleSaveAppointment = () => {
