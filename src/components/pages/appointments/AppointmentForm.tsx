@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -147,6 +146,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         />
       </div>
       
+      {/* Seção de Produtos - já existente e funcional */}
       <div className="md:col-span-2 border-t pt-4 mt-4">
         <div className="flex justify-between items-center mb-2">
           <Label className="text-base font-semibold">{t('products')}</Label>
@@ -155,22 +155,23 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             {t('addProduct')}
           </Button>
         </div>
-        <div className="space-y-2">
-          {appointmentForm.products.map(p => (
-            <div key={p.productId} className="flex items-center justify-between p-2 border rounded-md">
-              <div>
-                <p className="font-medium">{p.product.name}</p>
-                <p className="text-sm text-gray-500">R$ {p.product.salePrice?.toFixed(2)}</p>
+        <div className="space-y-2 max-h-40 overflow-y-auto p-1">
+          {appointmentForm.products && appointmentForm.products.length > 0 ? (
+            appointmentForm.products.map(p => (
+              <div key={p.productId} className="flex items-center justify-between p-2 border rounded-md">
+                <div>
+                  <p className="font-medium">{p.product.name}</p>
+                  <p className="text-sm text-gray-500">R$ {p.product.salePrice?.toFixed(2)}</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span>{t('quantity')}: {p.quantity}</span>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onRemoveProduct(p.productId)}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <span>{t('quantity')}: {p.quantity}</span>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onRemoveProduct(p.productId)}>
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          ))}
-          {appointmentForm.products.length === 0 && (
+            ))
+          ) : (
             <p className="text-sm text-gray-500 text-center py-2">{t('noProductsAdded')}</p>
           )}
         </div>
